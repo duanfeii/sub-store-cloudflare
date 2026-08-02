@@ -42,7 +42,8 @@ export default {
       back: "Back",
       refresh: "Refresh data",
       add: "Create",
-      more: "More actions"
+      more: "More actions",
+      theme: "Toggle theme"
     },
     listSearch: {
       open: "Search",

@@ -22,7 +22,7 @@
           />
         </button>
         <div
-          v-else-if="!isMobileSearchExpanded"
+          v-else-if="!isMobileSearchExpanded && !isDesktop"
           class="app-brand"
           role="link"
           tabindex="0"
@@ -73,7 +73,7 @@
           </button>
         </div>
         <h1
-          v-else-if="currentTitle"
+          v-else-if="currentTitle && (!isDesktop || isNeedBack)"
           class="nav-title"
           :title="currentTitle"
         >
@@ -107,6 +107,19 @@
             <font-awesome-icon
               class="nav-btn__icon"
               icon="fa-solid fa-plus"
+            />
+          </button>
+          <LanguageSwitcherButton variant="icon" />
+          <button
+            type="button"
+            class="nav-btn"
+            :aria-label="t('navBar.actions.theme')"
+            :title="t('navBar.actions.theme')"
+            @click.stop="toggleTheme"
+          >
+            <font-awesome-icon
+              class="nav-btn__icon"
+              :icon="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
             />
           </button>
         </template>
@@ -184,6 +197,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import brandLogo from "@/assets/icons/logo.png";
+import LanguageSwitcherButton from "@/components/LanguageSwitcherButton.vue";
 import i18n from "@/locales";
 import { useAppNotifyStore } from "@/store/appNotify";
 import { useListSearchStore } from "@/store/listSearch";
@@ -414,6 +428,25 @@ const refresh = async () => {
     showNotify({ title: i18n_global("globalNotify.refresh.loading"), type: "primary" });
     await initStores(true, true, true);
   }
+};
+
+const isDarkTheme = computed(() => {
+  if (settingsStore.theme?.auto) {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  const name = settingsStore.theme?.name || "light";
+  return ["dark", "pureblack", "darkblue", "monokai"].includes(name);
+});
+
+const toggleTheme = async () => {
+  const nextThemeName = (isDarkTheme.value ? "light" : "dark") as any;
+  const newTheme = {
+    ...settingsStore.theme,
+    auto: false,
+    name: nextThemeName,
+  };
+  settingsStore.theme = newTheme;
+  await settingsStore.changeTheme({ theme: newTheme });
 };
 </script>
 

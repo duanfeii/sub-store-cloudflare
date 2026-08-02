@@ -42,7 +42,8 @@ export default {
       back: "返回",
       refresh: "刷新数据",
       add: "新建",
-      more: "更多操作"
+      more: "更多操作",
+      theme: "切换主题"
     },
     listSearch: {
       open: "搜索",

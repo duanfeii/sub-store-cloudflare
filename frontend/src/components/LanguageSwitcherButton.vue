@@ -111,10 +111,17 @@ const changeLang = (type: SupportedLocale) => {
 
   &--icon {
     width: 32px;
+    height: 32px;
     padding: 0;
     border: 0;
+    border-radius: 50%;
     background: transparent;
     color: var(--icon-nav-bar-right);
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background: rgba(148, 163, 184, 0.15);
+    }
   }
 
   &__icon {
