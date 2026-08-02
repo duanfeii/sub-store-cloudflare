@@ -69,6 +69,28 @@ button {
   }
 }
 
+/* Mobile-first touch & density tokens — same design language as desktop */
+@media screen and (max-width: 767px) {
+  /* Prefer natural text selection on long-press inputs only */
+  .page-body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* NutUI cells/forms: keep radius & divider language aligned with cards */
+  .nut-cell-group,
+  .nut-cell-group__warp {
+    border-radius: var(--radius-lg, 12px);
+  }
+}
+
+/* Coarse pointer (touch): no sticky hover artifacts */
+@media (hover: none) {
+  .sub-item-wrapper:hover {
+    transform: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  }
+}
+
 /* Safety net: keep top navigation as one horizontal strip even if component
    scoped styles fail to load or are overridden by a third-party stylesheet. */
 .nav-bar-wrapper {

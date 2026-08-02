@@ -105,7 +105,12 @@ watchEffect(() => {
   margin-right: auto;
   min-width: 0;
   box-sizing: border-box;
-  padding: 16px 16px 24px;
+  /* Slightly tighter horizontal pad on phones; desktop keeps 24px */
+  padding: 12px 14px 20px;
+
+  @media screen and (min-width: $breakpoint-sm) {
+    padding: 16px 16px 24px;
+  }
 
   @media screen and (min-width: $breakpoint-md) {
     padding-left: 24px;
