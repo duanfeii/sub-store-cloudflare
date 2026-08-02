@@ -104,11 +104,10 @@
     <!-- 页面内容 -->
     <!-- 有数据 -->
     <div v-if="hasSubs" class="subs-list-wrapper" :class="{ 'dual-column-mode': isDualColumnMode }">
-      <div v-if="tags && tags.length > 0" ref="radioWrapperRef" class="radio-wrapper" >
-        <!-- <nut-radiogroup v-model="tag" direction="horizontal"> -->
-          <!-- <nut-radio v-for="i in tags" shape="button" :label="String(i.value)">{{ i.label }}</nut-radio> -->
+      <div v-if="tags && tags.length > 0" ref="radioWrapperRef" class="radio-wrapper">
+        <div class="radio-wrapper__content">
           <span v-for="i in tags" class="tag" :class="{ 'current': i.value === tag }" @click="setTag(i.value)">{{ i.label }}</span>
-        <!-- </nut-radiogroup> -->
+        </div>
       </div>
       <div class="subs-list-container" :style="{ paddingTop: `${radioWrapperHeight}px` }">
 
@@ -1087,9 +1086,10 @@ const importTips = () => {
     box-sizing: border-box;
     width: 100%;
     display: flex;
-    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
     position: fixed;
-    padding: 10px;
+    padding: 0;
     top: v-bind(tagNavBarHeight);
     z-index: 10;
     backdrop-filter: blur(var(--nav-bar-blur));
@@ -1097,11 +1097,22 @@ const importTips = () => {
     background: var(--nav-bar-color);
     border-bottom: 1px solid var(--divider-color);
     @include centered-fixed-container;
-    @media screen and (min-width: $breakpoint-md) {
-      border-radius: 0;
-      padding-left: 24px;
-      padding-right: 24px;
+
+    &__content {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: $content-max-width;
+      margin-inline: auto;
+      padding: 6px var(--space-4);
+      box-sizing: border-box;
+
+      @media screen and (min-width: $breakpoint-md) {
+        padding-inline: var(--space-5);
+      }
     }
+
     .tag {
       font-size: 13px;
       font-weight: 500;
@@ -1136,12 +1147,11 @@ const importTips = () => {
     }
   }
   .subs-list-content {
-    width: calc(100% - 1.5rem);
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
     margin-top: 0;
     padding: 0;
-    // margin-top: var(--safe-area-side);
   }
 
   .subs-list-content + .subs-list-content {

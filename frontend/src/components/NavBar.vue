@@ -1,103 +1,105 @@
 <template>
   <div class="nav-bar-wrapper">
     <nav class="nav-bar" :class="{ 'is-desktop': isDesktop }">
-      <div class="nav-bar__left">
-        <button
-          v-if="isNeedBack"
-          type="button"
-          class="nav-btn nav-btn--leading"
-          :aria-label="t('navBar.actions.back')"
-          :title="t('navBar.actions.back')"
-          @click.stop="back"
-        >
-          <font-awesome-icon
-            class="nav-btn__icon"
-            icon="fa-solid fa-arrow-left"
-          />
-        </button>
-        <div
-          v-else
-          class="app-brand"
-          role="link"
-          tabindex="0"
-          :aria-label="t('navBar.brand.home')"
-          @click.stop="router.push('/')"
-          @keydown.enter.stop.prevent="router.push('/')"
-        >
-          <img
-            class="app-brand__logo"
-            :src="brandLogo"
-            alt=""
-            width="20"
-            height="20"
-          />
-          <span class="app-brand__name">Sub Store</span>
-        </div>
-      </div>
-
-      <div class="nav-bar__center">
-        <div v-if="!isNeedBack" class="nav-segmented-control">
+      <div class="nav-bar__content">
+        <div class="nav-bar__left">
           <button
-            v-for="item in navTabs"
-            :key="item.path"
+            v-if="isNeedBack"
             type="button"
-            class="nav-segmented-item"
-            :class="{ 'is-active': route.path === item.path }"
-            @click="router.push(item.path)"
+            class="nav-btn nav-btn--leading"
+            :aria-label="t('navBar.actions.back')"
+            :title="t('navBar.actions.back')"
+            @click.stop="back"
           >
-            <font-awesome-icon :icon="item.icon" class="nav-segmented-item__icon" />
-            <span>{{ item.label }}</span>
+            <font-awesome-icon
+              class="nav-btn__icon"
+              icon="fa-solid fa-arrow-left"
+            />
+          </button>
+          <div
+            v-else
+            class="app-brand"
+            role="link"
+            tabindex="0"
+            :aria-label="t('navBar.brand.home')"
+            @click.stop="router.push('/')"
+            @keydown.enter.stop.prevent="router.push('/')"
+          >
+            <img
+              class="app-brand__logo"
+              :src="brandLogo"
+              alt=""
+              width="20"
+              height="20"
+            />
+            <span class="app-brand__name">Sub Store</span>
+          </div>
+        </div>
+
+        <div class="nav-bar__center">
+          <div v-if="!isNeedBack" class="nav-segmented-control">
+            <button
+              v-for="item in navTabs"
+              :key="item.path"
+              type="button"
+              class="nav-segmented-item"
+              :class="{ 'is-active': route.path === item.path }"
+              @click="router.push(item.path)"
+            >
+              <font-awesome-icon :icon="item.icon" class="nav-segmented-item__icon" />
+              <span>{{ item.label }}</span>
+            </button>
+          </div>
+          <h1
+            v-else-if="currentTitle"
+            class="nav-title"
+            :title="currentTitle"
+          >
+            {{ currentTitle }}
+          </h1>
+        </div>
+
+        <div class="nav-bar__right">
+          <button
+            v-if="showRefreshButton"
+            type="button"
+            class="nav-btn"
+            :aria-label="t('navBar.actions.refresh')"
+            :title="t('navBar.actions.refresh')"
+            @click.stop="refresh"
+          >
+            <font-awesome-icon
+              class="nav-btn__icon"
+              icon="fa-solid fa-arrow-rotate-right"
+            />
+          </button>
+          <button
+            v-if="showAddButton"
+            type="button"
+            class="nav-btn"
+            :aria-label="t('navBar.actions.add')"
+            :title="t('navBar.actions.add')"
+            @click.stop="add(route)"
+          >
+            <font-awesome-icon
+              class="nav-btn__icon"
+              icon="fa-solid fa-plus"
+            />
+          </button>
+          <LanguageSwitcherButton variant="icon" />
+          <button
+            type="button"
+            class="nav-btn"
+            :aria-label="t('navBar.actions.theme')"
+            :title="t('navBar.actions.theme')"
+            @click.stop="toggleTheme"
+          >
+            <font-awesome-icon
+              class="nav-btn__icon"
+              :icon="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
+            />
           </button>
         </div>
-        <h1
-          v-else-if="currentTitle"
-          class="nav-title"
-          :title="currentTitle"
-        >
-          {{ currentTitle }}
-        </h1>
-      </div>
-
-      <div class="nav-bar__right">
-        <button
-          v-if="showRefreshButton"
-          type="button"
-          class="nav-btn"
-          :aria-label="t('navBar.actions.refresh')"
-          :title="t('navBar.actions.refresh')"
-          @click.stop="refresh"
-        >
-          <font-awesome-icon
-            class="nav-btn__icon"
-            icon="fa-solid fa-arrow-rotate-right"
-          />
-        </button>
-        <button
-          v-if="showAddButton"
-          type="button"
-          class="nav-btn"
-          :aria-label="t('navBar.actions.add')"
-          :title="t('navBar.actions.add')"
-          @click.stop="add(route)"
-        >
-          <font-awesome-icon
-            class="nav-btn__icon"
-            icon="fa-solid fa-plus"
-          />
-        </button>
-        <LanguageSwitcherButton variant="icon" />
-        <button
-          type="button"
-          class="nav-btn"
-          :aria-label="t('navBar.actions.theme')"
-          :title="t('navBar.actions.theme')"
-          @click.stop="toggleTheme"
-        >
-          <font-awesome-icon
-            class="nav-btn__icon"
-            :icon="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
-          />
-        </button>
       </div>
     </nav>
   </div>
@@ -232,12 +234,12 @@ const toggleTheme = async () => {
 
 .nav-bar {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 12px;
   box-sizing: border-box;
   width: 100%;
   height: v-bind(navBarHeight);
-  padding: v-bind(navBartop) 16px 0;
+  padding: 0;
   box-shadow: none;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -246,9 +248,21 @@ const toggleTheme = async () => {
   border-radius: 0;
   overflow: visible;
 
-  @media screen and (min-width: $breakpoint-md) {
-    padding-left: 24px;
-    padding-right: 24px;
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: $content-max-width;
+    height: 100%;
+    margin-inline: auto;
+    padding: v-bind(navBartop) var(--space-4) 0;
+    box-sizing: border-box;
+
+    @media screen and (min-width: $breakpoint-md) {
+      padding-inline: var(--space-5);
+    }
   }
 
   &__left,
