@@ -102,12 +102,17 @@
     </Teleport>
 
     <!-- 页面内容 -->
-    <!-- 有数据 -->
-    <div v-if="hasSubs" class="subs-list-wrapper" :class="{ 'dual-column-mode': isDualColumnMode }">
+    <!-- 有数据：订阅源 / 组合订阅分区各自带创建入口 -->
+    <div
+      v-if="hasSubs || hasCollections"
+      class="subs-list-wrapper"
+      :class="{ 'dual-column-mode': isDualColumnMode }"
+    >
       <div class="subs-list-container">
-
-
-        <section v-if="hasSubs && !hasCollections" class="onboarding-card onboarding-inline">
+        <section
+          v-if="hasSubs && !hasCollections"
+          class="onboarding-card onboarding-inline"
+        >
           <div>
             <span class="onboarding-kicker">{{ $t('subPage.onboarding.step2') }}</span>
             <h3>{{ $t('subPage.onboarding.collectionTitle') }}</h3>
@@ -117,17 +122,35 @@
             <nut-button type="primary" size="small">{{ $t('subPage.onboarding.createCollection') }}</nut-button>
           </router-link>
         </section>
-        <div v-if="filterdSubsCount > 0" class="subs-list-content">
-          <div class="title-wrappers">
-            <p class="list-title" @click="toggleFold('sub')">
-              <span class="list-title-text">{{ `${$t(`specificWord.singleSub`)  }(${filterdSubsCount})` }}</span>
-              <nut-icon v-if="!isFold('sub')" name="rect-down" size="12px"></nut-icon>
-              <nut-icon v-else name="rect-right" size="12px"></nut-icon>
-            </p>
+
+        <!-- 订阅源 -->
+        <div class="subs-list-content">
+          <div class="section-header">
+            <button
+              type="button"
+              class="section-header__toggle"
+              @click="toggleFold('sub')"
+            >
+              <span class="section-header__title">{{ $t(`specificWord.singleSub`) }}</span>
+              <nut-icon
+                class="section-header__chevron"
+                :name="isFold('sub') ? 'rect-right' : 'rect-down'"
+                size="12px"
+              />
+            </button>
+            <router-link
+              class="section-header__add"
+              to="/edit/subs/UNTITLED"
+              :aria-label="$t('subPage.actions.createSource')"
+              :title="$t('subPage.actions.createSource')"
+              @click.stop
+            >
+              <font-awesome-icon icon="fa-solid fa-plus" />
+            </router-link>
           </div>
 
           <draggable
-            v-if="!isFold('sub')"
+            v-if="!isFold('sub') && filterdSubsCount > 0"
             class="list-draggable"
             :class="{ 'dual-column': isDualColumnMode }"
             v-model="filteredSubs"
@@ -158,18 +181,42 @@
               </div>
             </template>
           </draggable>
+          <p
+            v-else-if="!isFold('sub') && filterdSubsCount === 0"
+            class="section-empty"
+          >
+            {{ $t('subPage.sectionEmpty.source') }}
+          </p>
         </div>
-        <div v-if="filterdColsCount > 0" class="subs-list-content">
-          <div class="title-wrappers">
-            <p class="list-title" @click="toggleFold('col')">
-              <span class="list-title-text">{{ `${$t(`specificWord.collectionSub`)  }(${filterdColsCount})`}}</span>
-              <nut-icon v-if="!isFold('col')" name="rect-down" size="12px"></nut-icon>
-              <nut-icon v-else name="rect-right" size="12px"></nut-icon>
-            </p>
+
+        <!-- 组合订阅 -->
+        <div class="subs-list-content">
+          <div class="section-header">
+            <button
+              type="button"
+              class="section-header__toggle"
+              @click="toggleFold('col')"
+            >
+              <span class="section-header__title">{{ $t(`specificWord.collectionSub`) }}</span>
+              <nut-icon
+                class="section-header__chevron"
+                :name="isFold('col') ? 'rect-right' : 'rect-down'"
+                size="12px"
+              />
+            </button>
+            <router-link
+              class="section-header__add"
+              to="/edit/collections/UNTITLED"
+              :aria-label="$t('subPage.actions.createCollection')"
+              :title="$t('subPage.actions.createCollection')"
+              @click.stop
+            >
+              <font-awesome-icon icon="fa-solid fa-plus" />
+            </router-link>
           </div>
 
           <draggable
-            v-if="!isFold('col')"
+            v-if="!isFold('col') && filterdColsCount > 0"
             class="list-draggable"
             :class="{ 'dual-column': isDualColumnMode }"
             v-model="filteredCollections"
@@ -200,12 +247,18 @@
               </div>
             </template>
           </draggable>
+          <p
+            v-else-if="!isFold('col') && filterdColsCount === 0"
+            class="section-empty"
+          >
+            {{ $t('subPage.sectionEmpty.collection') }}
+          </p>
         </div>
       </div>
     </div>
     <!-- 没有数据 -->
     <div
-      v-if="!isLoading && fetchResult && !hasSubs"
+      v-if="!isLoading && fetchResult && !hasSubs && !hasCollections"
       class="empty-state-wrapper"
     >
       <section class="onboarding-card onboarding-empty">
@@ -820,35 +873,101 @@ const importTips = () => {
   }
 }
 
-.list-title {
+/* Section header: title + fold chevron + create action */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  margin: 4px 0 4px;
+  padding: 0 2px 0 4px;
+  color: var(--comment-text-color);
+}
+
+.section-header__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
   -webkit-user-select: none;
   user-select: none;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  cursor: pointer;
-  padding-left: 8px;
-  font-weight: bold;
-  //padding-left: var(--safe-area-side);
-  .list-title-text {
-    margin-right: 6px;
+  text-align: left;
+
+  &:focus {
+    outline: none;
   }
-  :deep(.nut-icon) {
-    // transform: rotate(270deg);
-    font-size: 12px;
-    height: 12px;
-    opacity: .6;
-    margin-top: 3px;
+
+  &:focus-visible {
+    border-radius: 6px;
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
   }
 }
 
-.title-wrappers {
-  // margin-top: var(--safe-area-side);
-  // backdrop-filter: blur(var(--sticky-title-blur));
-  // -webkit-backdrop-filter: blur(var(--sticky-title-blur));
-  margin-top: 0;
-  padding-top: 0;
+.section-header__title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--comment-text-color);
+  line-height: 1.2;
+}
+
+.section-header__chevron {
+  flex-shrink: 0;
+  opacity: 0.55;
+  font-size: 12px;
+  height: 12px;
+}
+
+.section-header__add {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--second-text-color);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+
+  svg {
+    width: 13px;
+    height: 13px;
+    font-size: 13px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--primary-color);
+      background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+      border-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+    }
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.section-empty {
+  margin: 4px 0 12px;
+  padding: 14px 12px;
+  border-radius: var(--radius-lg, var(--item-card-radios));
+  border: 1px dashed var(--divider-color);
+  background: color-mix(in srgb, var(--background-color) 40%, var(--card-color));
+  color: var(--comment-text-color);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
 }
 
 .desc-about {

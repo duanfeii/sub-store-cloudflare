@@ -183,6 +183,10 @@ export default {
       noSub: "All enabled sources",
       contain: "Included sources"
     },
+    sectionEmpty: {
+      source: "No sources yet. Tap + to create one.",
+      collection: "No collections yet. Tap + to create one.",
+    },
     actions: {
       openMenu: "Expand quick actions",
       closeMenu: "Collapse quick actions",
@@ -196,7 +200,9 @@ export default {
       openDownload: "Open download link",
       delete: "Delete",
       openTarget: "Open {name} subscription",
-      copyTarget: "Copy {name} subscription"
+      copyTarget: "Copy {name} subscription",
+      createSource: "Create source",
+      createCollection: "Create collection",
     },
     subItem: {
       local: "Local subscription",

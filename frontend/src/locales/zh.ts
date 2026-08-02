@@ -183,6 +183,10 @@ export default {
       noSub: "全部已启用订阅源",
       contain: "包含的订阅源"
     },
+    sectionEmpty: {
+      source: "还没有订阅源，点击右侧 + 创建",
+      collection: "还没有组合订阅，点击右侧 + 创建",
+    },
     actions: {
       openMenu: "展开快捷操作",
       closeMenu: "收起快捷操作",
@@ -196,7 +200,9 @@ export default {
       openDownload: "打开下载链接",
       delete: "删除",
       openTarget: "打开 {name} 订阅",
-      copyTarget: "复制 {name} 订阅"
+      copyTarget: "复制 {name} 订阅",
+      createSource: "创建订阅源",
+      createCollection: "创建组合订阅",
     },
     subItem: {
       local: "本地订阅",
