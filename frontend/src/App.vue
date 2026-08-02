@@ -61,9 +61,7 @@ watchEffect(() => {
 
 <style lang="scss">
 #app {
-  font-family: "Roboto", "nutui-iconfont", "Noto Sans", Arial, "PingFang SC",
-    "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "ST Heiti",
-    SimHei, sans-serif;
+  font-family: var(--font-sans), "nutui-iconfont", sans-serif;
   position: absolute;
   min-height: 100%;
   width: 100%;
@@ -72,6 +70,21 @@ watchEffect(() => {
   overflow-y: auto;
   // Default: no sidenav offset (mobile / routes without shell nav)
   --app-sidenav-width: 0px;
+}
+
+// Chinese / CJK: avoid English-tuned negative tracking on titles and stats
+:lang(zh),
+:lang(zh-CN),
+:lang(zh-TW),
+:lang(zh-HK) {
+  h1, h2, h3,
+  .nav-title,
+  .app-brand__name,
+  .sidebar-brand__name,
+  .overview-stat-label,
+  .overview-stat-value {
+    letter-spacing: 0;
+  }
 }
 
 .app-shell {
@@ -123,11 +136,11 @@ watchEffect(() => {
     // Fluid content with a soft readability cap on very wide screens
     max-width: $content-max-width;
     margin-inline: auto;
-    padding-inline: 24px;
+    padding-inline: var(--space-5);
   }
 
   @media screen and (min-width: $breakpoint-xl) {
-    padding-inline: 32px;
+    padding-inline: var(--space-6);
   }
 }
 </style>

@@ -160,7 +160,7 @@ const isExpanded = computed(() => {
 
     &__name {
       font-weight: 600;
-      font-size: 14px;
+      font-size: var(--text-base);
       letter-spacing: -0.02em;
       white-space: nowrap;
       overflow: hidden;

@@ -1,3 +1,5 @@
+@import "./tokens-root.scss";
+
 body {
   outline: none;
   -webkit-tap-highlight-color: transparent;
@@ -131,13 +133,13 @@ img {
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
-  z-index: 1100;
+  z-index: var(--z-drawer);
   max-height: 95vh;
   max-width: 80vw;
   width: 80vw;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: auto;
-  padding-bottom: 24px;
+  padding-bottom: var(--space-5);
   
   // PC/平板端响应式最大宽度限制
   @media screen and (min-width: 600px) {

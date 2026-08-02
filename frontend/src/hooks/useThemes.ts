@@ -6,11 +6,59 @@ import { ref, watchEffect } from 'vue';
 
 const mql = window.matchMedia('(prefers-color-scheme: dark)');
 
-// 通用变量
-const commonVariables = {
+/**
+ * Global design tokens shared by every theme.
+ * Scale (do not invent intermediate values in new styles):
+ *   radius: 6 / 8 / 12 / full
+ *   space:  4 / 8 / 12 / 16 / 24 / 32
+ *   type:   12 / 13 / 14 / 16 / 20 / 24
+ *
+ * --item-card-radios stays as a legacy alias for card radius (= radius-lg).
+ * Font stacks: --font-sans for UI; --font-mono only for data/URL/code.
+ * Geist is preferred when available; local My Roboto / system faces cover offline / blocked CDNs.
+ */
+export const designTokens: Record<string, string> = {
+  // Radius
+  'radius-sm': '6px',
+  'radius-md': '8px',
+  'radius-lg': '12px',
+  'radius-full': '9999px',
+  'item-card-radios': '12px',
+
+  // Space
+  'space-1': '4px',
+  'space-2': '8px',
+  'space-3': '12px',
+  'space-4': '16px',
+  'space-5': '24px',
+  'space-6': '32px',
   'safe-area-side': '16px',
-  'item-card-radios': '14px',
+
+  // Type
+  'text-xs': '12px',
+  'text-sm': '13px',
+  'text-base': '14px',
+  'text-md': '16px',
+  'text-lg': '20px',
+  'text-xl': '24px',
+
+  // Fonts
+  'font-sans':
+    '"Geist", "My Roboto", "Roboto", "Noto Sans", "PingFang SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "ST Heiti", SimHei, system-ui, -apple-system, "Segoe UI", Arial, sans-serif',
+  'font-mono':
+    '"JB", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+
+  // Overlay language (blur + z ladder used by drawers/dialogs/toasts)
+  'overlay-blur': '16px',
+  'z-nav': '100',
+  'z-overlay': '1000',
+  'z-drawer': '1100',
+  'z-dialog': '1200',
+  'z-toast': '1300',
 };
+
+// Back-compat alias used elsewhere in this file
+const commonVariables = designTokens;
 
 type ThemeDefinition = {
   meta: {
@@ -18,6 +66,8 @@ type ThemeDefinition = {
     author: string;
     label: 'light' | 'dark';
     extend?: string;
+    /** When true, theme is kept for existing users but marked legacy in the picker. */
+    legacy?: boolean;
   };
   colors: Record<string, string>;
 };
@@ -58,6 +108,11 @@ const getThemeModules = () => {
 };
 const modules = getThemeModules();
 
+const formatThemeLabel = (theme: ThemeDefinition) => {
+  const base = `${theme.meta.name} - ${theme.meta.author}`;
+  return theme.meta.legacy ? `${base} (Legacy)` : base;
+};
+
 // 定义修改 root 变量方法
 const changeVariables = (newMode: CustomTheme) => {
   const map = { ...{ ...modules[newMode].colors }, ...commonVariables };
@@ -82,27 +137,31 @@ export const useThemes = () => {
   const { theme } = storeToRefs(settingsStore);
 
   // 定义主题 picker list 选项
+  // Official light/dark first; legacy themes remain selectable but labeled.
   const pickerList = ref([]);
   const pickerDarkList = ref([]);
   const pickerLightList = ref([]);
 
-  for (const key in modules) {
+  const officialKeys = ['light', 'dark'];
+  const orderedKeys = [
+    ...officialKeys.filter(k => modules[k]),
+    ...Object.keys(modules).filter(k => !officialKeys.includes(k)).sort(),
+  ];
+
+  for (const key of orderedKeys) {
+    const entry = {
+      text: formatThemeLabel(modules[key]),
+      value: key,
+      legacy: Boolean(modules[key].meta.legacy),
+    };
+
     if (modules[key].meta.label === 'dark') {
-      pickerDarkList.value.push({
-        text: modules[key].meta.name + ' - ' + modules[key].meta.author,
-        value: key,
-      });
+      pickerDarkList.value.push(entry);
     } else if (modules[key].meta.label === 'light') {
-      pickerLightList.value.push({
-        text: modules[key].meta.name + ' - ' + modules[key].meta.author,
-        value: key,
-      });
+      pickerLightList.value.push(entry);
     }
 
-    pickerList.value.push({
-      text: modules[key].meta.name + ' - ' + modules[key].meta.author,
-      value: key,
-    });
+    pickerList.value.push(entry);
   }
 
   // 定义自动根据系统设置切换主题方法

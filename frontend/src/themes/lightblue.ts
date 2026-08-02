@@ -4,6 +4,7 @@ export default {
     author: 'Keywos',
     label: 'light',
     extend: 'light',
+    legacy: true,
   },
   colors: {
     // 全局高亮色

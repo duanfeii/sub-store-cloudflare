@@ -111,7 +111,7 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
       preprocessorOptions: {
         scss: {
           // 配置 自定义覆盖主题 和 nutui 全局 scss 变量
-          additionalData: `@import "@/assets/styles/custom_variables.scss";@import "@nutui/nutui/dist/styles/variables-jdt.scss";@import '@/assets/styles/mixins.scss';`,
+          additionalData: `@import "@/assets/styles/custom_variables.scss";@import "@nutui/nutui/dist/styles/variables-jdt.scss";@import '@/assets/styles/mixins.scss';@import '@/assets/styles/tokens.scss';`,
           // NutUI 3 still ships legacy @import syntax; Vite 6 already uses Sass's modern API.
           silenceDeprecations: ["import"],
         },

@@ -1,3 +1,8 @@
+/*
+ * UI font stack prefers Geist when the optional CDN stylesheet loads
+ * (see index.html). Local My Roboto + system faces cover blocked CDNs.
+ * Mono uses local JetBrains Mono (JB) via --font-mono.
+ */
 @font-face {
   font-family: 'My Roboto';
   font-style: normal;

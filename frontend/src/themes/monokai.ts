@@ -4,6 +4,7 @@ export default {
     author: 'Peng-YM',
     label: 'dark',
     extend: 'dark',
+    legacy: true,
   },
   colors: {
     // 全局高亮色
