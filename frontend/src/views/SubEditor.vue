@@ -1,45 +1,10 @@
 <template>
   <div v-if="isDis">
   <div class="page-wrapper" @click="handleEditGlobalClick">
-    <div
-      v-if="editorTabsEnabled"
-      class="editor-section-tabs"
-      :style="{ top: navBarHeight }"
-    >
-      <div class="editor-section-tab-list" role="tablist">
-        <button
-          v-for="tab in SUB_EDITOR_TABS"
-          :key="tab"
-          type="button"
-          class="editor-section-tab"
-          :class="{ current: activeEditorTab === tab }"
-          role="tab"
-          :aria-selected="activeEditorTab === tab"
-          @click="activeEditorTab = tab"
-        >
-          {{ $t(`editorPage.subConfig.editorTabs.${tab}`) }}
-        </button>
-      </div>
-      <!-- Help tip removed from always-visible chrome — less noise for daily edit -->
-    </div>
-    <!-- 基础表单 -->
-    <div
-      v-show="isSubFormTabActive"
-      class="form-block-wrapper"
-    >
-      <!-- Auto icon from public library (DiceBear) — no user upload/edit -->
-      <div
-        v-if="!editorTabsEnabled || activeEditorTab === 'display'"
-        class="sticky-title-icon-container"
-      >
-        <nut-image
-          :src="subIcon"
-          fit="cover"
-          show-loading
-        />
-      </div>
+    <!-- Single scroll page: display + content + actions (no section tabs, no top icon) -->
+    <div class="form-block-wrapper">
       <nut-form class="form" :model-value="form" ref="ruleForm">
-        <div v-show="!editorTabsEnabled || activeEditorTab === 'display'" class="editor-tab-content">
+        <div class="editor-tab-content">
         <!-- name -->
         <nut-form-item
           required
@@ -121,7 +86,7 @@
           </nut-input>
         </nut-form-item>
         </div>
-        <div v-show="!editorTabsEnabled || activeEditorTab === 'content'" class="editor-tab-content">
+        <div class="editor-tab-content">
         <template v-if="editType === 'subs'">
           <!-- source -->
           <nut-form-item
@@ -430,12 +395,8 @@
       </nut-form>
     </div>
 
-    <!-- 节点操作 -->
-    <div
-      v-show="!editorTabsEnabled || activeEditorTab === 'actions'"
-      class="editor-tab-content editor-actions-content"
-      :class="{ 'editor-tab-fixed-offset': editorTabsEnabled }"
-    >
+    <!-- 节点操作 — same page, continuous scroll -->
+    <div class="editor-tab-content editor-actions-content">
       <CommonBlock />
       <ActionBlock
         ref="actionBlockRef"
@@ -522,7 +483,6 @@ import { useAppNotifyStore } from "@/store/appNotify";
 import { useGlobalStore } from "@/store/global";
 import { useSettingsStore } from '@/store/settings';
 import { useSubsStore } from "@/store/subs";
-import { useSystemStore } from "@/store/system";
 import { addItem, deleteItem, toggleItem } from "@/utils/actionsOperate";
 import { actionsToProcess } from "@/utils/actionsToPorcess";
 import {
@@ -532,11 +492,6 @@ import {
   setEditorFoldState,
   setEditorRouteValue,
 } from "@/utils/editorFoldState";
-import {
-  getEditorActiveTab,
-  setEditorActiveTab,
-} from "@/utils/editorTabState";
-import { getEditorTabForValidationErrors } from "@/utils/editorTabValidation";
 import { initStores } from "@/utils/initApp";
 import {
   buildSubscriptionIconUrl,
@@ -576,7 +531,6 @@ const isDis = ref(true)
 const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const SUB_EDITOR_TAB_STORAGE_KEY = "sub-editor-active-tab";
 const MANUAL_SUBSCRIPTIONS_FOLD_STORAGE_KEY = "manual-subscriptions-fold";
 const MANUAL_SUBSCRIPTIONS_GROUP_STORAGE_KEY = "manual-subscriptions-group";
 const cloudflareApi = useCloudflareApi();
@@ -586,78 +540,15 @@ const subsStore = useSubsStore();
 const { showNotify } = useAppNotifyStore();
 
 const globalStore = useGlobalStore();
-const systemStore = useSystemStore();
 const settingsStore = useSettingsStore();
 const { appearanceSetting } = storeToRefs(settingsStore);
-const { navBarHeight } = storeToRefs(systemStore);
 
 const padding = "env(safe-area-inset-bottom)";
 const routeConfigName = computed(() => route.params.id as string);
 const isEditMode = computed(() => routeConfigName.value !== "UNTITLED");
-const editorGroupingMode = computed<EditorGroupingMode>(() => appearanceSetting.value.editorGroupingMode || "edit-only");
-const editorTabsEnabled = computed(() => {
-  if (editorGroupingMode.value === "disabled") return false;
-  return true;
-});
-const SUB_EDITOR_TABS = ["display", "content", "actions"] as const;
-type SubEditorTab = (typeof SUB_EDITOR_TABS)[number];
-const SUB_EDITOR_PROP_TO_TAB: Partial<Record<string, SubEditorTab>> = {
-  name: "display",
-  displayName: "display",
-  remark: "display",
-  tag: "display",
-  source: "content",
-  url: "content",
-  content: "content",
-  passThroughUA: "content",
-  ua: "content",
-  subUserinfo: "content",
-  ignoreFailedRemoteSub: "content",
-};
-const availableEditorTabs = computed(() => [...SUB_EDITOR_TABS]);
-const getSubEditorActiveTab = (
-  path: string,
-  tabs: readonly (typeof SUB_EDITOR_TABS)[number][],
-) => {
-  const defaultTab = tabs[0] || "display";
-
-  if (!isEditMode.value) {
-    return defaultTab;
-  }
-
-  return getEditorActiveTab(
-    SUB_EDITOR_TAB_STORAGE_KEY,
-    path,
-    tabs,
-    defaultTab,
-  );
-};
-const activeEditorTab = ref(getSubEditorActiveTab(route.path, availableEditorTabs.value));
-const isSubFormTabActive = computed(() => {
-  return !editorTabsEnabled.value || ["display", "content"].includes(activeEditorTab.value);
-});
-watch(
-  [() => route.path, availableEditorTabs, isEditMode],
-  ([path, tabs]) => {
-    activeEditorTab.value = getSubEditorActiveTab(path, tabs);
-  },
-  { immediate: true },
-);
-watch(activeEditorTab, (tab) => {
-  if (!isEditMode.value) return;
-
-  setEditorActiveTab(SUB_EDITOR_TAB_STORAGE_KEY, route.path, tab);
-});
-const setActiveSubEditorTab = (tab: SubEditorTab) => {
-  if (!editorTabsEnabled.value) return;
-
-  activeEditorTab.value = tab;
-};
-const focusValidationErrorTab = (errors: unknown) => {
-  const tab = getEditorTabForValidationErrors(errors, SUB_EDITOR_PROP_TO_TAB);
-  if (tab) {
-    setActiveSubEditorTab(tab);
-  }
+/** All editor sections render on one page — tab chrome removed. */
+const focusValidationErrorTab = (_errors: unknown) => {
+  // No section tabs; validation dialog already shows the first error.
 };
 const manualSubscriptionsDefaultFolded = computed(() => {
   return (appearanceSetting.value.manualSubscriptionsDisplayMode || "collapsed") === "collapsed";
@@ -1426,13 +1317,6 @@ const urlValidator = (val: string): Promise<boolean> => {
       form[prop] = form[prop].trim();
     }
   }
-  // Preview: auto icon from name, or stored icon, or stable fallback seed
-  const subIcon = computed(() => {
-    const seed = String(form.name || form.displayName || "subscription").trim();
-    if (form.icon) return form.icon;
-    if (seed) return buildSubscriptionIconUrl(seed, iconKind.value);
-    return appearanceSetting.value.isDefaultIcon ? logoIcon : logoRedIcon;
-  });
   const uaTips = () => {
     Dialog({
         title: t("editorPage.subConfig.basic.ua.tips.title"),
@@ -1824,33 +1708,6 @@ const handleEditGlobalClick = () => {
 
 .form-block-wrapper {
   position: relative;
-  .sticky-title-icon-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 8px;
-    .nut-image {
-      cursor: pointer;
-      width: 56px;
-      height: 56px;
-      border-radius: 10px;
-      overflow: hidden;
-      background: transparent;
-      padding: 6px;
-      :deep(img) {
-        width: 100%;
-        height: 100%;
-        border-radius: 12px;
-      }
-    }
-    .sub-item-customer-icon {
-      :deep(img) {
-        & {
-          opacity: 0.8;
-          filter: brightness(var(--img-brightness));
-        }
-      }
-    }
-  }
   .label-with-tip {
     display: inline-flex;
     align-items: center;

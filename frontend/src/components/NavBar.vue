@@ -1,20 +1,32 @@
 <template>
   <div class="nav-bar-wrapper">
-    <nav class="nav-bar" :class="{ 'is-desktop': isDesktop }">
+    <nav
+      class="nav-bar"
+      :class="{ 'is-desktop': isDesktop, 'is-secondary': isNeedBack }"
+    >
       <div class="nav-bar__left">
-        <button
-          v-if="isNeedBack"
-          type="button"
-          class="nav-btn nav-btn--leading"
-          :aria-label="t('navBar.actions.back')"
-          :title="t('navBar.actions.back')"
-          @click.stop="back"
-        >
-          <font-awesome-icon
-            class="nav-btn__icon"
-            icon="fa-solid fa-arrow-left"
-          />
-        </button>
+        <!-- Secondary: back + compact page title (home tabs stay in center) -->
+        <template v-if="isNeedBack">
+          <button
+            type="button"
+            class="nav-btn nav-btn--leading"
+            :aria-label="t('navBar.actions.back')"
+            :title="t('navBar.actions.back')"
+            @click.stop="back"
+          >
+            <font-awesome-icon
+              class="nav-btn__icon"
+              icon="fa-solid fa-arrow-left"
+            />
+          </button>
+          <h1
+            v-if="currentTitle"
+            class="nav-back-title"
+            :title="currentTitle"
+          >
+            {{ currentTitle }}
+          </h1>
+        </template>
         <div
           v-else
           class="app-brand"
@@ -35,27 +47,21 @@
         </div>
       </div>
 
+      <!-- Primary tabs always visible — including on secondary pages -->
       <div class="nav-bar__center">
-        <div v-if="!isNeedBack" class="nav-segmented-control">
+        <div class="nav-segmented-control">
           <button
             v-for="item in navTabs"
             :key="item.path"
             type="button"
             class="nav-segmented-item"
-            :class="{ 'is-active': route.path === item.path }"
+            :class="{ 'is-active': isTabActive(item.path) }"
             @click="router.push(item.path)"
           >
             <font-awesome-icon :icon="item.icon" class="nav-segmented-item__icon" />
-            <span>{{ item.label }}</span>
+            <span class="nav-segmented-item__label">{{ item.label }}</span>
           </button>
         </div>
-        <h1
-          v-else-if="currentTitle"
-          class="nav-title"
-          :title="currentTitle"
-        >
-          {{ currentTitle }}
-        </h1>
       </div>
 
       <div class="nav-bar__right">
@@ -126,6 +132,13 @@ const navTabs = computed(() => [
   { path: "/tools", label: t("tabBar.tools"), icon: "fa-solid fa-sliders" },
   { path: "/my", label: t("tabBar.my"), icon: "fa-solid fa-gear" },
 ]);
+
+/** Editor lives under subscriptions — keep 订阅 active on secondary edit routes. */
+const isTabActive = (path: string) => {
+  if (route.path === path) return true;
+  if (path === "/subs" && route.path.startsWith("/edit/")) return true;
+  return false;
+};
 
 const currentTitle = computed(() => {
   if (route.meta.title === "subEditor") {
@@ -281,13 +294,38 @@ const toggleTheme = async () => {
 
   &__left,
   &__right {
-    gap: 8px;
+    gap: 6px;
     flex: 0 0 auto;
   }
 
   &__center {
     justify-content: center;
     flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* Secondary: keep left cluster compact so center tabs stay usable */
+  &.is-secondary {
+    .nav-bar__left {
+      max-width: min(42vw, 200px);
+    }
+
+    .nav-segmented-item {
+      padding: 4px 10px;
+
+      @media screen and (max-width: 480px) {
+        padding: 4px 8px;
+        gap: 0;
+
+        &__label {
+          display: none;
+        }
+
+        &__icon {
+          font-size: 13px;
+        }
+      }
+    }
   }
 }
 
@@ -316,16 +354,22 @@ const toggleTheme = async () => {
   }
 }
 
-.nav-title {
+/* Compact title next to back on secondary pages */
+.nav-back-title {
   margin: 0;
-  font-size: 15px;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--primary-text-color);
-  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  @media screen and (max-width: 360px) {
+    display: none;
+  }
 }
 
 .nav-segmented-control {
@@ -333,6 +377,7 @@ const toggleTheme = async () => {
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
+  max-width: 100%;
   padding: 3px;
   border-radius: 9999px;
   background: rgba(148, 163, 184, 0.08);
