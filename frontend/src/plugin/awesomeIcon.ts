@@ -49,7 +49,10 @@ import {
   faBars,
   faMagnifyingGlass,
   faSun,
-  faMoon
+  faMoon,
+  faShareNodes,
+  faPlay,
+  faSliders
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faSun);
@@ -102,3 +105,6 @@ library.add(faMaximize);
 library.add(faMinimize);
 library.add(faMobileScreenButton);
 library.add(faMagnifyingGlass);
+library.add(faShareNodes);
+library.add(faPlay);
+library.add(faSliders);

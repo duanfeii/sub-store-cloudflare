@@ -395,10 +395,40 @@ textarea::-webkit-input-placeholder {
   color: var(--primary-text-color) !important;
   border: 1px solid var(--divider-color) !important;
   margin-bottom: 10px !important;
+  min-height: 40px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
 
   &:focus-within {
     border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent) !important;
+    box-shadow: 0 0 0 2px var(--focus-ring-color) !important;
   }
 }
+
+// Skeleton pulse loader utility
+@keyframes skeletonPulse {
+  0% {
+    opacity: 0.55;
+    background-position: 0% 50%;
+  }
+  50% {
+    opacity: 0.9;
+    background-position: 100% 50%;
+  }
+  100% {
+    opacity: 0.55;
+    background-position: 0% 50%;
+  }
+}
+
+.skeleton-pulse {
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--divider-color) 40%, transparent) 25%,
+    color-mix(in srgb, var(--divider-color) 80%, transparent) 50%,
+    color-mix(in srgb, var(--divider-color) 40%, transparent) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
