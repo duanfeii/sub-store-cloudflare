@@ -18,13 +18,11 @@ export const initStores = async (
 
   const { t } = i18n.global;
   let isSucceed = true;
-  if (needRefreshCache) {
+  // Only toast when the caller asks for notify (explicit refresh / token retry).
+  // Silent boot uses needNotify=false so page entry stays quiet.
+  if (needNotify) {
     showNotify({ title: t("globalNotify.refresh.loading"), type: "primary" });
   }
-  // Toast.loading(t('globalNotify.refresh.loading'), {
-  // cover: true,
-  // id: 'refresh',
-  // });
   globalStore.setLoading(true);
   globalStore.setFetchResult(true);
 

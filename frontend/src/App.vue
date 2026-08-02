@@ -3,13 +3,16 @@
     <div class="app-shell__main">
       <NavBar />
       <main class="page-body">
-        <router-view />
+        <!-- Unauthorized / backend unreachable: always show in-page token form -->
+        <AdminTokenPanel v-if="showAuthGate" />
+        <router-view v-else />
       </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import AdminTokenPanel from "@/components/AdminTokenPanel.vue";
 import NavBar from "@/components/NavBar.vue";
 import { useThemes } from "@/hooks/useThemes";
 import { useGlobalStore } from "@/store/global";
@@ -17,19 +20,27 @@ import { useSubsStore } from "@/store/subs";
 import { getFlowsUrlList } from "@/utils/getFlowsUrlList";
 import { initStores } from "@/utils/initApp";
 import { storeToRefs } from "pinia";
-import { ref, watchEffect, onMounted } from "vue";
+import { computed, ref, watchEffect, onMounted } from "vue";
 
 const subsStore = useSubsStore();
 const globalStore = useGlobalStore();
 
 const { subs, flows } = storeToRefs(subsStore);
+const { isLoading, fetchResult } = storeToRefs(globalStore);
 
 const allLength = ref(null);
+
+/** After first load finishes without success, block pages behind the token form. */
+const showAuthGate = computed(
+  () => !isLoading.value && !fetchResult.value,
+);
 
 useThemes();
 
 onMounted(() => {
-  initStores(true, true, false);
+  // Silent boot: do not toast "数据刷新完成" on every page entry.
+  // Refresh button paths still call initStores(true, ...).
+  initStores(false, true, false);
 });
 
 watchEffect(() => {
