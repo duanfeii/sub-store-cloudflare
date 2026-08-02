@@ -43,7 +43,10 @@ export default {
       refresh: "刷新数据",
       add: "新建",
       more: "更多操作",
-      theme: "切换主题"
+      theme: "切换主题（跟随系统 / 浅色 / 深色）",
+      themeAuto: "跟随系统",
+      themeLight: "浅色模式",
+      themeDark: "深色模式"
     },
     listSearch: {
       open: "搜索",

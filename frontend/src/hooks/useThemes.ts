@@ -116,20 +116,29 @@ const formatThemeLabel = (theme: ThemeDefinition) => {
 
 // 定义修改 root 变量方法
 const changeVariables = (newMode: CustomTheme) => {
-  const map = { ...{ ...modules[newMode].colors }, ...commonVariables };
+  const themeDef = modules[newMode] || modules.light;
+  const map = { ...{ ...themeDef.colors }, ...commonVariables };
   if (map) {
     Object.keys(map).forEach(key => {
       document.documentElement.style.setProperty(`--${key}`, map[key]);
     });
   }
 
+  const isDark = themeDef.meta.label === 'dark';
+  // Native form controls, scrollbars, and UA widgets follow active palette
+  document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+  document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+  document.documentElement.dataset.themeName = newMode;
+
   // 切换浏览器窗口 / 状态栏颜色
   const themeColorMeta = document.getElementById('theme__color');
-  themeColorMeta.setAttribute(
-    'content',
-    modules[newMode].colors['status-bar-background-color']
-  );
-  document.body.style.backgroundColor = modules[newMode].colors['background-color'] || '';
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute(
+      'content',
+      themeDef.colors['status-bar-background-color']
+    );
+  }
+  document.body.style.backgroundColor = themeDef.colors['background-color'] || '';
 };
 
 export const useThemes = () => {
@@ -166,23 +175,19 @@ export const useThemes = () => {
   }
 
   // 定义自动根据系统设置切换主题方法
-  const autoTheme = el => {
-    el.matches
-      ? changeVariables(theme.value.dark)
-      : changeVariables(theme.value.light);
+  const autoTheme = (el: MediaQueryList | MediaQueryListEvent) => {
+    const darkKey = (theme.value.dark || 'dark') as CustomTheme;
+    const lightKey = (theme.value.light || 'light') as CustomTheme;
+    el.matches ? changeVariables(darkKey) : changeVariables(lightKey);
   };
 
-  // 监听 theme 设置变化，切换 theme
-  watchEffect(async () => {
+  // 监听 theme 设置变化，切换 theme；auto 时跟随系统 prefers-color-scheme
+  watchEffect(() => {
     if (theme.value.auto) {
-      if (theme.value.dark && theme.value.light) {
-        autoTheme(mql);
-        useEventListener(mql, 'change', autoTheme);
-      }
-    } else {
-      mql.removeEventListener('change', autoTheme);
-      changeVariables(theme.value.name);
+      autoTheme(mql);
+      return useEventListener(mql, 'change', autoTheme);
     }
+    changeVariables((theme.value.name || 'light') as CustomTheme);
   });
 
   return {

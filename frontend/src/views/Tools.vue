@@ -328,11 +328,12 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
 <style lang="scss" scoped>
 .tools-page {
   min-height: 100%;
-  padding: var(--safe-area-side);
+  /* page-body already provides horizontal padding — avoid double inset */
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
   @media screen and (min-width: 900px) {
     display: grid;
@@ -347,16 +348,18 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
 
 .tool-card {
   padding: var(--space-5);
-  border-radius: var(--item-card-radios, 12px);
+  border-radius: var(--radius-lg, var(--item-card-radios));
   background: var(--card-color);
   color: var(--second-text-color);
   border: 1px solid var(--divider-color);
-  box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
+  box-shadow: var(--card-shadow, 0 2px 12px -2px rgba(0, 0, 0, 0.06));
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 
-  &:hover {
-    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
-    border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      box-shadow: var(--card-shadow-hover, 0 8px 24px -4px rgba(0, 0, 0, 0.1));
+      border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+    }
   }
 }
 
@@ -464,11 +467,16 @@ p {
 
 select.field-control {
   appearance: none;
+  /* Light chevron; inverted on dark via filter so it tracks theme */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 14px;
   padding-right: 28px;
+
+  :global(html[data-theme="dark"]) & {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23A1A1AA'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  }
 }
 
 .btn-icon {

@@ -49,5 +49,9 @@ export default {
 
     'compare-tag-text-color': '#475569',
     'compare-tag-background-color': '#F1F5F9',
+
+    // Elevation (shared card language with secondary pages)
+    'card-shadow': '0 2px 12px -2px rgba(15, 23, 42, 0.06)',
+    'card-shadow-hover': '0 8px 24px -4px rgba(15, 23, 42, 0.1)',
   },
 };

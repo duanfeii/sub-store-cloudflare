@@ -120,7 +120,7 @@ const copyUrl = async () => {
 
 <style lang="scss" scoped>
 .compare-page-header {
-  padding: env(safe-area-inset-top) var(--safe-area-side) 0;
+  padding: env(safe-area-inset-top) var(--space-4) 0;
   position: sticky;
   top: 0;
   z-index: 19;
@@ -130,10 +130,11 @@ const copyUrl = async () => {
   align-items: center;
   min-height: var(--compare-header-offset);
   box-sizing: border-box;
-  border-bottom: 1px solid;
+  border-bottom: 1px solid var(--divider-color);
   color: var(--primary-text-color);
-  background: var(--background-color);
-  border-color: var(--divider-color);
+  background: var(--nav-bar-color, var(--background-color));
+  backdrop-filter: blur(var(--nav-bar-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--nav-bar-blur, 16px));
   width: 100%;
 
   &.preview-popup-header {

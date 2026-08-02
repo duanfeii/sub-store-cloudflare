@@ -50,6 +50,7 @@ import {
   faMagnifyingGlass,
   faSun,
   faMoon,
+  faCircleHalfStroke,
   faShareNodes,
   faPlay,
   faSliders
@@ -57,6 +58,7 @@ import {
 
 library.add(faSun);
 library.add(faMoon);
+library.add(faCircleHalfStroke);
 
 library.add(faFileImport);
 library.add(faFileExport);

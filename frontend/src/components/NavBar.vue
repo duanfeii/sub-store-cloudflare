@@ -89,13 +89,13 @@
         <button
           type="button"
           class="nav-btn"
-          :aria-label="t('navBar.actions.theme')"
-          :title="t('navBar.actions.theme')"
+          :aria-label="themeActionLabel"
+          :title="themeActionLabel"
           @click.stop="toggleTheme"
         >
           <font-awesome-icon
             class="nav-btn__icon"
-            :icon="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
+            :icon="themeActionIcon"
           />
         </button>
       </div>
@@ -204,15 +204,44 @@ const isDarkTheme = computed(() => {
   return ["dark", "pureblack", "darkblue", "monokai"].includes(name);
 });
 
+/** Cycle: System (auto) → Light → Dark → System */
+const themeMode = computed<"auto" | "light" | "dark">(() => {
+  if (settingsStore.theme?.auto) return "auto";
+  return isDarkTheme.value ? "dark" : "light";
+});
+
+const themeActionIcon = computed(() => {
+  if (themeMode.value === "auto") return "fa-solid fa-circle-half-stroke";
+  if (themeMode.value === "dark") return "fa-solid fa-sun";
+  return "fa-solid fa-moon";
+});
+
+const themeActionLabel = computed(() => {
+  if (themeMode.value === "auto") return t("navBar.actions.themeAuto");
+  if (themeMode.value === "dark") return t("navBar.actions.themeDark");
+  return t("navBar.actions.themeLight");
+});
+
 const toggleTheme = async () => {
-  const nextThemeName = (isDarkTheme.value ? "light" : "dark") as any;
-  const newTheme = {
-    ...settingsStore.theme,
-    auto: false,
-    name: nextThemeName,
+  const current = settingsStore.theme || {
+    auto: true,
+    name: "light",
+    dark: "dark",
+    light: "light",
   };
-  settingsStore.theme = newTheme;
-  await settingsStore.changeTheme({ theme: newTheme });
+  let next;
+  if (current.auto) {
+    // System → fixed Light
+    next = { ...current, auto: false, name: "light" as const };
+  } else if (!isDarkTheme.value) {
+    // Light → fixed Dark
+    next = { ...current, auto: false, name: "dark" as const };
+  } else {
+    // Dark → System (follow device)
+    next = { ...current, auto: true, name: current.light || "light" };
+  }
+  settingsStore.theme = next as any;
+  await settingsStore.changeTheme({ theme: next as any });
 };
 </script>
 

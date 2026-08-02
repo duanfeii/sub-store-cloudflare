@@ -1750,11 +1750,18 @@ const handleEditGlobalClick = () => {
 
 <style lang="scss" scoped>
 .page-wrapper {
-  padding: 0 var(--safe-area-side) calc(v-bind("padding") + 63px)
-    var(--safe-area-side);
+  /* Align with app page-body horizontal padding + bottom action bar */
+  padding: 0 0 calc(v-bind("padding") + 72px) 0;
+  max-width: $content-max-width;
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
 
   :deep(.nut-cell-group__warp) {
-    border-radius: var(--item-card-radios);
+    border-radius: var(--radius-lg, var(--item-card-radios));
+    border: 1px solid var(--divider-color);
+    overflow: hidden;
+    box-shadow: var(--card-shadow, none);
   }
   :deep(.nut-icon-tips:before), :deep(.nut-icon-shop:before) {
     cursor: pointer;
@@ -1874,10 +1881,10 @@ const handleEditGlobalClick = () => {
     }
 
     &.is-danger {
-      border-color: color-mix(in srgb, var(--danger-color, #fa2c19) 35%, var(--divider-color));
+      border-color: color-mix(in srgb, var(--danger-color) 35%, var(--divider-color));
 
       .summary-title {
-        color: var(--danger-color, #fa2c19);
+        color: var(--danger-color);
       }
     }
 
@@ -1914,27 +1921,38 @@ const handleEditGlobalClick = () => {
 }
 
 .bottom-btn-wrapper {
-  position: fixed;
+  @include centered-fixed-container;
+  bottom: 0;
+  z-index: 15;
   display: flex;
   justify-content: space-between;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 8px var(--safe-area-side) calc(v-bind("padding") + 8px)
-    var(--safe-area-side);
+  align-items: center;
+  gap: 12px;
+  padding: 10px var(--space-4) calc(v-bind("padding") + 10px);
+  box-sizing: border-box;
   background: var(--nav-bar-color);
   backdrop-filter: blur(var(--nav-bar-blur));
   -webkit-backdrop-filter: blur(var(--nav-bar-blur));
   border-top: 1px solid var(--divider-color);
-  @include centered-fixed-container;
+
+  @media screen and (min-width: $breakpoint-md) {
+    padding-left: var(--space-5);
+    padding-right: var(--space-5);
+  }
 
   .btn {
-    border-radius: 8px;
-    padding: 4px 12px;
+    border-radius: var(--radius-md);
+    padding: 8px 14px;
     font-size: 14px;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: transform 0.15s ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+
     svg {
       margin-right: 4px;
     }
