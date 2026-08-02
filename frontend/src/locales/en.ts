@@ -41,7 +41,8 @@ export default {
     actions: {
       back: "Back",
       refresh: "Refresh data",
-      add: "Create"
+      add: "Create",
+      more: "More actions"
     },
     listSearch: {
       open: "Search",

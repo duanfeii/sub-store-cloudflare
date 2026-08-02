@@ -80,103 +80,92 @@
             </span>
           </h3>
 
-          <!-- onClickCopyLink 拷贝 -->
+          <!-- Primary action + overflow menu -->
           <div
             class="sub-item-menu"
             :class="{ 'simple-mode': appearanceSetting.isSimpleMode }"
           >
-            <!-- 更多 -->
             <button
-              v-if="appearanceSetting.isSubItemMenuFold"
-              class="compare-sub-link"
-              :aria-label="itemMenuVisible ? t('subPage.actions.closeMenu') : t('subPage.actions.openMenu')"
-              :title="itemMenuVisible ? t('subPage.actions.closeMenu') : t('subPage.actions.openMenu')"
-              @click.stop="switchItemMenuVisible"
+              class="sub-item-action sub-item-action--primary"
+              :aria-label="t('subPage.actions.copyLink')"
+              :title="t('subPage.actions.copyLink')"
+              @click.stop="onClickCopyLink"
             >
-              <font-awesome-icon
-                :icon="
-                  itemMenuVisible
-                    ? 'fa-solid fa-angle-right'
-                    : 'fa-solid fa-ellipsis'
-                "
-              />
+              <font-awesome-icon icon="fa-solid fa-clone" />
             </button>
-            <template
-              v-if="itemMenuVisible || !appearanceSetting.isSubItemMenuFold"
-            >
-              <!-- 官网 -->
+            <div class="sub-item-overflow">
               <button
-                v-if="appOpenBtnVisible"
-                class="compare-sub-link"
-                :aria-label="t('subPage.actions.openApp')"
-                :title="t('subPage.actions.openApp')"
-                @click.stop="openAppUrl"
+                class="sub-item-action"
+                :class="{ 'is-active': itemMenuVisible }"
+                :aria-label="itemMenuVisible ? t('subPage.actions.closeMenu') : t('subPage.actions.openMenu')"
+                :title="itemMenuVisible ? t('subPage.actions.closeMenu') : t('subPage.actions.openMenu')"
+                :aria-expanded="itemMenuVisible"
+                @click.stop="switchItemMenuVisible"
               >
-                <font-awesome-icon icon="fa-solid fa-square-arrow-up-right" />
+                <font-awesome-icon icon="fa-solid fa-ellipsis" />
               </button>
-              <!-- 预览 -->
-              <button
-                v-if="!appearanceSetting.isShowIcon"
-                class="compare-sub-link"
-                :aria-label="t('subPage.actions.preview')"
-                :title="t('subPage.actions.preview')"
-                @click.stop="compareSub"
+              <div
+                v-if="itemMenuVisible"
+                class="sub-item-overflow__menu"
+                role="menu"
+                @click.stop
               >
-                <font-awesome-icon icon="fa-solid fa-eye" />
-              </button>
-              <button
-                class="copy-sub-link"
-                :aria-label="t('subPage.actions.copyLink')"
-                :title="t('subPage.actions.copyLink')"
-                @click.stop="onClickCopyLink"
-              >
-                <font-awesome-icon icon="fa-solid fa-clone" />
-              </button>
-            </template>
-            <!-- 刷新 -->
-            <button
-              v-if="
-                props.type === 'sub' &&
-                (!appearanceSetting.isSimpleMode ||
-                  appearanceSetting.isSimpleReicon)
-              "
-              class="refresh-sub-flow"
-              :aria-label="t('subPage.actions.refresh')"
-              :title="t('subPage.actions.refresh')"
-              @click.stop="onClickRefresh"
-            >
-              <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
-            </button>
-            <!-- 编辑 -->
-            <button
-              v-if="!appearanceSetting.isSimpleMode"
-              class="copy-sub-link"
-              :aria-label="t('subPage.actions.edit')"
-              :title="t('subPage.actions.edit')"
-              @click.stop="onClickEdit"
-            >
-              <font-awesome-icon icon="fa-solid fa-pen-nib" />
-            </button>
-            <button
-              v-else
-              class="refresh-sub-flow"
-              :aria-label="t('subPage.actions.edit')"
-              :title="t('subPage.actions.edit')"
-              @click.stop="onClickEdit"
-            >
-              <font-awesome-icon icon="fa-solid fa-pen-nib" />
-            </button>
-            <!-- 打开侧边栏 -->
-            <button
-              v-if="!isMobile()"
-              ref="moreAction"
-              class="copy-sub-link"
-              :aria-label="t('subPage.actions.moreActions')"
-              :title="t('subPage.actions.moreActions')"
-              @click.stop="swipeController"
-            >
-              <font-awesome-icon icon="fa-solid fa-angles-right" />
-            </button>
+                <button
+                  v-if="appOpenBtnVisible"
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runMenuAction(openAppUrl)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-square-arrow-up-right" />
+                  <span>{{ t('subPage.actions.openApp') }}</span>
+                </button>
+                <button
+                  v-if="!appearanceSetting.isShowIcon"
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runMenuAction(compareSub)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-eye" />
+                  <span>{{ t('subPage.actions.preview') }}</span>
+                </button>
+                <button
+                  v-if="
+                    props.type === 'sub' &&
+                    (!appearanceSetting.isSimpleMode ||
+                      appearanceSetting.isSimpleReicon)
+                  "
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runMenuAction(onClickRefresh)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
+                  <span>{{ t('subPage.actions.refresh') }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runMenuAction(onClickEdit)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-pen-nib" />
+                  <span>{{ t('subPage.actions.edit') }}</span>
+                </button>
+                <button
+                  v-if="!isMobile()"
+                  ref="moreAction"
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runMenuAction(swipeController)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-angles-right" />
+                  <span>{{ t('subPage.actions.moreActions') }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <template v-if="!appearanceSetting.isSimpleMode">
@@ -710,8 +699,30 @@ const appOpenBtnVisible = computed(() => {
 
 const itemMenuVisible = ref(false);
 
+const closeItemMenu = () => {
+  itemMenuVisible.value = false;
+  document.removeEventListener("click", handleItemMenuOutsideClick);
+};
+
+const handleItemMenuOutsideClick = () => {
+  closeItemMenu();
+};
+
 const switchItemMenuVisible = () => {
-  itemMenuVisible.value = !itemMenuVisible.value;
+  if (itemMenuVisible.value) {
+    closeItemMenu();
+    return;
+  }
+
+  itemMenuVisible.value = true;
+  setTimeout(() => {
+    document.addEventListener("click", handleItemMenuOutsideClick);
+  }, 0);
+};
+
+const runMenuAction = async (action: () => void | Promise<void>) => {
+  closeItemMenu();
+  await action();
 };
 
 const openAppUrl = () => {
@@ -883,7 +894,7 @@ const openPreviewPanel = () => {
 const closeExpandedMenu = () => {
   swipe.value.close();
   swipeIsOpen.value = false;
-  itemMenuVisible.value = false;
+  closeItemMenu();
   if (moreAction.value) moreAction.value.style.transform = "rotate(0deg)";
   document.removeEventListener("click", handleGlobalClick);
 };
@@ -1024,16 +1035,14 @@ const refreshSubFlowsIfNeeded = async () => {
   min-width: 0;
   background: var(--card-color);
   border: 1px solid var(--divider-color);
-  box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.04);
+  box-shadow: none;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  overflow: visible;
+  transition: border-color 0.15s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
-    border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+    border-color: color-mix(in srgb, var(--primary-color) 45%, var(--divider-color));
   }
 
   :deep(.nut-avatar) {
@@ -1097,42 +1106,93 @@ const refreshSubFlowsIfNeeded = async () => {
       .sub-item-menu {
         position: relative;
         top: 0;
-        // background: var(--card-color);
-        padding: 4px 0;
+        padding: 0;
         border-radius: var(--item-card-radios);
         display: flex;
         align-items: center;
+        gap: 2px;
         flex-shrink: 0;
+
         &.simple-mode {
           position: relative;
-          top: 8px;
+          top: 4px;
         }
       }
-      .compare-sub-link,
-      .public-link-action,
-      .copy-sub-link,
-      .refresh-sub-flow {
-        background-color: transparent;
-        border: none;
-        padding: 0 8px;
+
+      .sub-item-action {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--comment-text-color);
         cursor: pointer;
         display: inline-flex;
         justify-content: center;
         align-items: center;
+        transition: background-color 0.15s ease, color 0.15s ease;
+
         svg {
-          width: 16px;
-          height: 16px;
-          color: var(--comment-text-color);
+          width: 15px;
+          height: 15px;
+        }
+
+        &:hover {
+          background: rgba(148, 163, 184, 0.12);
+          color: var(--primary-text-color);
+        }
+
+        &.is-active {
+          color: var(--primary-color);
+          background: color-mix(in srgb, var(--primary-color) 12%, transparent);
         }
       }
 
-      button {
-        white-space: nowrap;
-      }
-
-      div {
+      .sub-item-overflow {
+        position: relative;
         display: flex;
         align-items: center;
+
+        &__menu {
+          position: absolute;
+          top: calc(100% + 4px);
+          right: 0;
+          z-index: 20;
+          min-width: 168px;
+          padding: 6px;
+          border-radius: 10px;
+          border: 1px solid var(--divider-color);
+          background: var(--card-color);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        &__item {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 12px;
+          border: 0;
+          border-radius: 8px;
+          background: transparent;
+          color: var(--primary-text-color);
+          font-size: 13px;
+          text-align: left;
+          cursor: pointer;
+          white-space: nowrap;
+
+          svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            color: var(--comment-text-color);
+          }
+
+          &:hover {
+            background: rgba(148, 163, 184, 0.12);
+          }
+        }
       }
     }
 
@@ -1199,6 +1259,8 @@ const refreshSubFlowsIfNeeded = async () => {
     width: 0%;
     height: 100%;
     background: var(--primary-color);
+    pointer-events: none;
+    overflow: hidden;
   }
 }
 
@@ -1313,20 +1375,14 @@ const refreshSubFlowsIfNeeded = async () => {
 
   &.is-online {
     background-color: #10b981;
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-    animation: statusPulse 2s infinite;
   }
 
   &.is-warning {
     background-color: #f97316;
-    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
-    animation: statusPulse 2s infinite;
   }
 
   &.is-error {
     background-color: #ef4444;
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
-    animation: statusPulse 2s infinite;
   }
 
   &.is-fetching {
@@ -1339,15 +1395,15 @@ const refreshSubFlowsIfNeeded = async () => {
 @keyframes statusPulse {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
   }
 }
 </style>
