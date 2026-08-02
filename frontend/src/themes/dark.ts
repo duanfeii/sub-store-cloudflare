@@ -7,47 +7,47 @@ export default {
   },
   colors: {
     // 全局高亮色
-    'primary-color': '#478EF2',
-    'primary-color-end': '#496AF2',
-    'second-color': '#FA6419',
-    'third-color': '#0ED57D',
+    'primary-color': '#6366F1',
+    'primary-color-end': '#4F46E5',
+    'second-color': '#FB923C',
+    'third-color': '#34D399',
 
-    'danger-color': '#E56459',
-    'succeed-color': '#49bb88',
+    'danger-color': '#F87171',
+    'succeed-color': '#34D399',
 
     // icon色
-    'icon-nav-bar-right': '#606266',
-    'unimportant-icon-color': '#FFFFFF34',
+    'icon-nav-bar-right': '#94A3B8',
+    'unimportant-icon-color': 'rgba(255, 255, 255, 0.25)',
 
     // 组件色
-    'status-bar-background-color': '#121212',
-    'background-color': '#121212',
-    'nav-bar-color': '#12121299',
-    'tab-bar-color': '#121212AA',
-    'popup-color': '#121212',
-    'divider-color': '#FFFFFF08',
-    'card-color': '#202020',
-    'dialog-color': '#202020',
-    'switch-close-background-color': '#FFFFFF14',
-    'switch-active-background-color': '#478EF2',
-    'compare-item-background-color': '#191919',
-    'picker-mask-near-color': '#12121248',
-    'picker-mask-far-color': '#121212',
+    'status-bar-background-color': '#0F172A',
+    'background-color': '#0F172A',
+    'nav-bar-color': 'rgba(15, 23, 42, 0.85)',
+    'tab-bar-color': 'rgba(15, 23, 42, 0.85)',
+    'popup-color': '#1E293B',
+    'divider-color': 'rgba(255, 255, 255, 0.08)',
+    'card-color': '#1E293B',
+    'dialog-color': '#1E293B',
+    'switch-close-background-color': 'rgba(255, 255, 255, 0.12)',
+    'switch-active-background-color': '#6366F1',
+    'compare-item-background-color': '#182234',
+    'picker-mask-near-color': 'rgba(15, 23, 42, 0.5)',
+    'picker-mask-far-color': '#0F172A',
 
     // 文字色
-    'primary-text-color': '#FFFFFFEE',
-    'second-text-color': '#FFFFFFBB',
-    'comment-text-color': '#FFFFFF88',
-    'lowest-text-color': '#FFFFFF36',
+    'primary-text-color': '#F8FAFC',
+    'second-text-color': '#CBD5E1',
+    'comment-text-color': '#94A3B8',
+    'lowest-text-color': '#64748B',
 
     // 其他
     'img-brightness': '100',
-    'nav-bar-blur': '16px',
-    'tab-bar-blur': '16px',
-    'sticky-title-blur': '16px',
+    'nav-bar-blur': '20px',
+    'tab-bar-blur': '20px',
+    'sticky-title-blur': '20px',
 
-    'compare-tag-text-color': '#FFFFFF88',
-    'compare-tag-background-color': '#FFFFFF22',
+    'compare-tag-text-color': '#94A3B8',
+    'compare-tag-background-color': 'rgba(255, 255, 255, 0.12)',
   },
 };
 //--second-text-color

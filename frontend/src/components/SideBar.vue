@@ -136,16 +136,22 @@ const { navBarHeight } = storeToRefs(systemStore);
     align-items: center;
     justify-content: flex-start;
     color: var(--lowest-text-color);
-    width: 100%;
-    padding: 14px 24px;
-    transition: color 0.2s, background 0.2s;
+    width: calc(100% - 12px);
+    margin: 0 6px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
 
     &.active {
       color: var(--primary-color);
+      background: rgba(99, 102, 241, 0.12);
+      font-weight: 600;
     }
 
     &:hover:not(.active) {
       color: var(--primary-text-color);
+      background: rgba(148, 163, 184, 0.08);
     }
 
     .icon-container {

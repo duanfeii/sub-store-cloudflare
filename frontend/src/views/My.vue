@@ -531,10 +531,18 @@ onMounted(fetchTemplates);
 
 .config-card {
   width: 100%;
-  border-radius: var(--item-card-radios);
+  border-radius: var(--item-card-radios, 14px);
   background: var(--card-color);
   color: var(--second-text-color);
+  border: 1px solid var(--divider-color);
+  box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+    border-color: rgba(99, 102, 241, 0.25);
+  }
 }
 
 .nut-icon {
