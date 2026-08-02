@@ -111,6 +111,44 @@
         <!-- </nut-radiogroup> -->
       </div>
       <div class="subs-list-container" :style="{ paddingTop: `${radioWrapperHeight}px` }">
+        <!-- Actionable overview: real counts, flow issues, last refresh only -->
+        <div
+          v-if="hasSubs || hasCollections"
+          class="overview-summary-strip"
+          role="region"
+          :aria-label="$t('subPage.overview.title')"
+        >
+          <div class="overview-stat">
+            <span class="overview-stat-label">{{ $t('subPage.overview.subscriptions') }}</span>
+            <span class="overview-stat-value font-mono">{{ totalSubscriptionCount }}</span>
+            <span class="overview-stat-detail">
+              {{
+                $t('subPage.overview.subBreakdown', {
+                  single: subs.length,
+                  collection: collections.length,
+                })
+              }}
+            </span>
+          </div>
+
+          <div
+            class="overview-stat"
+            :class="{
+              'is-error': flowIssueCounts.failed > 0,
+              'is-warning': flowIssueCounts.failed === 0 && flowIssueCounts.warning > 0,
+            }"
+          >
+            <span class="overview-stat-label">{{ $t('subPage.overview.flowStatus') }}</span>
+            <span class="overview-stat-value font-mono">{{ flowStatusValue }}</span>
+            <span class="overview-stat-detail">{{ flowStatusDetail }}</span>
+          </div>
+
+          <div class="overview-stat overview-stat-refresh">
+            <span class="overview-stat-label">{{ $t('subPage.overview.lastRefresh') }}</span>
+            <span class="overview-stat-value font-mono">{{ lastRefreshDisplay }}</span>
+          </div>
+        </div>
+
         <section v-if="hasSubs && !hasCollections" class="onboarding-card onboarding-inline">
           <div>
             <span class="onboarding-kicker">{{ $t('subPage.onboarding.step2') }}</span>
@@ -301,6 +339,7 @@ import { useListSearchStore } from "@/store/listSearch";
 import { useMethodStore } from '@/store/methodStore';
 import { useSettingsStore } from '@/store/settings';
 import { useSubsStore } from "@/store/subs";
+import { butifyDate } from "@/utils/butifyDate";
 import { initStores } from "@/utils/initApp";
 import { getStoredAdminToken, setStoredAdminToken } from "@/utils/adminToken";
 import { listItemMatchesSearch, shouldSearchListRemark } from "@/utils/listSearch";
@@ -321,15 +360,18 @@ const globalStore = useGlobalStore();
 const systemStore = useSystemStore();
 const settingsStore = useSettingsStore();
 const listSearchStore = useListSearchStore();
-const { hasSubs, hasCollections, subs, collections } = storeToRefs(subsStore);
+const { hasSubs, hasCollections, subs, collections, flows } = storeToRefs(subsStore);
 const { appearanceSetting } = storeToRefs(settingsStore);
 const { effectiveListViewMode } = useListViewMode();
 const {
   // isSimpleMode,
   isLoading,
+  isFlowFetching,
   fetchResult,
   // showFloatingRefreshButton,
 } = storeToRefs(globalStore);
+/** Timestamp of the last successful data load; null until first success. */
+const lastRefreshAt = ref<number | null>(null);
 const { navBarHeight } = storeToRefs(systemStore);
 const isDualColumnMode = computed(() => {
   return effectiveListViewMode.value === "dual-column";
@@ -396,6 +438,99 @@ const filterdSubsCount = computed(() => {
 const filterdColsCount = computed(() => {
   return collections.value.filter(shouldShowElement).length;
 });
+
+const totalSubscriptionCount = computed(
+  () => subs.value.length + collections.value.length,
+);
+
+/**
+ * Count real flow failures / low-traffic warnings from remote sources only.
+ * Missing flow data is not treated as success or failure (shows "—").
+ */
+const flowIssueCounts = computed(() => {
+  let failed = 0;
+  let warning = 0;
+  let checked = 0;
+
+  for (const sub of subs.value) {
+    if (sub.source === "local" && !sub.subUserinfo) continue;
+
+    const target = flows.value[sub.url as string] || flows.value[sub.name];
+    if (!target) continue;
+
+    checked += 1;
+
+    if (!("status" in target) || !target.status) {
+      failed += 1;
+      continue;
+    }
+
+    if (target.status === "failed") {
+      if ((target as ErrorResponse).error?.code === "NO_FLOW_INFO") continue;
+      failed += 1;
+      continue;
+    }
+
+    if (target.status === "success" && (target as Flow).data?.usage) {
+      const {
+        total,
+        usage: { upload, download },
+      } = (target as Flow).data;
+      let progress = 0;
+      try {
+        progress = 1 - (upload + download) / total;
+        progress = Number.parseFloat(progress.toFixed(2));
+      } catch {
+        progress = 0;
+      }
+      if (!(progress > 0)) progress = 0;
+      if (progress < 0.1) warning += 1;
+    }
+  }
+
+  return { failed, warning, checked };
+});
+
+const flowStatusValue = computed(() => {
+  const { failed, warning, checked } = flowIssueCounts.value;
+  if (checked === 0) return t("subPage.overview.emDash");
+  return String(failed + warning);
+});
+
+const flowStatusDetail = computed(() => {
+  const { failed, warning, checked } = flowIssueCounts.value;
+  if (checked === 0) {
+    return isFlowFetching.value
+      ? t("subPage.overview.flowPending")
+      : t("subPage.overview.emDash");
+  }
+  if (failed === 0 && warning === 0) {
+    return t("subPage.overview.flowOk");
+  }
+  const parts: string[] = [];
+  if (failed > 0) {
+    parts.push(t("subPage.overview.flowFailed", { count: failed }));
+  }
+  if (warning > 0) {
+    parts.push(t("subPage.overview.flowWarning", { count: warning }));
+  }
+  return parts.join(" · ");
+});
+
+const lastRefreshDisplay = computed(() => {
+  if (lastRefreshAt.value == null) return t("subPage.overview.emDash");
+  return butifyDate(lastRefreshAt.value);
+});
+
+watch(
+  () => [isLoading.value, fetchResult.value] as const,
+  ([loading, ok]) => {
+    if (!loading && ok) {
+      lastRefreshAt.value = Date.now();
+    }
+  },
+);
+
 const onTouchStart = (event: TouchEvent) => {
   touchStartY.value = Math.abs(event.touches[0].clientY);
   touchStartX.value = Math.abs(event.touches[0].clientX);
@@ -1036,6 +1171,99 @@ const importTips = () => {
 
   .subs-list-content + .subs-list-content {
     margin-top: 8px;
+  }
+}
+
+/* Compact real-data overview: one strip, not stacked marketing cards */
+.overview-summary-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px 0;
+  width: calc(100% - 1.5rem);
+  margin: 10px auto 12px;
+  padding: 10px 4px;
+  background: var(--card-color);
+  border: 1px solid var(--divider-color);
+  border-radius: 10px;
+  box-sizing: border-box;
+
+  .overview-stat {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 14px;
+    border-right: 1px solid var(--divider-color);
+
+    &:last-child {
+      border-right: none;
+    }
+
+    &.is-error .overview-stat-value {
+      color: #ef4444;
+    }
+
+    &.is-warning .overview-stat-value {
+      color: #f59e0b;
+    }
+  }
+
+  .overview-stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--comment-text-color);
+    line-height: 1.2;
+  }
+
+  .overview-stat-value {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--primary-text-color);
+    line-height: 1.25;
+  }
+
+  .overview-stat-detail {
+    font-size: 11px;
+    color: var(--second-text-color);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Mobile: single compact row, no stacked large cards */
+  @media screen and (max-width: 640px) {
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: 8px 2px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    .overview-stat {
+      flex: 1 1 auto;
+      min-width: 88px;
+      padding: 0 10px;
+    }
+
+    .overview-stat-value {
+      font-size: 16px;
+    }
+
+    .overview-stat-detail {
+      display: none;
+    }
+
+    .overview-stat-refresh .overview-stat-value {
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
   }
 }
 </style>
