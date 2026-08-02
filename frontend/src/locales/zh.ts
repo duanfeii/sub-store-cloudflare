@@ -107,6 +107,18 @@ export default {
     backendDesc: "如果你看到这个 可能是因为浏览器前端路由拦截的问题 可以强制刷新查看或直接使用该链接 不影响此链接的使用"
   },
   subPage: {
+    overview: {
+      title: "概览",
+      subscriptions: "订阅",
+      subBreakdown: "{single} 个订阅源 · {collection} 个组合",
+      flowStatus: "异常",
+      flowOk: "全部正常",
+      flowPending: "正在检查流量…",
+      flowFailed: "{count} 个失败",
+      flowWarning: "{count} 个流量偏低",
+      lastRefresh: "上次刷新",
+      emDash: "—"
+    },
     import: {
       label: "导入",
       succeed: "导入成功",

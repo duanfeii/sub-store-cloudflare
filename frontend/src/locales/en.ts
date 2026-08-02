@@ -107,6 +107,18 @@ export default {
     backendDesc: "If you are seeing this, it is probably due to a routing interception issue on the front end of your browser. You can force a refresh to see it or use the link directly without affecting the use of this link."
   },
   subPage: {
+    overview: {
+      title: "Overview",
+      subscriptions: "Subscriptions",
+      subBreakdown: "{single} sources · {collection} collections",
+      flowStatus: "Issues",
+      flowOk: "All healthy",
+      flowPending: "Checking usage…",
+      flowFailed: "{count} failed",
+      flowWarning: "{count} low traffic",
+      lastRefresh: "Last refresh",
+      emDash: "—"
+    },
     import: {
       label: "Import",
       succeed: "Successfully imported!",
