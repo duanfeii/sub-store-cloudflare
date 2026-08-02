@@ -88,7 +88,7 @@
             </span>
           </h3>
 
-          <!-- Primary action + overflow menu -->
+          <!-- Inline action buttons (Copy, Edit, Clone, Refresh, Delete) -->
           <div
             class="sub-item-menu"
             :class="{ 'simple-mode': appearanceSetting.isSimpleMode }"
@@ -99,108 +99,41 @@
               :title="t('subPage.actions.copyLink')"
               @click.stop="onClickCopyLink"
             >
+              <font-awesome-icon icon="fa-solid fa-link" />
+            </button>
+            <button
+              class="sub-item-action"
+              :aria-label="t('subPage.actions.edit')"
+              :title="t('subPage.actions.edit')"
+              @click.stop="onClickEdit"
+            >
+              <font-awesome-icon icon="fa-solid fa-pen-to-square" />
+            </button>
+            <button
+              class="sub-item-action"
+              :aria-label="t('subPage.actions.cloneConfig')"
+              :title="t('subPage.actions.cloneConfig')"
+              @click.stop="onClickCopyConfig"
+            >
               <font-awesome-icon icon="fa-solid fa-clone" />
             </button>
-            <div class="sub-item-overflow">
-              <button
-                class="sub-item-action"
-                :class="{ 'is-active': itemMenuVisible }"
-                :aria-label="itemMenuVisible ? t('subPage.actions.closeMenu') : t('subPage.actions.openMenu')"
-                :title="itemMenuVisible ? t('subPage.actions.closeMenu') : t('subPage.actions.openMenu')"
-                :aria-expanded="itemMenuVisible"
-                @click.stop="switchItemMenuVisible"
-              >
-                <font-awesome-icon icon="fa-solid fa-ellipsis" />
-              </button>
-              <div
-                v-if="itemMenuVisible"
-                class="sub-item-overflow__menu"
-                role="menu"
-                @click.stop
-              >
-                <button
-                  v-if="appOpenBtnVisible"
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runMenuAction(openAppUrl)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-square-arrow-up-right" />
-                  <span>{{ t('subPage.actions.openApp') }}</span>
-                </button>
-                <button
-                  v-if="!appearanceSetting.isShowIcon"
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runMenuAction(compareSub)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-eye" />
-                  <span>{{ t('subPage.actions.preview') }}</span>
-                </button>
-                <button
-                  v-if="
-                    props.type === 'sub' &&
-                    (!appearanceSetting.isSimpleMode ||
-                      appearanceSetting.isSimpleReicon)
-                  "
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runMenuAction(onClickRefresh)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
-                  <span>{{ t('subPage.actions.refresh') }}</span>
-                </button>
-                <button
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runMenuAction(onClickEdit)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-pen-nib" />
-                  <span>{{ t('subPage.actions.edit') }}</span>
-                </button>
-                <button
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runMenuAction(onClickCopyConfig)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-paste" />
-                  <span>{{ t('subPage.actions.cloneConfig') }}</span>
-                </button>
-                <button
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runMenuAction(onClickOpenDownload)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-file-export" />
-                  <span>{{ t('subPage.actions.openDownload') }}</span>
-                </button>
-                <button
-                  type="button"
-                  class="sub-item-overflow__item sub-item-overflow__item--danger"
-                  role="menuitem"
-                  @click.stop="runMenuAction(onClickDelete)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-trash-can" />
-                  <span>{{ t('subPage.actions.delete') }}</span>
-                </button>
-                <button
-                  v-if="!isDesktop"
-                  ref="moreAction"
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runMenuAction(swipeController)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-angles-right" />
-                  <span>{{ t('subPage.actions.moreActions') }}</span>
-                </button>
-              </div>
-            </div>
+            <button
+              v-if="props.type === 'sub'"
+              class="sub-item-action"
+              :aria-label="t('subPage.actions.refresh')"
+              :title="t('subPage.actions.refresh')"
+              @click.stop="onClickRefresh"
+            >
+              <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
+            </button>
+            <button
+              class="sub-item-action sub-item-action--danger"
+              :aria-label="t('subPage.actions.delete')"
+              :title="t('subPage.actions.delete')"
+              @click.stop="onClickDelete"
+            >
+              <font-awesome-icon icon="fa-solid fa-trash-can" />
+            </button>
           </div>
         </div>
         <template v-if="!appearanceSetting.isSimpleMode">
@@ -1171,21 +1104,27 @@ const refreshSubFlowsIfNeeded = async () => {
         border: 1px solid transparent;
         border-radius: 8px;
         background: transparent;
-        color: var(--comment-text-color);
+        color: var(--second-text-color);
         cursor: pointer;
         display: inline-flex;
         justify-content: center;
         align-items: center;
-        transition: all 0.15s ease;
+        transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, color 200ms ease, border-color 200ms ease;
 
         svg {
           width: 14px;
           height: 14px;
         }
 
-        &:hover {
-          background: rgba(148, 163, 184, 0.12);
-          color: var(--primary-text-color);
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            background: rgba(148, 163, 184, 0.12);
+            color: var(--primary-text-color);
+          }
+        }
+
+        &:active {
+          transform: scale(0.94);
         }
 
         &.sub-item-action--primary {
@@ -1193,16 +1132,24 @@ const refreshSubFlowsIfNeeded = async () => {
           color: var(--primary-color);
           border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
 
-          &:hover {
-            background: color-mix(in srgb, var(--primary-color) 22%, transparent);
-            border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
-            transform: scale(1.04);
+          @media (hover: hover) and (pointer: fine) {
+            &:hover {
+              background: color-mix(in srgb, var(--primary-color) 22%, transparent);
+              border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+            }
           }
         }
 
-        &.is-active {
-          color: var(--primary-color);
-          background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+        &.sub-item-action--danger {
+          color: var(--second-text-color);
+
+          @media (hover: hover) and (pointer: fine) {
+            &:hover {
+              background: color-mix(in srgb, #ef4444 14%, transparent);
+              color: #ef4444;
+              border-color: color-mix(in srgb, #ef4444 30%, transparent);
+            }
+          }
         }
       }
 

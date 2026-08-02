@@ -1,53 +1,50 @@
 <template>
-  <button
-    type="button"
-    :class="[
-      'language-switch-button',
-      `language-switch-button--${props.variant}`,
-    ]"
-    :aria-label="t('navBar.langSwitcher.cellTitle')"
-    :title="t('navBar.langSwitcher.cellTitle')"
-    @click.stop="showLangSwitchPopup = true"
-  >
-    <font-awesome-icon
-      class="language-switch-button__icon"
-      icon="fa-solid fa-language"
-    />
-  </button>
+  <div ref="dropdownRef" class="language-dropdown-wrapper">
+    <button
+      type="button"
+      :class="[
+        'language-switch-button',
+        `language-switch-button--${props.variant}`,
+        { 'is-open': isOpen }
+      ]"
+      :aria-label="t('navBar.langSwitcher.cellTitle')"
+      :title="t('navBar.langSwitcher.cellTitle')"
+      @click.stop="toggleMenu"
+    >
+      <font-awesome-icon
+        class="language-switch-button__icon"
+        icon="fa-solid fa-language"
+      />
+    </button>
 
-  <nut-popup
-    v-model:visible="showLangSwitchPopup"
-    pop-class="side-drawer-popup language-switch-popup"
-    position="right"
-    closeable
-    :z-index="props.zIndex"
-    :style="{ width: '280px', height: '100%', padding: '24px 12px' }"
-  >
-    <nut-cell-group>
-      <div class="language-switch-popup__title">
-        {{ t("navBar.langSwitcher.cellTitle") }}
-      </div>
-      <nut-cell
+    <div
+      v-if="isOpen"
+      class="language-dropdown-menu"
+      role="menu"
+      @click.stop
+    >
+      <button
         v-for="lang in langList"
         :key="lang.key"
-        :title="t(lang.labelKey)"
-        :class="{ selected: lang.key === currentLocale }"
+        type="button"
+        class="language-dropdown-item"
+        :class="{ 'is-selected': lang.key === currentLocale }"
+        role="menuitem"
         @click="changeLang(lang.key)"
       >
-        <template #icon>
-          <font-awesome-icon
-            v-if="lang.key === currentLocale"
-            class="fa-lg"
-            icon="fa-solid fa-check"
-          />
-        </template>
-      </nut-cell>
-    </nut-cell-group>
-  </nut-popup>
+        <span class="language-dropdown-item__label">{{ t(lang.labelKey) }}</span>
+        <font-awesome-icon
+          v-if="lang.key === currentLocale"
+          class="language-dropdown-item__check"
+          icon="fa-solid fa-check"
+        />
+      </button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import {
@@ -68,21 +65,46 @@ const props = withDefaults(
 );
 
 const { t, locale } = useI18n();
-const showLangSwitchPopup = ref(false);
+const isOpen = ref(false);
+const dropdownRef = ref<HTMLElement | null>(null);
 const langList = SUPPORTED_LOCALES;
 
 const currentLocale = computed(() => {
   return normalizeLocale(String(locale.value || ""));
 });
 
+const toggleMenu = () => {
+  isOpen.value = !isOpen.value;
+};
+
 const changeLang = (type: SupportedLocale) => {
   locale.value = type;
   localStorage.setItem("locale", type);
-  showLangSwitchPopup.value = false;
+  isOpen.value = false;
 };
+
+const handleDocumentClick = (e: MouseEvent) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
+    isOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleDocumentClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleDocumentClick);
+});
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.language-dropdown-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .language-switch-button {
   height: 32px;
   box-sizing: border-box;
@@ -99,9 +121,14 @@ const changeLang = (type: SupportedLocale) => {
   font-size: 12px;
   line-height: 1;
   white-space: nowrap;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, border-color 200ms ease;
 
   &:focus {
     outline: none;
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 
   &--compact {
@@ -117,11 +144,17 @@ const changeLang = (type: SupportedLocale) => {
     border-radius: 50%;
     background: transparent;
     color: var(--icon-nav-bar-right);
-    transition: background-color 0.2s ease, color 0.2s ease;
 
-    &:hover {
-      background: rgba(148, 163, 184, 0.15);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: rgba(148, 163, 184, 0.15);
+      }
     }
+  }
+
+  &.is-open {
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
   }
 
   &__icon {
@@ -132,43 +165,70 @@ const changeLang = (type: SupportedLocale) => {
   }
 }
 
-.language-switch-popup > .nut-cell-group {
+.language-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  min-width: 150px;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--divider-color);
+  background: var(--card-color);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(16px);
+  transform-origin: top right;
+  animation: dropdownFadeIn 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.language-dropdown-item {
   width: 100%;
-  background-color: var(--popup-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--primary-text-color);
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 150ms ease, color 150ms ease;
 
-  > .nut-cell-group__title {
-    color: var(--comment-text-color);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: rgba(148, 163, 184, 0.12);
+    }
   }
 
-  > .nut-cell-group__warp {
-    background-color: var(--popup-color);
-
-    > .nut-cell {
-      background-color: var(--popup-color);
-
-      &::after {
-        border-color: var(--divider-color);
-      }
-    }
-
-    > .nut-cell:not(.selected) {
-      color: var(--primary-text-color);
-    }
+  &:active {
+    transform: scale(0.98);
   }
 
-  .selected.nut-cell {
+  &.is-selected {
     color: var(--primary-color);
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    flex-direction: row-reverse;
+    font-weight: 600;
+    background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  }
+
+  &__check {
+    font-size: 12px;
+    color: var(--primary-color);
   }
 }
-
-.language-switch-popup__title {
-  color: var(--comment-text-color);
-  padding: 10px 0 10px 15px;
-  font-size: 14px;
-}
-
 </style>
