@@ -206,7 +206,7 @@
   .preview-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     padding: 0;
     margin: 0;
     list-style: none;
@@ -216,16 +216,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      background: var(--card-color);
+      padding: 10px 12px;
+      background: color-mix(in srgb, var(--background-color) 45%, var(--card-color));
       border: 1px solid var(--divider-color);
-      border-radius: 14px;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+      transition: transform 140ms ease-out, border-color 160ms ease, background-color 160ms ease;
 
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 16px -2px color-mix(in srgb, var(--primary-color) 12%, transparent);
-        border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          border-color: color-mix(in srgb, var(--primary-color) 28%, transparent);
+          background: color-mix(in srgb, var(--primary-color) 5%, var(--card-color));
+        }
+      }
+
+      &:active {
+        transform: scale(0.99);
       }
 
       .infos {

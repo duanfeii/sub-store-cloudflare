@@ -1,16 +1,15 @@
 <template>
   <div class="my-page-wrapper">
+    <!-- Profile + backup actions (merged; no redundant backup-only card) -->
     <section class="profile-block">
-      <div class="radio-wrapper">
-        <span class="tag current">{{ env.runtime || env.backend || "Cloudflare" }}</span>
-        <div class="storage-language-switch">
-          <LanguageSwitcherButton />
-        </div>
+      <div class="profile-top">
+        <span class="runtime-pill">{{ env.runtime || env.backend || "Cloudflare" }}</span>
+        <LanguageSwitcherButton />
       </div>
       <div class="info">
         <div class="avatar-wrapper">
           <nut-avatar
-            size="72"
+            size="56"
             bg-color="var(--card-color)"
             :url="icon"
             class="auto-reverse"
@@ -35,44 +34,46 @@
           </nut-button>
         </div>
       </div>
+      <p class="profile-note">{{ t("myPage.backup.desc") }}</p>
     </section>
 
-    <!-- Backup Card -->
-    <section class="config-card storage-card">
-      <div class="title-wrapper">
-        <h1>{{ t("myPage.backup.title") }}</h1>
-      </div>
-      <p class="card-desc">{{ t("myPage.backup.desc") }}</p>
-    </section>
-
-    <!-- Templates Card -->
-    <section class="config-card">
-      <div class="title-wrapper">
-        <h1>{{ t("myPage.templates.title") }}</h1>
-        <div class="storage-actions">
-          <input ref="templateFileInput" type="file" accept="application/json,.json,.yaml,.yml,text/yaml" @change="importTemplateFromFile" />
-          <nut-button plain type="primary" size="small" :loading="templateImporting" @click="selectTemplateFile">
-            <font-awesome-icon v-if="!templateImporting" icon="fa-solid fa-file-import" />
-            {{ t("myPage.templates.importFile") }}
-          </nut-button>
-          <nut-button type="primary" size="small" :loading="templateImporting" @click="openTemplateImport">
-            <font-awesome-icon v-if="!templateImporting" icon="fa-solid fa-plus" />
-            {{ t("myPage.templates.create") }}
-          </nut-button>
+    <!-- Templates -->
+    <section class="settings-section">
+      <header class="section-header">
+        <div class="section-header__text">
+          <h2 class="section-header__title">{{ t("myPage.templates.title") }}</h2>
         </div>
-      </div>
+        <div class="section-header__actions">
+          <input ref="templateFileInput" type="file" accept="application/json,.json,.yaml,.yml,text/yaml" @change="importTemplateFromFile" />
+          <button
+            type="button"
+            class="section-action-btn"
+            :disabled="templateImporting"
+            :title="t('myPage.templates.importFile')"
+            @click="selectTemplateFile"
+          >
+            <font-awesome-icon icon="fa-solid fa-file-import" />
+          </button>
+          <button
+            type="button"
+            class="section-action-btn is-primary"
+            :disabled="templateImporting"
+            :title="t('myPage.templates.create')"
+            @click="openTemplateImport"
+          >
+            <font-awesome-icon icon="fa-solid fa-plus" />
+          </button>
+        </div>
+      </header>
 
-      <!-- Skeleton pulse loader for templates -->
       <div v-if="loadingTemplates" class="template-card-list">
         <div class="template-card skeleton-card skeleton-pulse">
-          <div class="skeleton-avatar"></div>
           <div class="skeleton-content">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line sub"></div>
           </div>
         </div>
         <div class="template-card skeleton-card skeleton-pulse">
-          <div class="skeleton-avatar"></div>
           <div class="skeleton-content">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line sub"></div>
@@ -80,18 +81,17 @@
         </div>
       </div>
 
-      <!-- Template Feature Cards -->
       <div v-else class="template-card-list">
         <div v-for="template in templates" :key="template.name" class="template-card">
-          <div class="template-icon-badge">
-            <font-awesome-icon icon="fa-solid fa-code" />
-          </div>
           <div class="template-info">
             <div class="template-header-line">
               <span class="template-title">{{ template.displayName || template.name }}</span>
-              <nut-tag :type="template.readonly ? 'warning' : 'primary'" plain>
+              <span
+                class="template-kind-pill"
+                :class="template.readonly ? 'is-builtin' : 'is-custom'"
+              >
                 {{ template.readonly ? t("myPage.templates.builtIn") : t("myPage.templates.custom") }}
-              </nut-tag>
+              </span>
             </div>
             <span class="template-target-pill">
               {{ getTargetLabel(template.target || "mihomo") }}
@@ -109,107 +109,127 @@
       </div>
     </section>
 
-    <!-- Request Settings Card -->
-    <section class="config-card">
-      <div class="title-wrapper" @click="requestEditing ? cancelRequestEdit() : startRequestEdit()">
-        <h1>{{ t("myPage.request.title") }}</h1>
-        <div class="config-btn-wrapper">
+    <!-- Request Settings -->
+    <section class="settings-section">
+      <header
+        class="section-header section-header--clickable"
+        @click="requestEditing ? cancelRequestEdit() : startRequestEdit()"
+      >
+        <div class="section-header__text">
+          <h2 class="section-header__title">{{ t("myPage.request.title") }}</h2>
+          <p v-if="!requestEditing" class="section-header__desc">{{ requestSummary }}</p>
+        </div>
+        <div class="section-header__actions" @click.stop>
           <template v-if="requestEditing">
-            <nut-button class="cancel-btn" plain type="info" size="mini" :disabled="requestSaving" @click.stop="cancelRequestEdit">
+            <nut-button class="cancel-btn" plain type="info" size="mini" :disabled="requestSaving" @click="cancelRequestEdit">
               <font-awesome-icon icon="fa-solid fa-ban" />
               {{ t("myPage.btn.cancel") }}
             </nut-button>
-            <nut-button class="save-btn" type="primary" size="mini" :loading="requestSaving" @click.stop="saveRequestSettings">
+            <nut-button class="save-btn" type="primary" size="mini" :loading="requestSaving" @click="saveRequestSettings">
               <font-awesome-icon v-if="!requestSaving" icon="fa-solid fa-floppy-disk" />
               {{ t("myPage.btn.save") }}
             </nut-button>
           </template>
-          <nut-icon v-else class="right-icon" name="right"></nut-icon>
+          <font-awesome-icon
+            v-else
+            class="section-chevron"
+            icon="fa-solid fa-angle-right"
+          />
+        </div>
+      </header>
+
+      <div v-if="requestEditing" class="settings-form-card">
+        <div class="settings-form-grid">
+          <div class="form-field-group">
+            <label class="form-field-label">{{ t("myPage.request.defaultUserAgent") }}</label>
+            <input
+              v-model="requestForm.defaultUserAgent"
+              class="settings-input"
+              type="text"
+              :placeholder="t('myPage.request.defaultUserAgent')"
+            />
+          </div>
+
+          <div class="form-field-group">
+            <label class="form-field-label">{{ t("myPage.request.defaultFlowUserAgent") }}</label>
+            <input
+              v-model="requestForm.defaultFlowUserAgent"
+              class="settings-input"
+              type="text"
+              :placeholder="t('myPage.request.defaultFlowUserAgent')"
+            />
+          </div>
+
+          <div class="form-field-group">
+            <label class="form-field-label">{{ t("myPage.request.defaultTimeout") }}</label>
+            <input
+              v-model="requestForm.defaultTimeout"
+              class="settings-input"
+              type="number"
+              :placeholder="t('myPage.request.defaultTimeout')"
+            />
+          </div>
+
+          <div class="form-field-group">
+            <label class="form-field-label">{{ t("myPage.request.backendRequestConcurrency") }}</label>
+            <input
+              v-model="requestForm.backendRequestConcurrency"
+              class="settings-input"
+              type="number"
+              :placeholder="t('myPage.request.backendRequestConcurrency')"
+            />
+          </div>
+
+          <div class="form-field-group">
+            <label class="form-field-label">{{ t("myPage.request.backendRequestConcurrencyWaitTime") }}</label>
+            <input
+              v-model="requestForm.backendRequestConcurrencyWaitTime"
+              class="settings-input"
+              type="number"
+              :placeholder="t('myPage.request.backendRequestConcurrencyWaitTime')"
+            />
+          </div>
+
+          <div class="form-field-group">
+            <label class="form-field-label">{{ t("myPage.request.remoteCacheTtl") }}</label>
+            <input
+              v-model="requestForm.remoteCacheTtl"
+              class="settings-input"
+              type="number"
+              :placeholder="t('myPage.request.remoteCacheTtl')"
+            />
+          </div>
+
+          <div class="form-field-group form-field-group--full">
+            <label class="form-field-label">{{ t("myPage.request.nodeInfoApiUrl") }}</label>
+            <input
+              v-model="requestForm.nodeInfoApiUrl"
+              class="settings-input"
+              type="text"
+              :placeholder="t('myPage.request.nodeInfoApiUrl')"
+            />
+          </div>
+
+          <div class="toggle-card-row form-field-group--full">
+            <span class="toggle-card-title">{{ t('myPage.request.remoteCacheStaleOnError') }}</span>
+            <nut-switch v-model="requestForm.remoteCacheStaleOnError" />
+          </div>
         </div>
       </div>
-
-      <!-- Modernized Request Settings Form Grid -->
-      <div v-if="requestEditing" class="settings-form-grid">
-        <div class="form-field-group">
-          <label class="form-field-label">{{ t("myPage.request.defaultUserAgent") }}</label>
-          <input
-            v-model="requestForm.defaultUserAgent"
-            class="settings-input"
-            type="text"
-            :placeholder="t('myPage.request.defaultUserAgent')"
-          />
-        </div>
-
-        <div class="form-field-group">
-          <label class="form-field-label">{{ t("myPage.request.defaultFlowUserAgent") }}</label>
-          <input
-            v-model="requestForm.defaultFlowUserAgent"
-            class="settings-input"
-            type="text"
-            :placeholder="t('myPage.request.defaultFlowUserAgent')"
-          />
-        </div>
-
-        <div class="form-field-group">
-          <label class="form-field-label">{{ t("myPage.request.defaultTimeout") }}</label>
-          <input
-            v-model="requestForm.defaultTimeout"
-            class="settings-input"
-            type="number"
-            :placeholder="t('myPage.request.defaultTimeout')"
-          />
-        </div>
-
-        <div class="form-field-group">
-          <label class="form-field-label">{{ t("myPage.request.backendRequestConcurrency") }}</label>
-          <input
-            v-model="requestForm.backendRequestConcurrency"
-            class="settings-input"
-            type="number"
-            :placeholder="t('myPage.request.backendRequestConcurrency')"
-          />
-        </div>
-
-        <div class="form-field-group">
-          <label class="form-field-label">{{ t("myPage.request.backendRequestConcurrencyWaitTime") }}</label>
-          <input
-            v-model="requestForm.backendRequestConcurrencyWaitTime"
-            class="settings-input"
-            type="number"
-            :placeholder="t('myPage.request.backendRequestConcurrencyWaitTime')"
-          />
-        </div>
-
-        <div class="form-field-group">
-          <label class="form-field-label">{{ t("myPage.request.remoteCacheTtl") }}</label>
-          <input
-            v-model="requestForm.remoteCacheTtl"
-            class="settings-input"
-            type="number"
-            :placeholder="t('myPage.request.remoteCacheTtl')"
-          />
-        </div>
-
-        <div class="form-field-group form-field-group--full">
-          <label class="form-field-label">{{ t("myPage.request.nodeInfoApiUrl") }}</label>
-          <input
-            v-model="requestForm.nodeInfoApiUrl"
-            class="settings-input"
-            type="text"
-            :placeholder="t('myPage.request.nodeInfoApiUrl')"
-          />
-        </div>
-
-        <div class="toggle-card-row form-field-group--full">
-          <span class="toggle-card-title">{{ t('myPage.request.remoteCacheStaleOnError') }}</span>
-          <nut-switch v-model="requestForm.remoteCacheStaleOnError" />
-        </div>
-      </div>
-      <p v-else class="card-desc">{{ requestSummary }}</p>
     </section>
 
-    <nut-popup v-model:visible="templateImportVisible" position="right" pop-class="side-drawer-popup template-drawer-popup" closeable :style="{ width: isMobile() ? '88%' : '440px', height: '100%', padding: '24px 18px' }">
+    <!-- Template editor: desktop modal · mobile bottom sheet -->
+    <nut-popup
+      v-model:visible="templateImportVisible"
+      :position="templatePopupPosition"
+      :pop-class="templatePopupClass"
+      :round="!isDesktop"
+      closeable
+      close-icon-position="top-right"
+      :style="templatePopupStyle"
+    >
       <div class="template-import-panel">
+        <div v-if="!isDesktop" class="preview-sheet-handle" aria-hidden="true" />
         <h2>{{ templateEditingId ? t("myPage.templates.editTitle") : t("myPage.templates.importTitle") }}</h2>
         <nut-input class="input" v-model.trim="templateForm.id" :placeholder="t('myPage.templates.idPlaceholder')" input-align="left" :disabled="Boolean(templateEditingId)" />
         <nut-input class="input" v-model.trim="templateForm.name" :placeholder="t('myPage.templates.namePlaceholder')" input-align="left" />
@@ -249,6 +269,7 @@
 <script lang="ts" setup>
 import { computed, defineAsyncComponent, onMounted, reactive, ref } from "vue";
 import { Dialog } from "@nutui/nutui";
+import { useMediaQuery } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
 import { useCloudflareApi } from "@/api/app";
@@ -260,7 +281,6 @@ import { useAppNotifyStore } from "@/store/appNotify";
 import { useCodeStore } from "@/store/codeStore";
 import { useSettingsStore } from "@/store/settings";
 import { TEMPLATE_TARGET_OPTIONS, getTargetLabel } from "@/constants/subscriptionTargets";
-import { isMobile } from "@/utils/isMobile";
 
 const CmView = defineAsyncComponent(() => import("@/views/editCode/cmView.vue"));
 
@@ -272,6 +292,7 @@ const { showNotify } = useAppNotifyStore();
 const { t } = useI18n();
 const { icon, env } = useBackend();
 const TEMPLATE_EDITOR_ID = "TemplateEditor";
+const isDesktop = useMediaQuery("(min-width: 768px)");
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const templateFileInput = ref<HTMLInputElement | null>(null);
@@ -285,6 +306,28 @@ const templateEditingId = ref("");
 const templateTargetPickerVisible = ref(false);
 const templates = ref<any[]>([]);
 const loadingTemplates = ref(true);
+
+/** Desktop Modal · Mobile Bottom Sheet — same pattern as copy-link panel */
+const templatePopupPosition = computed(() => (isDesktop.value ? "center" : "bottom"));
+const templatePopupClass = computed(() =>
+  isDesktop.value ? "template-modal-popup" : "template-sheet-popup",
+);
+const templatePopupStyle = computed(() => {
+  if (isDesktop.value) {
+    return {
+      width: "min(560px, 94vw)",
+      maxHeight: "min(86vh, 800px)",
+      borderRadius: "16px",
+      overflow: "hidden",
+    };
+  }
+  return {
+    width: "100%",
+    maxHeight: "88vh",
+    borderRadius: "16px 16px 0 0",
+    overflow: "hidden",
+  };
+});
 
 const requestForm = reactive({
   defaultUserAgent: "",
@@ -522,53 +565,147 @@ onMounted(fetchTemplates);
 <style lang="scss" scoped>
 .my-page-wrapper {
   min-height: 100%;
-  /* page-body already pads — keep vertical rhythm only */
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--space-3);
+  gap: var(--space-5);
   animation: fadeIn 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Quiet section headers — same language as home / tools */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  padding: 0 2px 0 4px;
+  color: var(--comment-text-color);
+
+  &--clickable {
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+.section-header__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--comment-text-color);
+  line-height: 1.2;
+}
+
+.section-header__desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--lowest-text-color, var(--comment-text-color));
+}
+
+.section-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+
+  input {
+    display: none;
+  }
+}
+
+.section-action-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--second-text-color);
+  cursor: pointer;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+
+  svg {
+    width: 13px;
+    height: 13px;
+    font-size: 13px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      color: var(--primary-color);
+      background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+      border-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &.is-primary {
+    color: var(--primary-color);
+  }
+}
+
+.section-chevron {
+  width: 12px;
+  height: 12px;
+  font-size: 12px;
+  opacity: 0.55;
+  color: var(--comment-text-color);
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
 .profile-block {
   width: 100%;
   box-sizing: border-box;
-  padding: var(--space-4);
+  padding: 14px 16px 12px;
   border-radius: var(--radius-lg, var(--item-card-radios));
   background: var(--card-color);
   border: 1px solid var(--divider-color);
-  box-shadow: var(--card-shadow, 0 2px 12px -2px rgba(0, 0, 0, 0.06));
 
-  .radio-wrapper {
+  .profile-top {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    justify-content: space-between;
+    gap: 8px;
+  }
 
-    .tag {
-      margin: 0;
-      padding: 4px 10px;
-      flex-shrink: 0;
-      color: var(--second-text-color);
-      font-size: 12px;
-      font-weight: 500;
-      user-select: none;
-      border-radius: 9999px;
-      background: color-mix(in srgb, var(--primary-color) 8%, transparent);
-      border: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
-      color: var(--primary-color);
-    }
-
-    .storage-language-switch {
-      margin-left: auto;
-      flex-shrink: 0;
-    }
+  .runtime-pill {
+    margin: 0;
+    padding: 3px 10px;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 500;
+    user-select: none;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
+    color: var(--primary-color);
   }
 
   .info {
     width: 100%;
-    margin-bottom: 0;
-    padding: 14px 0 0;
+    margin: 0;
+    padding: 12px 0 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -583,6 +720,7 @@ onMounted(fetchTemplates);
 
     :deep(.nut-avatar) {
       background: var(--card-color);
+      flex-shrink: 0;
     }
   }
 
@@ -591,20 +729,21 @@ onMounted(fetchTemplates);
     margin-left: 12px;
     display: flex;
     flex-direction: column;
-    font-size: 18px;
-    font-weight: bold;
   }
 
   .title {
     margin: 0;
     overflow: hidden;
     color: var(--primary-text-color);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .des {
-    margin-top: 6px;
+    margin-top: 4px;
     display: flex;
     flex-direction: column;
     color: var(--comment-text-color);
@@ -614,10 +753,11 @@ onMounted(fetchTemplates);
   }
 
   .actions {
-    margin-left: 12px;
+    margin-left: 8px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    gap: 8px;
 
     input {
       display: none;
@@ -628,91 +768,52 @@ onMounted(fetchTemplates);
     }
 
     .nut-button {
-      width: 116px;
+      width: 108px;
       padding: 0 10px;
     }
 
     .nut-button--plain {
       background: transparent;
     }
+  }
 
-    a {
-      margin-top: 12px;
-    }
+  .profile-note {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--divider-color);
+    color: var(--comment-text-color);
+    font-size: 12px;
+    line-height: 1.5;
   }
 }
 
-.config-card {
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: var(--radius-lg, var(--item-card-radios));
-  background: var(--card-color);
-  color: var(--second-text-color);
-  border: 1px solid var(--divider-color);
-  box-shadow: var(--card-shadow, 0 2px 12px -2px rgba(0, 0, 0, 0.06));
-  overflow: hidden;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
-
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      box-shadow: var(--card-shadow-hover, 0 8px 24px -4px rgba(0, 0, 0, 0.1));
-      border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
-    }
-  }
-}
-
-.nut-icon {
-  color: var(--lowest-text-color);
-}
-
-.right-icon {
-  color: var(--comment-text-color);
-}
-
-/* Feature Cards for Templates */
 .template-card-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-3);
+  gap: 8px;
 }
 
 .template-card {
-  min-height: 54px;
-  padding: var(--space-3);
+  min-height: 48px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--background-color) 55%, var(--card-color));
+  border-radius: var(--radius-lg, var(--item-card-radios));
+  background: var(--card-color);
   border: 1px solid var(--divider-color);
-  /* Settings is high-frequency — drop decorative lift, keep press only */
   transition: transform 140ms ease-out, border-color 160ms ease, background-color 160ms ease;
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+      border-color: color-mix(in srgb, var(--primary-color) 22%, transparent);
       background: color-mix(in srgb, var(--primary-color) 4%, var(--card-color));
     }
   }
 
   &:active {
-    transform: scale(0.98);
-  }
-
-  .template-icon-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    flex-shrink: 0;
-    color: var(--primary-color);
-    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+    transform: scale(0.99);
   }
 
   .template-info {
@@ -726,11 +827,12 @@ onMounted(fetchTemplates);
   .template-header-line {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 8px;
+    min-width: 0;
   }
 
   .template-title {
-    font-size: var(--text-base);
+    font-size: 14px;
     font-weight: 600;
     color: var(--primary-text-color);
     overflow: hidden;
@@ -738,8 +840,29 @@ onMounted(fetchTemplates);
     white-space: nowrap;
   }
 
+  .template-kind-pill {
+    flex-shrink: 0;
+    padding: 1px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+
+    &.is-custom {
+      color: var(--primary-color);
+      background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+    }
+
+    &.is-builtin {
+      color: var(--comment-text-color);
+      background: color-mix(in srgb, var(--comment-text-color) 8%, transparent);
+      border: 1px solid var(--divider-color);
+    }
+  }
+
   .template-target-pill {
-    font-size: var(--text-xs);
+    font-size: 12px;
     color: var(--comment-text-color);
   }
 
@@ -751,20 +874,9 @@ onMounted(fetchTemplates);
   }
 }
 
-/* Skeleton Loaders */
 .skeleton-card {
-  min-height: 56px;
-  padding: var(--space-3);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.skeleton-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--divider-color) 60%, transparent);
+  min-height: 48px;
+  pointer-events: none;
 }
 
 .skeleton-content {
@@ -789,17 +901,31 @@ onMounted(fetchTemplates);
   }
 }
 
+.preview-sheet-handle {
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 4px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--comment-text-color) 28%, transparent);
+  flex-shrink: 0;
+}
+
 .template-import-panel {
-  height: 100%;
-  padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  max-height: inherit;
+  min-height: 0;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 10px;
   color: var(--second-text-color);
+  overflow: auto;
 
   h2 {
-    margin: 0 0 4px;
-    font-size: 17px;
+    margin: 0 28px 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
     color: var(--primary-text-color);
   }
 }
@@ -812,62 +938,28 @@ onMounted(fetchTemplates);
 
 .template-content-editor {
   flex: 1;
-  min-height: 220px;
+  min-height: 200px;
   border: 1px solid var(--divider-color);
   border-radius: var(--item-card-radios);
   background: var(--background-color);
   overflow: auto;
 
   :deep(.cmviewRef) {
-    min-height: 220px;
+    min-height: 200px;
   }
 
   :deep(.cm-editor) {
-    min-height: 220px;
+    min-height: 200px;
   }
 }
 
-.title-wrapper {
-  min-height: 48px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px solid var(--divider-color);
-  cursor: pointer;
-
-  h1 {
-    margin: 0;
-    font-size: 15px;
-    color: var(--primary-text-color);
-  }
+.settings-form-card {
+  border-radius: var(--radius-lg, var(--item-card-radios));
+  background: var(--card-color);
+  border: 1px solid var(--divider-color);
+  overflow: hidden;
 }
 
-.storage-card .title-wrapper {
-  cursor: default;
-}
-
-.storage-actions,
-.config-btn-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  input {
-    display: none;
-  }
-}
-
-.card-desc {
-  margin: 0;
-  padding: 12px 16px 16px;
-  color: var(--comment-text-color);
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-/* Settings Form Grid & Standardized Controls (40px/44px) */
 .settings-form-grid {
   padding: var(--space-4);
   display: grid;
@@ -938,28 +1030,24 @@ onMounted(fetchTemplates);
   .profile-block {
     .info {
       align-items: flex-start;
+      flex-wrap: wrap;
     }
 
     .avatar-wrapper {
-      max-width: calc(100% - 132px);
+      max-width: 100%;
     }
 
     .actions {
+      width: 100%;
+      flex-direction: row;
+      margin-left: 0;
+      margin-top: 8px;
+
       .nut-button {
-        width: 104px;
-        padding: 0 8px;
+        flex: 1;
+        width: auto;
       }
     }
-  }
-
-  .title-wrapper {
-    align-items: flex-start;
-    flex-direction: column;
-    padding: 14px 16px;
-  }
-
-  .storage-actions {
-    flex-wrap: wrap;
   }
 
   .template-card {
