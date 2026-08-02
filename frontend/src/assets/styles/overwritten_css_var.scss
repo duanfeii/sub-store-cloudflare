@@ -25,8 +25,6 @@
 .editor-section-tabs {
   box-sizing: border-box;
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 10;
   display: flex;
   flex-wrap: nowrap;
@@ -40,24 +38,17 @@
   color: var(--primary-text-color);
   border-bottom: 1px solid var(--divider-color);
   box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.05);
+  // Align with app shell content column (not a centered phone strip)
+  left: 0;
+  right: 0;
+  transform: none;
+  max-width: none;
 
-  @media screen and (min-width: 600px) {
-    max-width: 85%;
-  }
-
-  @media screen and (min-width: 768px) {
-    max-width: 630px;
-    border-radius: var(--item-card-radios);
-    border: 1px solid var(--divider-color);
-    top: calc(v-bind(navBarHeight) + 8px);
-  }
-
-  @media screen and (min-width: 900px) {
-    max-width: 700px;
-  }
-
-  @media screen and (min-width: 1200px) {
-    max-width: 900px;
+  @media screen and (min-width: $breakpoint-md) {
+    @include app-shell-content-inset;
+    border-radius: 0;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   .editor-section-tab-list {

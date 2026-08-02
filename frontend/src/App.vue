@@ -1,9 +1,19 @@
 <template>
-  <NavBar />
-  <SideBar v-show="shouldShowSideBar" />
-  <main class="page-body">
-    <router-view />
-  </main>
+  <div
+    class="app-shell"
+    :class="{
+      'app-shell--sidenav': shouldShowSideBar,
+      'app-shell--sidenav-expanded': shouldShowSideBar && isSideNavExpanded,
+    }"
+  >
+    <SideBar v-show="shouldShowSideBar" />
+    <div class="app-shell__main">
+      <NavBar />
+      <main class="page-body">
+        <router-view />
+      </main>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -13,14 +23,21 @@ import { useWideScreenNarrowMode } from "@/hooks/useWideScreenNarrowMode";
 import { useThemes } from "@/hooks/useThemes";
 import { useGlobalStore } from "@/store/global";
 import { useSubsStore } from "@/store/subs";
+import { SIDEBAR_EXPANDED_BREAKPOINT } from "@/store/system";
 import { getFlowsUrlList } from "@/utils/getFlowsUrlList";
 import { initStores } from "@/utils/initApp";
+import { useWindowSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { ref, watchEffect, onMounted } from "vue";
+import { computed, ref, watchEffect, onMounted } from "vue";
 
 const subsStore = useSubsStore();
 const globalStore = useGlobalStore();
 const { shouldShowSideBar } = useWideScreenNarrowMode();
+const { width: windowWidth } = useWindowSize();
+
+const isSideNavExpanded = computed(
+  () => windowWidth.value >= SIDEBAR_EXPANDED_BREAKPOINT,
+);
 
 const { subs, flows } = storeToRefs(subsStore);
 
@@ -47,26 +64,70 @@ watchEffect(() => {
   font-family: "Roboto", "nutui-iconfont", "Noto Sans", Arial, "PingFang SC",
     "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "ST Heiti",
     SimHei, sans-serif;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
   position: absolute;
   min-height: 100%;
   width: 100%;
   background: var(--background-color);
   overflow: hidden;
-
-  .page-body {
-    // overflow: hidden;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    width: 100%;
-    @include responsive-container-width;
-  }
-
   overflow-y: auto;
+  // Default: no sidenav offset (mobile / routes without shell nav)
+  --app-sidenav-width: 0px;
 }
 
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  --app-sidenav-width: 0px;
+
+  &--sidenav {
+    --app-sidenav-width: #{$sidenav-width-collapsed};
+  }
+
+  &--sidenav-expanded {
+    --app-sidenav-width: #{$sidenav-width-expanded};
+  }
+}
+
+.app-shell__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .app-shell--sidenav & {
+    @media screen and (min-width: $breakpoint-md) {
+      padding-left: var(--app-sidenav-width);
+    }
+  }
+}
+
+.page-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  @include responsive-container-width;
+
+  @media screen and (min-width: $breakpoint-md) {
+    // Fluid content with a soft readability cap on very wide screens
+    max-width: $content-max-width;
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+
+  @media screen and (min-width: $breakpoint-xl) {
+    padding-inline: 32px;
+  }
+}
 </style>

@@ -438,10 +438,12 @@ const refresh = async () => {
   -webkit-backdrop-filter: blur(var(--nav-bar-blur));
   background: var(--nav-bar-color);
   border-bottom: 1px solid var(--divider-color);
+  border-radius: 0;
+  overflow: visible;
 
-  @media screen and (min-width: 768px) {
-    border-radius: var(--item-card-radios);
-    overflow: visible;
+  @media screen and (min-width: $breakpoint-md) {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 
   &__left,
