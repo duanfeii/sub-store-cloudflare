@@ -882,7 +882,7 @@ onMounted(fetchTemplates);
 .form-field-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 
   &--full {
     grid-column: 1 / -1;
@@ -893,6 +893,8 @@ onMounted(fetchTemplates);
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--second-text-color);
+  line-height: 1.3;
+  margin: 0;
 }
 
 .settings-input {

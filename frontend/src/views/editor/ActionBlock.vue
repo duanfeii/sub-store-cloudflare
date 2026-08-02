@@ -632,8 +632,8 @@ defineExpose({ exitAllEditName });
   .list-group-item-title {
     display: flex;
     justify-content: space-between;
-    padding-bottom: 12px;
-    margin-bottom: 12px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
     color: var(--comment-text-color);
     border-bottom: 1px solid var(--divider-color);
     width: 100%;
