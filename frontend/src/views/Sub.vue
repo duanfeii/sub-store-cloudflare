@@ -87,16 +87,7 @@
             <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
           </div>
 
-          <!-- 加号 -->
-          <div
-            v-if="appearanceSetting.showFloatingAddButton"
-            class="drag-btn"
-            @touchmove="onTa"
-            @touchend="enTa"
-            @click="addSub"
-          >
-            <font-awesome-icon icon="fa-solid fa-plus" />
-          </div>
+          <!-- Create lives on section headers; floating + removed to cut duplicate paths -->
         </nut-drag>
       </div>
     </Teleport>
@@ -470,20 +461,7 @@ const refresh = async () => {
   await initStores(true, true, true);
 };
 
-const as = ref(false);
-
-const onTa = () => {
-  as.value = true;
-};
-
-const enTa = () => {
-  setTimeout(() => {
-    as.value = false;
-  }, 100);
-};
-
 const addSub = () => {
-  if (as.value) return;
   addSubBtnIsVisible.value = true;
 };
 

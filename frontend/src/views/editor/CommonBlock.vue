@@ -9,7 +9,7 @@
           <nut-icon v-if="!isFold" name="rect-down" size="12px"></nut-icon>
           <nut-icon v-else name="rect-right" size="12px"></nut-icon>
         </div>
-        <EditorCommonTips />
+        <!-- Tips dialog available via long-form docs; remove always-on chrome -->
       </div>
     </div>
     <nut-form v-if="!isFold" class="form common-options-form">
@@ -92,7 +92,6 @@
 </template>
 
 <script lang="ts" setup>
-  import EditorCommonTips from '@/components/EditorCommonTips.vue';
   import { useRoute } from 'vue-router';
   import { computed, inject, watchEffect, ref, watch } from 'vue';
   import {
