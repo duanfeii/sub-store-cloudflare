@@ -368,3 +368,42 @@ textarea::-webkit-input-placeholder {
 .fa-circle-question, .fa-location-arrow {
   cursor: pointer;
 }
+
+// Global NutUI Unified Component Styling Overrides
+.nut-button {
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+  &:active {
+    transform: scale(0.97) !important;
+  }
+
+  &--primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-end, #8B5CF6)) !important;
+    border: none !important;
+    box-shadow: 0 4px 14px -3px rgba(99, 102, 241, 0.35) !important;
+  }
+}
+
+.nut-tag {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  padding: 2px 8px !important;
+  font-size: 11px !important;
+}
+
+.nut-cell, .nut-form-item {
+  border-radius: 12px !important;
+  background: var(--card-color) !important;
+  color: var(--primary-text-color) !important;
+  border: 1px solid var(--divider-color) !important;
+  margin-bottom: 10px !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+
+  &:focus-within {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+  }
+}
