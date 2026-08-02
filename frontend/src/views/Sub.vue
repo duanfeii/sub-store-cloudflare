@@ -760,13 +760,14 @@ const importTips = () => {
 }
 
 .onboarding-inline {
-  width: calc(100% - 1.5rem);
-  margin: 12px auto 16px;
+  width: 100%;
+  margin: 12px 0 16px;
   padding: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  box-sizing: border-box;
 }
 
 .onboarding-kicker {
@@ -978,6 +979,16 @@ const importTips = () => {
 
 .subs-list-wrapper {
   width: 100%;
+  box-sizing: border-box;
+
+  .list-draggable {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
   .list-draggable.dual-column {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -995,10 +1006,9 @@ const importTips = () => {
 
   .subs-list-content {
     width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
+    margin: 0;
     padding: 0;
+    box-sizing: border-box;
   }
 
   .subs-list-content + .subs-list-content {
@@ -1012,8 +1022,8 @@ const importTips = () => {
   flex-wrap: wrap;
   align-items: stretch;
   gap: 10px 0;
-  width: calc(100% - 1.5rem);
-  margin: 10px auto 12px;
+  width: 100%;
+  margin: 10px 0 12px;
   padding: 10px 4px;
   background: var(--card-color);
   border: 1px solid var(--divider-color);

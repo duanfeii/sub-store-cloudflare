@@ -223,7 +223,11 @@ const toggleTheme = async () => {
 </script>
 
 <style lang="scss" scoped>
-/* Full-bleed fixed bar (background + border span the viewport) */
+/*
+ * Full-bleed fixed top bar.
+ * Height is hardcoded to 56px (with CSS-var override from the store) so the
+ * layout cannot collapse if Vue style-bindings fail to inject.
+ */
 .nav-bar-wrapper {
   position: fixed;
   top: 0;
@@ -231,22 +235,24 @@ const toggleTheme = async () => {
   right: 0;
   z-index: 20;
   width: 100%;
+  height: 56px;
   height: v-bind(navBarHeight);
+  min-height: 56px;
   box-sizing: border-box;
-  background: var(--nav-bar-color);
-  border-bottom: 1px solid var(--divider-color);
+  background: var(--nav-bar-color, #fff);
+  border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
 /*
- * Content row: logo | tabs | actions in one horizontal line,
- * constrained to the same max-width as .page-body so edges align.
+ * Single horizontal row: logo | tabs | actions.
+ * max-width matches .page-body so left/right edges align with the list.
  */
 .nav-bar {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -254,33 +260,39 @@ const toggleTheme = async () => {
   width: 100%;
   max-width: $content-max-width;
   height: 100%;
-  margin-inline: auto;
-  padding: v-bind(navBartop) var(--space-4) 0;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 0;
+  padding-top: v-bind(navBartop);
+  padding-right: 16px;
+  padding-bottom: 0;
+  padding-left: 16px;
   overflow: visible;
 
   @media screen and (min-width: $breakpoint-md) {
-    padding-inline: var(--space-5);
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  &__left,
+  &__right,
+  &__center {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center;
+    min-width: 0;
   }
 
   &__left,
   &__right {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
     gap: 8px;
     flex: 0 0 auto;
-    min-width: 0;
   }
 
   &__center {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
     justify-content: center;
     flex: 1 1 auto;
-    min-width: 0;
   }
 }
 

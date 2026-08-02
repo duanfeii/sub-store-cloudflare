@@ -90,15 +90,15 @@ watchEffect(() => {
   overflow: auto;
   width: 100%;
   max-width: $content-max-width;
-  margin-inline: auto;
+  margin-left: auto;
+  margin-right: auto;
   min-width: 0;
   box-sizing: border-box;
-  padding-inline: var(--space-4);
-  padding-top: var(--space-4);
-  padding-bottom: var(--space-6);
+  padding: 16px 16px 24px;
 
   @media screen and (min-width: $breakpoint-md) {
-    padding-inline: var(--space-5);
+    padding-left: 24px;
+    padding-right: 24px;
   }
 }
 </style>
