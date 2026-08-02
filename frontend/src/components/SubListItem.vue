@@ -1,11 +1,14 @@
 <template>
-  <nut-swipe
+  <component
+    :is="isDesktop ? 'div' : 'nut-swipe'"
     ref="swipe"
     class="sub-item-swipe"
-    :class="{ 'is-dual-column': props.isDualColumn }"
-    :disabled="props.disabled"
-    @close="setIsMoveClose()"
-    @open="setIsMoveOpen()"
+    :class="{ 'is-dual-column': props.isDualColumn, 'is-desktop': isDesktop }"
+    v-bind="isDesktop ? {} : {
+      disabled: props.disabled,
+      onClose: setIsMoveClose,
+      onOpen: setIsMoveOpen
+    }"
   >
     <div
       class="sub-item-wrapper"
@@ -15,11 +18,16 @@
     >
       <div
         v-if="
-          appearanceSetting.subProgressStyle === 'background' &&
+          appearanceSetting.subProgressStyle &&
+          appearanceSetting.subProgressStyle !== 'hidden' &&
           typeof flow === 'object' &&
-          flow.progress
+          flow.progress !== undefined
         "
         class="progress"
+        :class="[
+          progressColorClass,
+          `progress--${appearanceSetting.subProgressStyle}`
+        ]"
         :style="{ width: `${flow.progress * 100}%` }"
       ></div>
       <!-- compareSub -->
@@ -154,7 +162,34 @@
                   <span>{{ t('subPage.actions.edit') }}</span>
                 </button>
                 <button
-                  v-if="!isMobile()"
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runMenuAction(onClickCopyConfig)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-paste" />
+                  <span>{{ t('subPage.actions.cloneConfig') }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runMenuAction(onClickOpenDownload)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-file-export" />
+                  <span>{{ t('subPage.actions.openDownload') }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="sub-item-overflow__item sub-item-overflow__item--danger"
+                  role="menuitem"
+                  @click.stop="runMenuAction(onClickDelete)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-trash-can" />
+                  <span>{{ t('subPage.actions.delete') }}</span>
+                </button>
+                <button
+                  v-if="!isDesktop"
                   ref="moreAction"
                   type="button"
                   class="sub-item-overflow__item"
@@ -234,7 +269,7 @@
       </div>
     </div>
     <!-- 加入判断 开启拖动不显示 -->
-    <template v-if="appearanceSetting.isLeftRight" #left>
+    <template #left v-if="!isDesktop && appearanceSetting.isLeftRight">
       <!-- Copy -->
       <div class="sub-item-swipe-btn-wrapper">
         <nut-button
@@ -260,13 +295,6 @@
           <font-awesome-icon icon="fa-solid fa-file-export" />
         </nut-button>
       </div>
-      <!-- preview -->
-      <!-- <div class="sub-item-swipe-btn-wrapper">
-        <nut-button shape="square" type="success" class="sub-item-swipe-btn" @click="onClickPreview">
-          <font-awesome-icon icon="fa-solid fa-eye" />
-        </nut-button>
-      </div> -->
-      <!-- del -->
       <div class="sub-item-swipe-btn-wrapper">
         <nut-button
           shape="square"
@@ -281,7 +309,7 @@
       </div>
     </template>
 
-    <template v-else #right>
+    <template #right v-else-if="!isDesktop">
       <div class="sub-item-swipe-btn-wrapper">
         <nut-button
           shape="square"
@@ -319,7 +347,7 @@
         </nut-button>
       </div>
     </template>
-  </nut-swipe>
+  </component>
 
   <CompareTable
     v-if="compareTableIsVisible"
@@ -357,7 +385,7 @@
 
 <script lang="ts" setup>
 import { Dialog, Toast } from "@nutui/nutui";
-import { useClipboard } from "@vueuse/core";
+import { useClipboard, useMediaQuery } from "@vueuse/core";
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
 import { computed, ref, toRaw } from "vue";
@@ -390,6 +418,7 @@ const drawerWidth = computed(() => isMobile() ? '88%' : '440px');
 const { copy, isSupported } = useClipboard();
 const { toClipboard: copyFallback } = useV3Clipboard();
 
+const isDesktop = useMediaQuery("(min-width: 768px)");
 const { t } = useI18n();
 
 let scrollTop = 0;
@@ -500,6 +529,16 @@ const statusDotClass = computed(() => {
     if (flow.value.firstLine === t("subPage.subItem.flowError")) return 'is-error';
   }
   return 'is-online';
+});
+
+const progressColorClass = computed(() => {
+  if (typeof flow.value !== "object" || flow.value?.progress === undefined) {
+    return "progress--green";
+  }
+  const p = flow.value.progress;
+  if (p > 0.5) return "progress--green";
+  if (p > 0.2) return "progress--yellow";
+  return "progress--orange";
 });
 
 const flow = computed(() => {
@@ -791,18 +830,19 @@ const refreshCompare = async () => {
   }
 };
 const swipeClose = () => {
-  swipe.value.close();
+  swipe.value?.close?.();
 };
 const swipeController = () => {
+  if (isDesktop.value) return;
   if (swipeIsOpen.value) {
-    swipe.value.close();
+    swipe.value?.close?.();
     swipeIsOpen.value = false;
     if (moreAction.value) moreAction.value.style.transform = "rotate(0deg)";
 
     document.removeEventListener('click', handleGlobalClick);
   } else {
     if (appearanceSetting.value.isLeftRight) {
-      swipe.value.open("right");
+      swipe.value?.open?.("right");
       setTimeout(() => {
         swipeIsOpen.value = true;
         setTimeout(() => {
@@ -810,7 +850,7 @@ const swipeController = () => {
         }, 10);
       }, 100);
     } else {
-      swipe.value.open("left");
+      swipe.value?.open?.("left");
       setTimeout(() => {
         swipeIsOpen.value = true;
         if (moreAction.value) moreAction.value.style.transform = "rotate(180deg)";
@@ -823,16 +863,16 @@ const swipeController = () => {
   }
 };
 
-const handleGlobalClick = (event) => {
+const handleGlobalClick = (event: MouseEvent) => {
   const swipeRightEl = document.querySelector('.nut-swipe__right');
   const swipeLeftEl = document.querySelector('.nut-swipe__left');
 
-  if ((swipeRightEl && swipeRightEl.contains(event.target)) ||
-      (swipeLeftEl && swipeLeftEl.contains(event.target))) {
+  if ((swipeRightEl && swipeRightEl.contains(event.target as Node)) ||
+      (swipeLeftEl && swipeLeftEl.contains(event.target as Node))) {
     return;
   }
 
-  swipe.value.close();
+  swipe.value?.close?.();
   swipeIsOpen.value = false;
   if (moreAction.value) moreAction.value.style.transform = "rotate(0deg)";
 
@@ -872,11 +912,11 @@ const setTimeoutTF = () => {
 
 
 
-const handleContentClick = (event) => {
+const handleContentClick = (event: MouseEvent) => {
   event.stopPropagation();
 
   if (swipeIsOpen.value) {
-    swipe.value.close();
+    swipe.value?.close?.();
     swipeIsOpen.value = false;
     if (moreAction.value) moreAction.value.style.transform = "rotate(0deg)";
     return;
@@ -892,7 +932,7 @@ const openPreviewPanel = () => {
   previewPanelVisible.value = true;
 };
 const closeExpandedMenu = () => {
-  swipe.value.close();
+  swipe.value?.close?.();
   swipeIsOpen.value = false;
   closeItemMenu();
   if (moreAction.value) moreAction.value.style.transform = "rotate(0deg)";
@@ -1013,9 +1053,12 @@ const refreshSubFlowsIfNeeded = async () => {
   position: relative;
   display: block;
   min-width: 0;
+  border-radius: var(--radius-lg, var(--item-card-radios));
+
+  &.is-desktop {
+    overflow: visible;
+  }
 }
-
-
 
 .sub-item-customer-icon {
   :deep(img) {
@@ -1030,19 +1073,21 @@ const refreshSubFlowsIfNeeded = async () => {
   line-height: 1.4;
   margin-left: auto;
   margin-right: auto;
-  border-radius: var(--item-card-radios);
+  border-radius: var(--radius-lg, var(--item-card-radios));
   display: flex;
   min-width: 0;
   background: var(--card-color);
   border: 1px solid var(--divider-color);
-  box-shadow: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   position: relative;
   overflow: visible;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    border-color: color-mix(in srgb, var(--primary-color) 45%, var(--divider-color));
+    border-color: color-mix(in srgb, var(--primary-color) 40%, var(--divider-color));
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
   }
 
   :deep(.nut-avatar) {
@@ -1107,10 +1152,10 @@ const refreshSubFlowsIfNeeded = async () => {
         position: relative;
         top: 0;
         padding: 0;
-        border-radius: var(--item-card-radios);
+        border-radius: var(--radius-lg, var(--item-card-radios));
         display: flex;
         align-items: center;
-        gap: 2px;
+        gap: 4px;
         flex-shrink: 0;
 
         &.simple-mode {
@@ -1120,10 +1165,10 @@ const refreshSubFlowsIfNeeded = async () => {
       }
 
       .sub-item-action {
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         padding: 0;
-        border: 0;
+        border: 1px solid transparent;
         border-radius: 8px;
         background: transparent;
         color: var(--comment-text-color);
@@ -1131,11 +1176,11 @@ const refreshSubFlowsIfNeeded = async () => {
         display: inline-flex;
         justify-content: center;
         align-items: center;
-        transition: background-color 0.15s ease, color 0.15s ease;
+        transition: all 0.15s ease;
 
         svg {
-          width: 15px;
-          height: 15px;
+          width: 14px;
+          height: 14px;
         }
 
         &:hover {
@@ -1143,9 +1188,21 @@ const refreshSubFlowsIfNeeded = async () => {
           color: var(--primary-text-color);
         }
 
+        &.sub-item-action--primary {
+          background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+          color: var(--primary-color);
+          border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+
+          &:hover {
+            background: color-mix(in srgb, var(--primary-color) 22%, transparent);
+            border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+            transform: scale(1.04);
+          }
+        }
+
         &.is-active {
           color: var(--primary-color);
-          background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+          background: color-mix(in srgb, var(--primary-color) 14%, transparent);
         }
       }
 
@@ -1156,15 +1213,16 @@ const refreshSubFlowsIfNeeded = async () => {
 
         &__menu {
           position: absolute;
-          top: calc(100% + 4px);
+          top: calc(100% + 6px);
           right: 0;
-          z-index: 20;
-          min-width: 168px;
+          z-index: 50;
+          min-width: 176px;
           padding: 6px;
-          border-radius: 10px;
+          border-radius: 12px;
           border: 1px solid var(--divider-color);
           background: var(--card-color);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+          box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
+          backdrop-filter: blur(12px);
         }
 
         &__item {
@@ -1172,7 +1230,7 @@ const refreshSubFlowsIfNeeded = async () => {
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 10px 12px;
+          padding: 8px 12px;
           border: 0;
           border-radius: 8px;
           background: transparent;
@@ -1181,16 +1239,35 @@ const refreshSubFlowsIfNeeded = async () => {
           text-align: left;
           cursor: pointer;
           white-space: nowrap;
+          transition: background-color 0.15s ease, color 0.15s ease;
 
           svg {
             width: 14px;
             height: 14px;
             flex-shrink: 0;
             color: var(--comment-text-color);
+            transition: color 0.15s ease;
           }
 
           &:hover {
             background: rgba(148, 163, 184, 0.12);
+          }
+
+          &--danger {
+            color: #ef4444;
+
+            svg {
+              color: #ef4444;
+            }
+
+            &:hover {
+              background: rgba(239, 68, 68, 0.1);
+              color: #dc2626;
+
+              svg {
+                color: #dc2626;
+              }
+            }
           }
         }
       }
@@ -1250,17 +1327,39 @@ const refreshSubFlowsIfNeeded = async () => {
     }
   }
   .progress {
-    opacity: 0.5;
-    z-index: 0;
-    border-radius: var(--item-card-radios);
     position: absolute;
-    top: 0;
     left: 0;
-    width: 0%;
-    height: 100%;
-    background: var(--primary-color);
     pointer-events: none;
-    overflow: hidden;
+    z-index: 0;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.6s ease;
+
+    &.progress--background,
+    &:not(.progress--bar) {
+      top: 0;
+      height: 100%;
+      border-radius: var(--radius-lg, var(--item-card-radios));
+      opacity: 0.18;
+    }
+
+    &.progress--bar {
+      bottom: 0;
+      height: 4px;
+      border-bottom-left-radius: var(--radius-lg, var(--item-card-radios));
+      border-bottom-right-radius: var(--radius-lg, var(--item-card-radios));
+      opacity: 0.85;
+    }
+
+    &.progress--green {
+      background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    }
+
+    &.progress--yellow {
+      background: linear-gradient(90deg, #eab308 0%, #f59e0b 100%);
+    }
+
+    &.progress--orange {
+      background: linear-gradient(90deg, #f97316 0%, #ef4444 100%);
+    }
   }
 }
 

@@ -1093,13 +1093,13 @@ const importTips = () => {
 .draggable-item {
   margin-top: 12px;
   margin-bottom: 12px;
-  border-radius: var(--item-card-radios);
-  overflow: hidden;
+  border-radius: var(--radius-lg, var(--item-card-radios));
+  overflow: visible;
 }
 
 .chosensub {
   box-shadow: 0 0 10px var(--primary-color);
-  border-radius: var(--item-card-radios);
+  border-radius: var(--radius-lg, var(--item-card-radios));
   overflow: hidden;
 }
 
@@ -1115,8 +1115,8 @@ const importTips = () => {
     > .draggable-item {
       min-width: 0;
       margin: 0;
-      border-radius: var(--item-card-radios);
-      overflow: hidden;
+      border-radius: var(--radius-lg, var(--item-card-radios));
+      overflow: visible;
     }
   }
   .radio-wrapper {
