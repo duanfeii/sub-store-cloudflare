@@ -41,7 +41,8 @@ export default {
     actions: {
       back: "返回",
       refresh: "刷新数据",
-      add: "新建"
+      add: "新建",
+      more: "更多操作"
     },
     listSearch: {
       open: "搜索",
