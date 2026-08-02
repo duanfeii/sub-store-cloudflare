@@ -6,9 +6,9 @@ export default {
     extend: '',
   },
   colors: {
-    // 全局高亮色 (Vercel Accent)
-    'primary-color': '#6366F1',
-    'primary-color-end': '#A855F7',
+    // Solid neutral primary (shared language with light: inverted black/white)
+    'primary-color': '#EDEDED',
+    'primary-color-end': '#EDEDED',
     'second-color': '#F97316',
     'third-color': '#10B981',
 
@@ -19,7 +19,7 @@ export default {
     'icon-nav-bar-right': '#A1A1A1',
     'unimportant-icon-color': 'rgba(255, 255, 255, 0.3)',
 
-    // 组件色 (Vercel Pitch Black & Geist Dark Surface)
+    // Surface
     'status-bar-background-color': '#000000',
     'background-color': '#0A0A0A',
     'nav-bar-color': 'rgba(10, 10, 10, 0.8)',
@@ -29,18 +29,18 @@ export default {
     'card-color': '#111111',
     'dialog-color': '#121212',
     'switch-close-background-color': 'rgba(255, 255, 255, 0.12)',
-    'switch-active-background-color': '#6366F1',
+    'switch-active-background-color': '#EDEDED',
     'compare-item-background-color': '#181818',
     'picker-mask-near-color': 'rgba(10, 10, 10, 0.5)',
     'picker-mask-far-color': '#0A0A0A',
 
-    // 文字色 (Vercel High Contrast)
+    // Text
     'primary-text-color': '#EDEDED',
     'second-text-color': '#A1A1A1',
     'comment-text-color': '#666666',
     'lowest-text-color': '#444444',
 
-    // 其他
+    // Other
     'img-brightness': '100',
     'nav-bar-blur': '24px',
     'tab-bar-blur': '24px',

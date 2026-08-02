@@ -204,7 +204,7 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
 
   &:hover {
     box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
-    border-color: rgba(99, 102, 241, 0.25);
+    border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
   }
 }
 
@@ -247,9 +247,9 @@ p {
     flex-shrink: 0;
 
     &.converter {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(139, 92, 246, 0.18));
-      color: #6366F1;
-      border: 1px solid rgba(99, 102, 241, 0.25);
+      background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+      color: var(--primary-color);
+      border: 1px solid color-mix(in srgb, var(--primary-color) 25%, transparent);
     }
 
     &.shares {
@@ -277,7 +277,7 @@ select, input, textarea {
 
   &:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
     outline: none;
   }
 }
@@ -325,7 +325,7 @@ textarea {
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
   }
 }
 

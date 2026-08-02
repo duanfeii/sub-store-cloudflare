@@ -6,9 +6,9 @@ export default {
     extend: '',
   },
   colors: {
-    // 全局高亮色 (Vercel Accent)
+    // Solid neutral primary (shared language with dark)
     'primary-color': '#000000',
-    'primary-color-end': '#4338CA',
+    'primary-color-end': '#000000',
     'second-color': '#F97316',
     'third-color': '#10B981',
 
@@ -19,7 +19,7 @@ export default {
     'icon-nav-bar-right': '#444444',
     'unimportant-icon-color': '#888888',
 
-    // 组件色 (Vercel Pure White & Geist Light Surface)
+    // Surface
     'status-bar-background-color': '#FFFFFF',
     'background-color': '#FAFAFA',
     'nav-bar-color': 'rgba(255, 255, 255, 0.85)',
@@ -34,13 +34,13 @@ export default {
     'picker-mask-near-color': 'rgba(250, 250, 250, 0.5)',
     'picker-mask-far-color': '#FAFAFA',
 
-    // 文字色 (Vercel Crisp Black)
+    // Text
     'primary-text-color': '#171717',
     'second-text-color': '#444444',
     'comment-text-color': '#666666',
     'lowest-text-color': '#888888',
 
-    // 其他
+    // Other
     'img-brightness': '0',
     'nav-bar-blur': '24px',
     'tab-bar-blur': '24px',

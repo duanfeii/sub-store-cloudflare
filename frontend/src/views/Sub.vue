@@ -650,12 +650,9 @@ const importTips = () => {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-image: linear-gradient(
-      to bottom right,
-      var(--primary-color),
-      var(--primary-color-end)
-    );
-    box-shadow: 0 6px 20px -2px rgba(99, 102, 241, 0.45);
+    background: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--primary-color) 35%, transparent);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -663,7 +660,7 @@ const importTips = () => {
 
     &:hover {
       transform: scale(1.08);
-      box-shadow: 0 10px 28px -2px rgba(99, 102, 241, 0.6);
+      box-shadow: 0 8px 20px -4px color-mix(in srgb, var(--primary-color) 45%, transparent);
     }
 
     &:active {
@@ -672,18 +669,23 @@ const importTips = () => {
 
     &.refresh {
       background: var(--second-color);
-      box-shadow: 0 6px 20px -2px rgba(249, 115, 22, 0.45);
+      border-color: var(--second-color);
+      box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--second-color) 40%, transparent);
       margin-bottom: 12px;
 
       &:hover {
-        box-shadow: 0 10px 28px -2px rgba(249, 115, 22, 0.6);
+        box-shadow: 0 8px 20px -4px color-mix(in srgb, var(--second-color) 50%, transparent);
+      }
+
+      > svg {
+        color: #fff;
       }
     }
 
     > svg {
       width: 20px;
       height: 20px;
-      color: #fff;
+      color: var(--background-color);
     }
   }
 }
@@ -1013,7 +1015,7 @@ const importTips = () => {
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
-        background: rgba(99, 102, 241, 0.08);
+        background: color-mix(in srgb, var(--primary-color) 8%, transparent);
         color: var(--primary-color);
       }
     }

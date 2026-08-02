@@ -145,7 +145,7 @@ const { navBarHeight } = storeToRefs(systemStore);
 
     &.active {
       color: var(--primary-color);
-      background: rgba(99, 102, 241, 0.12);
+      background: color-mix(in srgb, var(--primary-color) 12%, transparent);
       font-weight: 600;
     }
 

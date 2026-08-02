@@ -104,16 +104,8 @@ $notify-text-color: #fffe;
 $notify-padding: 12px 0 !default;
 $notify-font-size: 12px !default;
 $notify-line-height: 1.5;
-$notify-base-background-color: linear-gradient(
-  135deg,
-  $primary-color 0%,
-  $primary-color-end 100%
-);
-$notify-primary-background-color: linear-gradient(
-  315deg,
-  $primary-color 0%,
-  $primary-color-end 100%
-);
+$notify-base-background-color: $primary-color;
+$notify-primary-background-color: $primary-color;
 $notify-success-background-color: var(--succeed-color);
 $notify-danger-background-color: var(--danger-color);
 $badge-border:none;

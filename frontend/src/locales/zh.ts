@@ -35,6 +35,9 @@ export default {
       en: "English",
       language: "语言"
     },
+    brand: {
+      home: "Sub Store 首页"
+    },
     actions: {
       back: "返回",
       refresh: "刷新数据",
