@@ -1922,8 +1922,9 @@ const handleEditGlobalClick = () => {
   width: 100%;
   padding: 8px var(--safe-area-side) calc(v-bind("padding") + 8px)
     var(--safe-area-side);
-  z-index: 20;
-  background: var(--background-color);
+  background: var(--nav-bar-color);
+  backdrop-filter: blur(var(--nav-bar-blur));
+  -webkit-backdrop-filter: blur(var(--nav-bar-blur));
   border-top: 1px solid var(--divider-color);
   @include centered-fixed-container;
 
