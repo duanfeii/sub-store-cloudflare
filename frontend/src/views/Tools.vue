@@ -409,8 +409,8 @@ p {
 .form-section-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
   padding: var(--space-3);
   border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--background-color) 50%, var(--card-color));

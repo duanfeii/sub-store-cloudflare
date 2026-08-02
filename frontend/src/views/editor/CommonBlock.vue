@@ -275,7 +275,7 @@
   }
   .options-label {
     font-size: 12px;
-    margin: 0 0 16px;
+    margin: 0 0 8px;
     color: var(--comment-text-color);
   }
 
@@ -283,7 +283,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    padding: 14px 16px;
+    padding: 10px 12px;
   }
 
   .quick-option-chip {

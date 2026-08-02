@@ -66,11 +66,21 @@ $textarea-limit-color: $text-color-2;
 $textarea-text-color: $text-color-2;
 $textarea-disabled-color: $disable-color;
 
+// form item — tighter label ↔ control gap (was 90px + 10px, felt sparse)
+$form-item-label-width: 72px;
+$form-item-label-margin-right: 8px;
+$form-item-label-font-size: 13px;
+$form-item-body-font-size: 14px;
+$form-item-body-input-text-align: left;
+$form-item-body-slots-text-align: left;
+
 // cell && cell group
 $cell-color: $text-color-2;
 $cell-border-radius: var(--radius-lg, var(--item-card-radios));
 $cell-background: $card-color;
-$cell-after-border-bottom: 2px solid $divider-color;
+$cell-padding: 10px 12px;
+$cell-line-height: 20px;
+$cell-after-border-bottom: 1px solid $divider-color;
 $cell-group-title-color: $text-color-3;
 $cell-group-desc-color: $text-color-4;
 $cell-group-background-color: $card-color;

@@ -1750,11 +1750,11 @@ const handleEditGlobalClick = () => {
 
 <style lang="scss" scoped>
 .page-wrapper {
-  /* Align with app page-body horizontal padding + bottom action bar */
+  /* Width follows .page-body (home max-width + padding) — no extra max-width */
   padding: 0 0 calc(v-bind("padding") + 72px) 0;
-  max-width: $content-max-width;
-  margin-inline: auto;
   width: 100%;
+  max-width: none;
+  margin: 0;
   box-sizing: border-box;
 
   :deep(.nut-cell-group__warp) {
@@ -1765,6 +1765,23 @@ const handleEditGlobalClick = () => {
   }
   :deep(.nut-icon-tips:before), :deep(.nut-icon-shop:before) {
     cursor: pointer;
+  }
+
+  // Tighter field stack in editor
+  :deep(.nut-form-item) {
+    align-items: center;
+    padding: 10px 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  :deep(.nut-form-item__label) {
+    width: auto !important;
+    min-width: 4.5em;
+    max-width: 7.5em;
+    margin-right: 8px !important;
+    padding: 0 !important;
+    line-height: 1.35;
+    font-size: 13px;
   }
 }
 .tag-check {
@@ -1796,14 +1813,15 @@ const handleEditGlobalClick = () => {
   .sticky-title-icon-container {
     display: flex;
     justify-content: center;
+    margin-bottom: 8px;
     .nut-image {
       cursor: pointer;
-      width: 70px;
-      height: 70px;
+      width: 56px;
+      height: 56px;
       border-radius: 10px;
       overflow: hidden;
       background: transparent;
-      padding: 10px;
+      padding: 6px;
       :deep(img) {
         width: 100%;
         height: 100%;
@@ -1928,7 +1946,9 @@ const handleEditGlobalClick = () => {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 10px var(--space-4) calc(v-bind("padding") + 10px);
+  // Match .page-body horizontal edges (home content column)
+  padding: 10px max(var(--space-4), calc((100% - #{$content-max-width}) / 2 + var(--space-4)))
+    calc(v-bind("padding") + 10px);
   box-sizing: border-box;
   background: var(--nav-bar-color);
   backdrop-filter: blur(var(--nav-bar-blur));
@@ -1936,8 +1956,8 @@ const handleEditGlobalClick = () => {
   border-top: 1px solid var(--divider-color);
 
   @media screen and (min-width: $breakpoint-md) {
-    padding-left: var(--space-5);
-    padding-right: var(--space-5);
+    padding-left: max(var(--space-5), calc((100% - #{$content-max-width}) / 2 + var(--space-5)));
+    padding-right: max(var(--space-5), calc((100% - #{$content-max-width}) / 2 + var(--space-5)));
   }
 
   .btn {
