@@ -229,50 +229,7 @@
       </section>
     </div>
 
-    <!-- 数据加载失败 -->
-    <div v-if="!isLoading && !fetchResult" class="empty-state-wrapper">
-      <nut-empty style="padding: 32px 30px">
-        <template #image>
-          <img class="empty-state-image" :src="logoRedIcon" alt="" />
-        </template>
-        <template #description>
-          <h3>{{ $t(`subPage.loadFailed.title`) }}</h3>
-          <p>{{ $t(`subPage.loadFailed.desc`) }}</p>
-        </template>
-      </nut-empty>
-      <form class="load-failed-form" @submit.prevent="saveTokenAndRetry">
-        <label for="admin-token">{{ $t(`subPage.loadFailed.tokenLabel`) }}</label>
-        <input
-          id="admin-token"
-          v-model="adminToken"
-          type="password"
-          autocomplete="current-password"
-          :placeholder="$t(`subPage.loadFailed.tokenPlaceholder`)"
-          spellcheck="false"
-        />
-        <nut-button
-          native-type="submit"
-          type="primary"
-          :disabled="!adminToken.trim()"
-          @click="saveTokenAndRetry"
-        >
-          {{ $t(`subPage.loadFailed.saveAndRetry`) }}
-        </nut-button>
-      </form>
-      <div class="load-failed-actions">
-        <nut-button plain icon="refresh" @click="refresh">
-          {{ $t(`subPage.loadFailed.btn`) }}
-        </nut-button>
-        <a
-          href="https://github.com/realchendahuang/sub-store-cloudflare/blob/main/docs/deployment.md"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {{ $t(`subPage.loadFailed.doc`) }}
-          <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
-        </a>
-      </div>
-    </div>
+    <!-- Auth / load failure is handled app-wide by AdminTokenPanel in App.vue -->
   </div>
 </template>
 
@@ -297,7 +254,6 @@ import { useSettingsStore } from '@/store/settings';
 import { useSubsStore } from "@/store/subs";
 import { butifyDate } from "@/utils/butifyDate";
 import { initStores } from "@/utils/initApp";
-import { getStoredAdminToken, setStoredAdminToken } from "@/utils/adminToken";
 import { listItemMatchesSearch, shouldSearchListRemark } from "@/utils/listSearch";
 import { isMobile } from "@/utils/isMobile";
 const { showNotify } = useAppNotifyStore();
@@ -307,7 +263,6 @@ const fileInput = ref(null);
 const uploadIsLoading = ref(false);
 const restoreIsLoading = ref(false);
 const addSubBtnIsVisible = ref(false);
-const adminToken = ref(getStoredAdminToken());
 // const isSubFold = ref(localStorage.getItem('sub-fold') === '1');
 // const isColFold = ref(localStorage.getItem('col-fold') === '1');
 const methodStore = useMethodStore();
@@ -460,12 +415,6 @@ const onTouchEnd = () => {
 
 const refresh = async () => {
   await initStores(true, true, true);
-};
-
-const saveTokenAndRetry = async () => {
-  setStoredAdminToken(adminToken.value);
-  adminToken.value = getStoredAdminToken();
-  await refresh();
 };
 
 const as = ref(false);
@@ -698,34 +647,6 @@ const importTips = () => {
   }
 }
 
-.load-failed-form {
-  width: min(100%, 420px);
-  display: grid;
-  gap: 10px;
-  padding: 0 20px;
-
-  label {
-    color: var(--second-text-color);
-    font-size: 13px;
-  }
-
-  input {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid var(--divider-color);
-    border-radius: 10px;
-    background: var(--card-color);
-    color: var(--primary-text-color);
-    padding: 12px 14px;
-    font-size: 14px;
-    outline: none;
-
-    &:focus {
-      border-color: var(--primary-color);
-    }
-  }
-}
-
 .empty-state-image {
   width: 96px;
   height: 96px;
@@ -838,19 +759,6 @@ const importTips = () => {
 
   .onboarding-steps {
     grid-template-columns: 1fr;
-  }
-}
-
-.load-failed-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  margin-top: 14px;
-
-  a {
-    color: var(--primary-color);
-    font-size: 14px;
   }
 }
 

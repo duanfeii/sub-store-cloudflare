@@ -113,12 +113,18 @@ service.interceptors.response.use(
     if (!appNotifyStore)
       appNotifyStore = useAppNotifyStore();
 
+    // Auth failures are handled by the in-page AdminTokenPanel — no toast spam.
+    const status = e.response?.status;
+    if (status === 401 || status === 403) {
+      return Promise.reject(e);
+    }
+
     // 如果是网络错误，则提示网络错误
-    if (!e.response || e.response.status === 0) {
+    if (!e.response || status === 0) {
       appNotifyStore.showNotify({
         title: i18n.global.t("globalNotify.request.network"),
         content: [
-          `code: ${e.response?.status ?? e.code ?? 'NO_RESPONSE'}`,
+          `code: ${status ?? e.code ?? 'NO_RESPONSE'}`,
           `msg: ${getText(e.message) || i18n.global.t("globalNotify.request.noResponse")}`,
         ].join('\n'),
         ...notifyConfig,

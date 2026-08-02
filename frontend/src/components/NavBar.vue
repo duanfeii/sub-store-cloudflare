@@ -112,15 +112,11 @@ import { useRoute, useRouter } from "vue-router";
 
 import brandLogo from "@/assets/icons/logo.png";
 import LanguageSwitcherButton from "@/components/LanguageSwitcherButton.vue";
-import i18n from "@/locales";
-import { useAppNotifyStore } from "@/store/appNotify";
 import { useMethodStore } from "@/store/methodStore";
 import { useSettingsStore } from "@/store/settings";
 import { SIDEBAR_BREAKPOINT, useSystemStore } from "@/store/system";
 import { initStores } from "@/utils/initApp";
 
-const { t: i18n_global } = i18n.global;
-const { showNotify } = useAppNotifyStore();
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -194,12 +190,10 @@ const back = () => {
 const refresh = async () => {
   if (["/preview"].includes(route.path)) {
     window.location.reload();
-  } else if (["/subs"].includes(route.path)) {
-    initStores(true, true, true);
-  } else {
-    showNotify({ title: i18n_global("globalNotify.refresh.loading"), type: "primary" });
-    await initStores(true, true, true);
+    return;
   }
+  // Explicit user refresh: loading + success toasts handled inside initStores.
+  await initStores(true, true, true);
 };
 
 const isDarkTheme = computed(() => {
