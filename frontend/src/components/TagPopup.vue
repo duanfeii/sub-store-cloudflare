@@ -2,19 +2,18 @@
 <template>
   <nut-popup
     v-model:visible="isVisible"
-    pop-class="tag-popup"
-    position="bottom"
+    pop-class="side-drawer-popup tag-popup"
+    position="right"
     :style="{
-      height: `95%`,
-      padding: '20px 12px 0 12px',
+      width: isMobile() ? '85%' : '400px',
+      height: '100%',
+      padding: '24px 18px',
       backgroundColor: 'var(--background-color)',
     }"
     :lock-scroll="true"
-    :safe-area-inset-bottom="true"
     close-icon="close-little"
     z-index="11000"
     closeable
-    round
     @close="close"
   >
     <div class="popup-title">{{ t('subPage.tag.addTagTitle') }}</div>
@@ -80,8 +79,8 @@ import { ref, watch, computed, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useSubsStore } from "@/store/subs";
 import draggable from "vuedraggable";
-
 import { useI18n } from "vue-i18n";
+import { isMobile } from "@/utils/isMobile";
 
 const { t } = useI18n();
 const subsStore = useSubsStore();

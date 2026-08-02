@@ -340,27 +340,30 @@
     @closeCompare="closeCompare"
     @refresh="refreshCompare"
   />
-  <nut-dialog
+  <nut-popup
     v-model:visible="previewPanelVisible"
-    pop-class="auto-dialog"
-    :title="t('subPage.previewTitle')"
-    close-on-popstate
-    close-on-click-overlay
-    :lock-scroll="false"
-    no-ok-btn
-    no-cancel-btn
+    position="right"
+    pop-class="side-drawer-popup preview-drawer-popup"
+    closeable
+    close-icon-position="top-right"
+    :style="{ width: drawerWidth, height: '100%' }"
     @opened="swipe?.close()"
   >
-    <PreviewPanel
-      v-if="previewPanelVisible"
-      :name="name"
-      :display-name="displayName"
-      :type="props.type"
-      :general="t('subPage.panel.general')"
-      :notify="t('subPage.copyNotify.succeed')"
-      :desc="t('subPage.panel.tips.desc')"
-    />
-  </nut-dialog>
+    <div class="drawer-header">
+      <h3 class="drawer-title">{{ t('subPage.previewTitle') }}</h3>
+    </div>
+    <div class="drawer-body">
+      <PreviewPanel
+        v-if="previewPanelVisible"
+        :name="name"
+        :display-name="displayName"
+        :type="props.type"
+        :general="t('subPage.panel.general')"
+        :notify="t('subPage.copyNotify.succeed')"
+        :desc="t('subPage.panel.tips.desc')"
+      />
+    </div>
+  </nut-popup>
 </template>
 
 <script lang="ts" setup>
@@ -394,6 +397,7 @@ const props = defineProps<{
   disabled?: boolean;
   isDualColumn?: boolean;
 }>();
+const drawerWidth = computed(() => isMobile() ? '88%' : '440px');
 const { copy, isSupported } = useClipboard();
 const { toClipboard: copyFallback } = useV3Clipboard();
 

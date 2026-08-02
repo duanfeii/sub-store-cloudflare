@@ -113,7 +113,7 @@
       <p v-else class="card-desc">{{ requestSummary }}</p>
     </section>
 
-    <nut-popup v-model:visible="templateImportVisible" position="bottom" round closeable :style="{ height: '82vh' }">
+    <nut-popup v-model:visible="templateImportVisible" position="right" pop-class="side-drawer-popup template-drawer-popup" closeable :style="{ width: isMobile() ? '88%' : '440px', height: '100%', padding: '24px 18px' }">
       <div class="template-import-panel">
         <h2>{{ templateEditingId ? t("myPage.templates.editTitle") : t("myPage.templates.importTitle") }}</h2>
         <nut-input class="input" v-model.trim="templateForm.id" :placeholder="t('myPage.templates.idPlaceholder')" input-align="left" :disabled="Boolean(templateEditingId)" />
@@ -165,6 +165,7 @@ import { useAppNotifyStore } from "@/store/appNotify";
 import { useCodeStore } from "@/store/codeStore";
 import { useSettingsStore } from "@/store/settings";
 import { TEMPLATE_TARGET_OPTIONS, getTargetLabel } from "@/constants/subscriptionTargets";
+import { isMobile } from "@/utils/isMobile";
 
 const CmView = defineAsyncComponent(() => import("@/views/editCode/cmView.vue"));
 

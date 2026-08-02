@@ -10,16 +10,16 @@
     <div>
       <nut-popup
         v-model:visible="addSubBtnIsVisible"
-        pop-class="add-sub-popup"
-        position="bottom"
+        pop-class="side-drawer-popup add-sub-popup"
+        position="right"
         :style="{
-          height: 'calc(200px + env(safe-area-inset-bottom))',
-          padding: '20px 12px 0 12px',
+          width: isMobile ? '85%' : '380px',
+          height: '100%',
+          padding: '24px 18px',
         }"
         close-icon="close-little"
         z-index="11000"
         closeable
-        round
       >
         <div class="title-btn">
           <p class="add-sub-panel-title">{{ $t(`subPage.addSubTitle`) }}</p>

@@ -17,10 +17,11 @@
 
   <nut-popup
     v-model:visible="showLangSwitchPopup"
-    pop-class="language-switch-popup"
-    position="top"
+    pop-class="side-drawer-popup language-switch-popup"
+    position="right"
+    closeable
     :z-index="props.zIndex"
-    :style="{ paddingTop: 'env(safe-area-inset-top)' }"
+    :style="{ width: '280px', height: '100%', padding: '24px 12px' }"
   >
     <nut-cell-group>
       <div class="language-switch-popup__title">
