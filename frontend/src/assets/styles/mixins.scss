@@ -10,7 +10,7 @@ $breakpoint-xl: 1200px;
 $sidenav-expanded-breakpoint: 1220px;
 
 // Focused readability cap for main content inside the shell (Vercel-style container)
-$content-max-width: 896px;
+$content-max-width: 1024px;
 
 // 容器最大宽度变量 (legacy names kept for any external references)
 $container-width-sm: 85%;
@@ -37,7 +37,7 @@ $container-width-xl: 900px;
   }
 }
 
-// 居中固定定位容器 mixin — full content column under the shell on desktop
+// 居中固定定位容器 mixin — full width header/footer
 @mixin centered-fixed-container {
   position: fixed;
   left: 0;
@@ -45,10 +45,6 @@ $container-width-xl: 900px;
   width: 100%;
   box-sizing: border-box;
   transform: none;
-
-  @media screen and (min-width: $breakpoint-md) {
-    @include app-shell-content-inset;
-  }
 }
 
 // 弹窗居中 mixin (bottom sheets / dialogs — not shell-offset)

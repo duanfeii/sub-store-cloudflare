@@ -23,10 +23,40 @@ button {
 }
 
 button {
+  /* Prevent UA/reset styles from collapsing toolbar buttons into block stacks */
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  line-height: 1;
   transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, color 0.2s, box-shadow 0.2s;
+
   &:active {
     transform: scale(0.97);
   }
+}
+
+/* Safety net: keep top navigation as one horizontal strip even if component
+   scoped styles fail to load or are overridden by a third-party stylesheet. */
+.nav-bar-wrapper {
+  display: block;
+  width: 100%;
+}
+
+.nav-bar {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-bar__left,
+.nav-bar__center,
+.nav-bar__right {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
 }
 
 ul,

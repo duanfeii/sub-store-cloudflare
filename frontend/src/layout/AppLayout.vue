@@ -23,9 +23,14 @@
 
 <style scoped lang="scss">
   .app-layout-wrapper {
-    flex: 1;
-    padding: 56px 0 v-bind(height) 0;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    /* Reserve space for fixed NavBar (56px) + optional mobile TabBar */
+    padding-top: 56px;
+    padding-bottom: v-bind(height);
+    box-sizing: border-box;
     overflow: auto;
   }
-
 </style>

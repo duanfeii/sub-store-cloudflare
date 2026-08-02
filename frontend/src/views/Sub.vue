@@ -104,13 +104,7 @@
     <!-- 页面内容 -->
     <!-- 有数据 -->
     <div v-if="hasSubs" class="subs-list-wrapper" :class="{ 'dual-column-mode': isDualColumnMode }">
-      <div v-if="tags && tags.length > 0" ref="radioWrapperRef" class="radio-wrapper" >
-        <!-- <nut-radiogroup v-model="tag" direction="horizontal"> -->
-          <!-- <nut-radio v-for="i in tags" shape="button" :label="String(i.value)">{{ i.label }}</nut-radio> -->
-          <span v-for="i in tags" class="tag" :class="{ 'current': i.value === tag }" @click="setTag(i.value)">{{ i.label }}</span>
-        <!-- </nut-radiogroup> -->
-      </div>
-      <div class="subs-list-container" :style="{ paddingTop: `${radioWrapperHeight}px` }">
+      <div class="subs-list-container">
 
 
         <section v-if="hasSubs && !hasCollections" class="onboarding-card onboarding-inline">
@@ -295,10 +289,8 @@ import logoRedIcon from "@/assets/icons/logo-red.png";
 import SubListItem from "@/components/SubListItem.vue";
 import { useFilteredDraggableList } from "@/hooks/useFilteredDraggableList";
 import { useListViewMode } from "@/hooks/useListViewMode";
-import { useTagBarHeight } from "@/hooks/useTagBarHeight";
 import { useAppNotifyStore } from "@/store/appNotify";
 import { useGlobalStore } from "@/store/global";
-import { useSystemStore } from "@/store/system";
 import { useListSearchStore } from "@/store/listSearch";
 import { useMethodStore } from '@/store/methodStore';
 import { useSettingsStore } from '@/store/settings';
@@ -321,7 +313,6 @@ const adminToken = ref(getStoredAdminToken());
 const methodStore = useMethodStore();
 const subsStore = useSubsStore();
 const globalStore = useGlobalStore();
-const systemStore = useSystemStore();
 const settingsStore = useSettingsStore();
 const listSearchStore = useListSearchStore();
 const { hasSubs, hasCollections, subs, collections, flows } = storeToRefs(subsStore);
@@ -336,7 +327,6 @@ const {
 } = storeToRefs(globalStore);
 /** Timestamp of the last successful data load; null until first success. */
 const lastRefreshAt = ref<number | null>(null);
-const { navBarHeight } = storeToRefs(systemStore);
 const isDualColumnMode = computed(() => {
   return effectiveListViewMode.value === "dual-column";
 });
@@ -344,58 +334,9 @@ const swipeDisabled = ref(false);
 const touchStartY = ref(null);
 const touchStartX = ref(null);
 const sortFailed = ref(false);
-const hasUntagged = ref(false);
-const hasLocal = ref(false);
-const hasRemote = ref(false);
-const tagNavBarHeight = computed(() => {
-  return navBarHeight.value;
-});
-const getTag = () => {
-    return localStorage.getItem('sub-tag') || 'all';
-  };
-const tag = ref(getTag());
-const tags = computed(() => {
-  if(!hasSubs.value && !hasCollections.value) return [];
-  // 从 subs 和 collections 中获取所有的 tag, 去重
-  const set = new Set();
-  subs.value.forEach(sub => {
-    if(sub.source === 'remote') {
-      hasRemote.value = true;
-    } else {
-      hasLocal.value = true;
-    }
-    if (Array.isArray(sub.tag) && sub.tag.length > 0) {
-      sub.tag.forEach(i => {
-        set.add(i);
-      });
-    } else {
-      hasUntagged.value = true;
-    }
-  });
-  collections.value.forEach(col => {
-    if (Array.isArray(col.tag) && col.tag.length > 0) {
-      col.tag.forEach(i => {
-        set.add(i);
-      });
-    } else {
-      hasUntagged.value = true;
-    }
-  });
-
-  let tags: any[] = Array.from(set);
-  if(tags.length === 0 && !hasRemote.value && !hasLocal.value) return [];
-  tags = tags.map(i => ({ label: i, value: i }));
-  
-  const result = [{ label: t("specificWord.all"), value: "all" }, ...tags];
-  if(hasRemote.value) result.push({ label: t("editorPage.subConfig.basic.source.remote"), value: "remote" });
-  if(hasLocal.value) result.push({ label: t("editorPage.subConfig.basic.source.local"), value: "local" });
-  if(tags.length > 0 && hasUntagged.value) result.push({ label: t("specificWord.untagged"), value: "untagged" });
-
-  if (!result.find(i => i.value === tag.value)) {
-    tag.value = 'all';
-  }
-  return result;
-});
+// Tag filter strip removed from UI — always show full list.
+// Keep a stable "all" key so fold state (localStorage sub-fold) stays compatible.
+const tag = ref("all");
 const filterdSubsCount = computed(() => {
   return subs.value.filter(shouldShowElement).length;
 });
@@ -545,10 +486,6 @@ const addSub = () => {
 };
 
 const route = useRoute();
-const { tagBarRef: radioWrapperRef, tagBarHeight: radioWrapperHeight } = useTagBarHeight([
-  tag,
-  () => tags.value,
-]);
 
 onMounted(() => {
   methodStore.registerMethod("addSub", addSub);
@@ -641,38 +578,10 @@ const toggleFold = (type) => {
 //   }
 // };
 
-const scrollToTop = () => {
-  const scrollPosition = 0;
-  
-  window.scrollTo({
-    top: scrollPosition,
-    behavior: "smooth"
-  });
-};
-
-const setTag = (current) => {
-  tag.value = current;
-  if (current === 'all') {
-    localStorage.removeItem('sub-tag');
-  } else {
-    localStorage.setItem('sub-tag', current);
-  }
-  // 增加滚动到顶部
-  scrollToTop();
-};
-
-const shouldShowElementByTag = (element) => {
-  if(tag.value === 'all') return true;
-  if(tag.value === 'untagged') return !Array.isArray(element.tag) || element.tag.length === 0;
-  if(tag.value === 'remote') return element.source === 'remote';
-  if(tag.value === 'local') return element.source === 'local';
-  return element.tag?.includes(tag.value);
-};
 const shouldShowElement = (element) => {
-  return shouldShowElementByTag(element)
-    && listItemMatchesSearch(element, listSearchStore.normalizedQuery, {
-      includeRemark: shouldSearchListRemark(appearanceSetting.value),
-    });
+  return listItemMatchesSearch(element, listSearchStore.normalizedQuery, {
+    includeRemark: shouldSearchListRemark(appearanceSetting.value),
+  });
 };
 const filteredSubs = useFilteredDraggableList(subs, shouldShowElement);
 const filteredCollections = useFilteredDraggableList(collections, shouldShowElement);
@@ -851,13 +760,14 @@ const importTips = () => {
 }
 
 .onboarding-inline {
-  width: calc(100% - 1.5rem);
-  margin: 12px auto 16px;
+  width: 100%;
+  margin: 12px 0 16px;
   padding: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  box-sizing: border-box;
 }
 
 .onboarding-kicker {
@@ -1069,6 +979,16 @@ const importTips = () => {
 
 .subs-list-wrapper {
   width: 100%;
+  box-sizing: border-box;
+
+  .list-draggable {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
   .list-draggable.dual-column {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1083,58 +1003,12 @@ const importTips = () => {
       overflow: visible;
     }
   }
-  .radio-wrapper {
-    box-sizing: border-box;
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    position: fixed;
-    padding: 10px;
-    top: v-bind(tagNavBarHeight);
-    z-index: 10;
-    backdrop-filter: blur(var(--nav-bar-blur));
-    -webkit-backdrop-filter: blur(var(--nav-bar-blur));
-    background: var(--nav-bar-color);
-    border-bottom: 1px solid var(--divider-color);
-    @include centered-fixed-container;
-    @media screen and (min-width: $breakpoint-md) {
-      border-radius: 0;
-      padding-left: 24px;
-      padding-right: 24px;
-    }
-    .tag {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--second-text-color);
-      margin: 2px 4px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      -webkit-user-select: none;
-      user-select: none;
-      border: 1px solid transparent;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
-      &:hover {
-        background: color-mix(in srgb, var(--primary-color) 8%, transparent);
-        color: var(--primary-color);
-      }
-    }
-    .current {
-      background: var(--card-color);
-      border-color: var(--divider-color);
-      color: var(--primary-color);
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-  }
   .subs-list-content {
-    width: calc(100% - 1.5rem);
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 0;
+    width: 100%;
+    margin: 0;
     padding: 0;
-    // margin-top: var(--safe-area-side);
+    box-sizing: border-box;
   }
 
   .subs-list-content + .subs-list-content {
@@ -1148,8 +1022,8 @@ const importTips = () => {
   flex-wrap: wrap;
   align-items: stretch;
   gap: 10px 0;
-  width: calc(100% - 1.5rem);
-  margin: 10px auto 12px;
+  width: 100%;
+  margin: 10px 0 12px;
   padding: 10px 4px;
   background: var(--card-color);
   border: 1px solid var(--divider-color);

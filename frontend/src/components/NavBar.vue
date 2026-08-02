@@ -106,7 +106,7 @@
 <script lang="ts" setup>
 import { useMediaQuery } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -223,27 +223,50 @@ const toggleTheme = async () => {
 </script>
 
 <style lang="scss" scoped>
+/*
+ * Full-bleed fixed top bar.
+ * Height is hardcoded to 56px (with CSS-var override from the store) so the
+ * layout cannot collapse if Vue style-bindings fail to inject.
+ */
 .nav-bar-wrapper {
+  position: fixed;
   top: 0;
-  height: v-bind(navBarHeight);
+  left: 0;
+  right: 0;
   z-index: 20;
-  @include centered-fixed-container;
+  width: 100%;
+  height: 56px;
+  height: v-bind(navBarHeight);
+  min-height: 56px;
+  box-sizing: border-box;
+  background: var(--nav-bar-color, #fff);
+  border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
+/*
+ * Single horizontal row: logo | tabs | actions.
+ * max-width matches .page-body so left/right edges align with the list.
+ */
 .nav-bar {
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   box-sizing: border-box;
   width: 100%;
-  height: v-bind(navBarHeight);
-  padding: v-bind(navBartop) 16px 0;
-  box-shadow: none;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  background: var(--nav-bar-color);
-  border-bottom: 1px solid var(--divider-color);
-  border-radius: 0;
+  max-width: $content-max-width;
+  height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 0;
+  padding-top: v-bind(navBartop);
+  padding-right: 16px;
+  padding-bottom: 0;
+  padding-left: 16px;
   overflow: visible;
 
   @media screen and (min-width: $breakpoint-md) {
@@ -252,44 +275,49 @@ const toggleTheme = async () => {
   }
 
   &__left,
-  &__right {
-    display: flex;
+  &__right,
+  &__center {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
     min-width: 0;
   }
 
-  &__left {
+  &__left,
+  &__right {
+    gap: 8px;
     flex: 0 0 auto;
   }
 
-  &__right {
-    margin-left: auto;
-    position: relative;
-  }
-
   &__center {
-    flex: 1 1 auto;
-    min-width: 0;
-    display: flex;
-    align-items: center;
     justify-content: center;
+    flex: 1 1 auto;
   }
 }
 
 .app-brand {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   user-select: none;
+
+  &__logo {
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
 
   &__name {
     font-size: 14px;
     font-weight: 600;
     letter-spacing: -0.015em;
     color: var(--primary-text-color);
+    white-space: nowrap;
   }
 }
 
@@ -300,10 +328,15 @@ const toggleTheme = async () => {
   letter-spacing: -0.015em;
   color: var(--primary-text-color);
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-segmented-control {
   display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   padding: 3px;
   border-radius: 9999px;
@@ -314,6 +347,7 @@ const toggleTheme = async () => {
 
 .nav-segmented-item {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 6px;
   padding: 4px 14px;
@@ -364,6 +398,7 @@ const toggleTheme = async () => {
   justify-content: center;
   color: var(--second-text-color);
   cursor: pointer;
+  flex-shrink: 0;
   transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, color 200ms ease;
 
   @media (hover: hover) and (pointer: fine) {

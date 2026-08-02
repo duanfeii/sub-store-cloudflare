@@ -74,14 +74,16 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
       },
       rollupOptions: {
         output: {
-          entryFileNames: "[name].js",
-          chunkFileNames: "chunks/[name]-[hash].js",
+          // Content hashes on every JS/CSS entry so browsers never keep a
+          // broken intermediate deploy after UI fixes ship.
+          entryFileNames: "assets/[name]-[hash].js",
+          chunkFileNames: "assets/chunks/[name]-[hash].js",
           assetFileNames: (assetInfo) => {
             const ext = assetInfo.name?.split('.').pop()?.toLowerCase() ?? '';
-            if (/^(png|jpe?g|svg|webp|avif|gif|ico)$/.test(ext)) return 'images/[name].[ext]';
-            if (/^(woff2?|ttf|eot|otf)$/.test(ext)) return 'fonts/[name].[ext]';
-            if (ext === 'css') return 'css/[name].[ext]';
-            return '[name].[ext]';
+            if (/^(png|jpe?g|svg|webp|avif|gif|ico)$/.test(ext)) return 'images/[name]-[hash].[ext]';
+            if (/^(woff2?|ttf|eot|otf)$/.test(ext)) return 'fonts/[name]-[hash].[ext]';
+            if (ext === 'css') return 'assets/css/[name]-[hash].[ext]';
+            return 'assets/[name]-[hash].[ext]';
           },
           manualChunks(id) {
             if (id.includes('node_modules')) {

@@ -17,13 +17,7 @@ export const useWideScreenNarrowMode = () => {
     return Boolean(route.meta?.needTabBar) && !isWideScreen.value;
   });
 
-  const shouldShowSideBar = computed(() => {
-    if (route.path.startsWith("/preview") || !isWideScreen.value) {
-      return false;
-    }
-
-    return !route.meta?.hideSideBarInWideScreenNarrowMode;
-  });
+  const shouldShowSideBar = computed(() => false);
 
   return {
     isWideScreen,
