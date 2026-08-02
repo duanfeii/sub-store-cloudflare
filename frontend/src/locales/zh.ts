@@ -339,7 +339,9 @@ export default {
         },
         tag: {
           label: "标签",
-          placeholder: "点击右侧图标选择，标签(用 , 分隔) 将用于分组"
+          placeholder: "输入标签后按回车或点确认添加",
+          confirm: "确认",
+          remove: "移除标签"
         },
         template: {
           label: "规则模板",

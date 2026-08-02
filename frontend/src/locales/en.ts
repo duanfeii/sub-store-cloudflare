@@ -339,7 +339,9 @@ export default {
         },
         tag: {
           label: "Tag(s)",
-          placeholder: "Click on the right icon, The tag(s) (separated by comma) will be used for grouping."
+          placeholder: "Type a tag, then press Enter or Confirm",
+          confirm: "Add",
+          remove: "Remove tag"
         },
         template: {
           label: "Rule Template",
