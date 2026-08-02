@@ -21,7 +21,26 @@
               icon="fa-solid fa-arrow-left"
             />
           </button>
-          <div v-else :class="leftIconClass" @click.stop="back"></div>
+          <div v-else class="app-brand-container">
+            <div
+              class="app-brand"
+              role="link"
+              tabindex="0"
+              :aria-label="t('navBar.brand.home')"
+              @click.stop="router.push('/')"
+              @keydown.enter.stop.prevent="router.push('/')"
+            >
+              <img
+                class="app-brand-logo"
+                :src="brandLogo"
+                alt=""
+                width="22"
+                height="22"
+              />
+              <span class="app-brand-name">Sub Store</span>
+              <span class="env-badge">{{ envBadge }}</span>
+            </div>
+          </div>
           <div class="icon-group">
             <button
               v-if="showRefreshButton"
@@ -110,8 +129,10 @@ import { useMethodStore } from '@/store/methodStore';
 import { useAppNotifyStore } from "@/store/appNotify";
 import { useListSearchStore } from "@/store/listSearch";
 import i18n from "@/locales";
+import brandLogo from "@/assets/icons/logo.png";
 
 const { t:i18n_global } = i18n.global;
+const envBadge = import.meta.env.DEV ? "dev" : "prod";
 const { showNotify } = useAppNotifyStore();
 const { t } = useI18n();
 const router = useRouter();
@@ -133,10 +154,6 @@ const searchInputRef = ref<HTMLInputElement | null>(null);
 const isNeedBack = computed(() => {
   return route.meta.needNavBack ?? false;
 });
-const leftIconClass = computed(() => {
-  return isNeedBack.value ? "icon-back" : "icon-home";
-});
-
 const currentTitle = computed(() => {
   if (isListSearchActive.value) {
     return "";
@@ -182,6 +199,8 @@ const navLeftButtonLeft = computed<Record<string, string>>(() => {
     };
   }
 
+  // Leave room for [Logo] Sub Store [env] brand cluster on the left.
+  const brandOffset = 128;
   const buttons: string[] = [];
   if (showRefreshButton.value) {
     buttons.push("refresh");
@@ -194,7 +213,7 @@ const navLeftButtonLeft = computed<Record<string, string>>(() => {
   }
 
   return buttons.reduce((acc, key, index) => {
-    acc[key] = `${7 + index * 30}px`;
+    acc[key] = `${brandOffset + index * 30}px`;
     return acc;
   }, {} as Record<string, string>);
 });
@@ -351,7 +370,7 @@ const refresh = async () => {
 
           &.is-active {
             color: var(--primary-color);
-            background: rgba(99, 102, 241, 0.12);
+            background: color-mix(in srgb, var(--primary-color) 12%, transparent);
           }
         }
 
@@ -403,7 +422,7 @@ const refresh = async () => {
 
         &:focus {
           border-color: var(--primary-color);
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
         }
       }
 
@@ -481,5 +500,72 @@ const refresh = async () => {
 
 .icon-null::before {
   content: "\2003";
+}
+
+.app-brand-container {
+  position: absolute;
+  left: 12px;
+  top: v-bind(navActionOffset);
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  max-width: min(46vw, 160px);
+
+  .app-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 0.85;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+  }
+
+  .app-brand-logo {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    object-fit: contain;
+  }
+
+  .app-brand-name {
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: -0.02em;
+    color: var(--primary-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .env-badge {
+    flex-shrink: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+    color: var(--primary-color);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
 }
 </style>

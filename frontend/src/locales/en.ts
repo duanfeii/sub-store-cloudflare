@@ -35,6 +35,9 @@ export default {
       en: "English",
       language: "Language"
     },
+    brand: {
+      home: "Sub Store home"
+    },
     actions: {
       back: "Back",
       refresh: "Refresh data",

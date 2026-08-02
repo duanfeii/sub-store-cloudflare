@@ -542,7 +542,7 @@ onMounted(fetchTemplates);
 
   &:hover {
     box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
-    border-color: rgba(99, 102, 241, 0.25);
+    border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
   }
 }
 

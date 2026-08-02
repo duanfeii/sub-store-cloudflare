@@ -189,16 +189,16 @@
     cursor: pointer;
     padding: 8px 12px;
     margin-bottom: 14px;
-    background: rgba(99, 102, 241, 0.08);
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
     border-radius: 12px;
-    border: 1px solid rgba(99, 102, 241, 0.15);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 15%, transparent);
     color: var(--comment-text-color);
     font-size: 12px;
     gap: 6px;
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(99, 102, 241, 0.14);
+      background: color-mix(in srgb, var(--primary-color) 14%, transparent);
       color: var(--primary-color);
     }
   }
@@ -224,8 +224,8 @@
 
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 16px -2px rgba(99, 102, 241, 0.12);
-        border-color: rgba(99, 102, 241, 0.35);
+        box-shadow: 0 4px 16px -2px color-mix(in srgb, var(--primary-color) 12%, transparent);
+        border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
       }
 
       .infos {
@@ -269,8 +269,8 @@
           transition: all 0.2s ease;
 
           &:hover {
-            background: rgba(99, 102, 241, 0.15);
-            border-color: rgba(99, 102, 241, 0.4);
+            background: color-mix(in srgb, var(--primary-color) 15%, transparent);
+            border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);
             transform: scale(1.05);
 
             .action-icon {
