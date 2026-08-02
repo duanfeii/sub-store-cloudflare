@@ -49,6 +49,10 @@ export default {
 
     'compare-tag-text-color': '#A1A1AA',
     'compare-tag-background-color': 'rgba(255, 255, 255, 0.08)',
+
+    // Elevation — softer lift on near-black surfaces
+    'card-shadow': '0 2px 12px -2px rgba(0, 0, 0, 0.35)',
+    'card-shadow-hover': '0 10px 28px -6px rgba(0, 0, 0, 0.55)',
   },
 };
 //--second-text-color

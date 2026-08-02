@@ -43,7 +43,10 @@ export default {
       refresh: "Refresh data",
       add: "Create",
       more: "More actions",
-      theme: "Toggle theme"
+      theme: "Toggle theme (System / Light / Dark)",
+      themeAuto: "Match system",
+      themeLight: "Light mode",
+      themeDark: "Dark mode"
     },
     listSearch: {
       open: "Search",

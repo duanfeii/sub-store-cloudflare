@@ -1,5 +1,18 @@
 @import "./tokens-root.scss";
 
+html {
+  color-scheme: light dark;
+  background-color: var(--background-color, #f8fafc);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
 body {
   outline: none;
   -webkit-tap-highlight-color: transparent;
@@ -7,6 +20,9 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {
@@ -17,9 +33,27 @@ a {
 
 textarea,
 input,
+select,
 button {
   font-family: inherit;
   color: inherit;
+  color-scheme: inherit;
+}
+
+/* Shared form surface language (Tools / My / SubEditor / dialogs) */
+.field-control,
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+  background-color: var(--card-color);
+  color: var(--primary-text-color);
+  border-color: var(--divider-color);
+  caret-color: var(--primary-color);
+}
+
+option {
+  background-color: var(--popup-color, var(--card-color));
+  color: var(--primary-text-color);
 }
 
 button {
@@ -102,7 +136,7 @@ img {
   }
 }
 
-/* Custom Scrollbars */
+/* Custom Scrollbars — theme-aware */
 *::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -113,13 +147,41 @@ img {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.35);
+  background: color-mix(in srgb, var(--comment-text-color) 35%, transparent);
   border-radius: 999px;
   transition: background-color 0.2s ease;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
+  background: color-mix(in srgb, var(--comment-text-color) 55%, transparent);
+}
+
+/* Shared page shell for secondary tabs (Tools / Settings) — matches home spacing */
+.page-section {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  animation: fadeIn 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.surface-card {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--radius-lg, var(--item-card-radios));
+  background: var(--card-color);
+  color: var(--second-text-color);
+  border: 1px solid var(--divider-color);
+  box-shadow: var(--card-shadow, 0 2px 12px -2px rgba(0, 0, 0, 0.06));
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      box-shadow: var(--card-shadow-hover, 0 8px 24px -4px rgba(0, 0, 0, 0.1));
+      border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+    }
+  }
 }
 
 @keyframes fadeIn {

@@ -522,33 +522,40 @@ onMounted(fetchTemplates);
 <style lang="scss" scoped>
 .my-page-wrapper {
   min-height: 100%;
-  padding: var(--safe-area-side);
+  /* page-body already pads — keep vertical rhythm only */
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-3);
-  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .profile-block {
   width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg, var(--item-card-radios));
+  background: var(--card-color);
+  border: 1px solid var(--divider-color);
+  box-shadow: var(--card-shadow, 0 2px 12px -2px rgba(0, 0, 0, 0.06));
 
   .radio-wrapper {
     display: flex;
     align-items: center;
+    gap: var(--space-2);
 
     .tag {
-      margin: 0 5px;
-      padding: 7.5px 2.5px 4px;
+      margin: 0;
+      padding: 4px 10px;
       flex-shrink: 0;
       color: var(--second-text-color);
       font-size: 12px;
-      cursor: pointer;
+      font-weight: 500;
       user-select: none;
-    }
-
-    .current {
-      border-bottom: 1px solid var(--primary-color);
+      border-radius: 9999px;
+      background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
       color: var(--primary-color);
     }
 
@@ -560,11 +567,12 @@ onMounted(fetchTemplates);
 
   .info {
     width: 100%;
-    margin-bottom: 10px;
-    padding: 12px 0 0;
+    margin-bottom: 0;
+    padding: 14px 0 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--space-3);
   }
 
   .avatar-wrapper {
@@ -636,17 +644,20 @@ onMounted(fetchTemplates);
 
 .config-card {
   width: 100%;
-  border-radius: var(--item-card-radios, 14px);
+  box-sizing: border-box;
+  border-radius: var(--radius-lg, var(--item-card-radios));
   background: var(--card-color);
   color: var(--second-text-color);
   border: 1px solid var(--divider-color);
-  box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--card-shadow, 0 2px 12px -2px rgba(0, 0, 0, 0.06));
   overflow: hidden;
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
 
-  &:hover {
-    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
-    border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      box-shadow: var(--card-shadow-hover, 0 8px 24px -4px rgba(0, 0, 0, 0.1));
+      border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+    }
   }
 }
 
@@ -674,14 +685,15 @@ onMounted(fetchTemplates);
   justify-content: space-between;
   gap: var(--space-3);
   border-radius: var(--radius-lg);
-  background: var(--card-color);
+  background: color-mix(in srgb, var(--background-color) 55%, var(--card-color));
+  border: 1px solid var(--divider-color);
   transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease, border-color 200ms ease;
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
       transform: translateY(-2px);
       border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
-      box-shadow: 0 6px 18px -2px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--card-shadow-hover, 0 6px 18px -2px rgba(0, 0, 0, 0.08));
     }
   }
 
