@@ -6,9 +6,9 @@ export default {
     extend: '',
   },
   colors: {
-    // 全局高亮色
+    // 全局高亮色 (Vercel Accent)
     'primary-color': '#6366F1',
-    'primary-color-end': '#8B5CF6',
+    'primary-color-end': '#A855F7',
     'second-color': '#F97316',
     'third-color': '#10B981',
 
@@ -16,29 +16,29 @@ export default {
     'succeed-color': '#34D399',
 
     // icon色
-    'icon-nav-bar-right': '#94A3B8',
-    'unimportant-icon-color': 'rgba(255, 255, 255, 0.25)',
+    'icon-nav-bar-right': '#A1A1A1',
+    'unimportant-icon-color': 'rgba(255, 255, 255, 0.3)',
 
-    // 组件色
-    'status-bar-background-color': '#0B0F17',
-    'background-color': '#0B0F17',
-    'nav-bar-color': 'rgba(11, 15, 23, 0.8)',
-    'tab-bar-color': 'rgba(11, 15, 23, 0.8)',
-    'popup-color': '#131927',
-    'divider-color': 'rgba(255, 255, 255, 0.08)',
-    'card-color': '#131927',
-    'dialog-color': '#131927',
+    // 组件色 (Vercel Pitch Black & Geist Dark Surface)
+    'status-bar-background-color': '#000000',
+    'background-color': '#0A0A0A',
+    'nav-bar-color': 'rgba(10, 10, 10, 0.8)',
+    'tab-bar-color': 'rgba(10, 10, 10, 0.8)',
+    'popup-color': '#121212',
+    'divider-color': '#222222',
+    'card-color': '#111111',
+    'dialog-color': '#121212',
     'switch-close-background-color': 'rgba(255, 255, 255, 0.12)',
     'switch-active-background-color': '#6366F1',
-    'compare-item-background-color': '#1A2234',
-    'picker-mask-near-color': 'rgba(11, 15, 23, 0.5)',
-    'picker-mask-far-color': '#0B0F17',
+    'compare-item-background-color': '#181818',
+    'picker-mask-near-color': 'rgba(10, 10, 10, 0.5)',
+    'picker-mask-far-color': '#0A0A0A',
 
-    // 文字色
-    'primary-text-color': '#F8FAFC',
-    'second-text-color': '#CBD5E1',
-    'comment-text-color': '#94A3B8',
-    'lowest-text-color': '#64748B',
+    // 文字色 (Vercel High Contrast)
+    'primary-text-color': '#EDEDED',
+    'second-text-color': '#A1A1A1',
+    'comment-text-color': '#666666',
+    'lowest-text-color': '#444444',
 
     // 其他
     'img-brightness': '100',
@@ -46,8 +46,8 @@ export default {
     'tab-bar-blur': '24px',
     'sticky-title-blur': '24px',
 
-    'compare-tag-text-color': '#94A3B8',
-    'compare-tag-background-color': 'rgba(255, 255, 255, 0.1)',
+    'compare-tag-text-color': '#A1A1A1',
+    'compare-tag-background-color': 'rgba(255, 255, 255, 0.08)',
   },
 };
 //--second-text-color
