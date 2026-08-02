@@ -289,10 +289,8 @@ import logoRedIcon from "@/assets/icons/logo-red.png";
 import SubListItem from "@/components/SubListItem.vue";
 import { useFilteredDraggableList } from "@/hooks/useFilteredDraggableList";
 import { useListViewMode } from "@/hooks/useListViewMode";
-import { useTagBarHeight } from "@/hooks/useTagBarHeight";
 import { useAppNotifyStore } from "@/store/appNotify";
 import { useGlobalStore } from "@/store/global";
-import { useSystemStore } from "@/store/system";
 import { useListSearchStore } from "@/store/listSearch";
 import { useMethodStore } from '@/store/methodStore';
 import { useSettingsStore } from '@/store/settings';
@@ -315,7 +313,6 @@ const adminToken = ref(getStoredAdminToken());
 const methodStore = useMethodStore();
 const subsStore = useSubsStore();
 const globalStore = useGlobalStore();
-const systemStore = useSystemStore();
 const settingsStore = useSettingsStore();
 const listSearchStore = useListSearchStore();
 const { hasSubs, hasCollections, subs, collections, flows } = storeToRefs(subsStore);
@@ -330,7 +327,6 @@ const {
 } = storeToRefs(globalStore);
 /** Timestamp of the last successful data load; null until first success. */
 const lastRefreshAt = ref<number | null>(null);
-const { navBarHeight } = storeToRefs(systemStore);
 const isDualColumnMode = computed(() => {
   return effectiveListViewMode.value === "dual-column";
 });
@@ -338,58 +334,9 @@ const swipeDisabled = ref(false);
 const touchStartY = ref(null);
 const touchStartX = ref(null);
 const sortFailed = ref(false);
-const hasUntagged = ref(false);
-const hasLocal = ref(false);
-const hasRemote = ref(false);
-const tagNavBarHeight = computed(() => {
-  return navBarHeight.value;
-});
-const getTag = () => {
-    return localStorage.getItem('sub-tag') || 'all';
-  };
-const tag = ref(getTag());
-const tags = computed(() => {
-  if(!hasSubs.value && !hasCollections.value) return [];
-  // 从 subs 和 collections 中获取所有的 tag, 去重
-  const set = new Set();
-  subs.value.forEach(sub => {
-    if(sub.source === 'remote') {
-      hasRemote.value = true;
-    } else {
-      hasLocal.value = true;
-    }
-    if (Array.isArray(sub.tag) && sub.tag.length > 0) {
-      sub.tag.forEach(i => {
-        set.add(i);
-      });
-    } else {
-      hasUntagged.value = true;
-    }
-  });
-  collections.value.forEach(col => {
-    if (Array.isArray(col.tag) && col.tag.length > 0) {
-      col.tag.forEach(i => {
-        set.add(i);
-      });
-    } else {
-      hasUntagged.value = true;
-    }
-  });
-
-  let tags: any[] = Array.from(set);
-  if(tags.length === 0 && !hasRemote.value && !hasLocal.value) return [];
-  tags = tags.map(i => ({ label: i, value: i }));
-  
-  const result = [{ label: t("specificWord.all"), value: "all" }, ...tags];
-  if(hasRemote.value) result.push({ label: t("editorPage.subConfig.basic.source.remote"), value: "remote" });
-  if(hasLocal.value) result.push({ label: t("editorPage.subConfig.basic.source.local"), value: "local" });
-  if(tags.length > 0 && hasUntagged.value) result.push({ label: t("specificWord.untagged"), value: "untagged" });
-
-  if (!result.find(i => i.value === tag.value)) {
-    tag.value = 'all';
-  }
-  return result;
-});
+// Tag filter strip removed from UI — always show full list.
+// Keep a stable "all" key so fold state (localStorage sub-fold) stays compatible.
+const tag = ref("all");
 const filterdSubsCount = computed(() => {
   return subs.value.filter(shouldShowElement).length;
 });
@@ -539,10 +486,6 @@ const addSub = () => {
 };
 
 const route = useRoute();
-const { tagBarRef: radioWrapperRef, tagBarHeight: radioWrapperHeight } = useTagBarHeight([
-  tag,
-  () => tags.value,
-]);
 
 onMounted(() => {
   methodStore.registerMethod("addSub", addSub);
@@ -635,38 +578,10 @@ const toggleFold = (type) => {
 //   }
 // };
 
-const scrollToTop = () => {
-  const scrollPosition = 0;
-  
-  window.scrollTo({
-    top: scrollPosition,
-    behavior: "smooth"
-  });
-};
-
-const setTag = (current) => {
-  tag.value = current;
-  if (current === 'all') {
-    localStorage.removeItem('sub-tag');
-  } else {
-    localStorage.setItem('sub-tag', current);
-  }
-  // 增加滚动到顶部
-  scrollToTop();
-};
-
-const shouldShowElementByTag = (element) => {
-  if(tag.value === 'all') return true;
-  if(tag.value === 'untagged') return !Array.isArray(element.tag) || element.tag.length === 0;
-  if(tag.value === 'remote') return element.source === 'remote';
-  if(tag.value === 'local') return element.source === 'local';
-  return element.tag?.includes(tag.value);
-};
 const shouldShowElement = (element) => {
-  return shouldShowElementByTag(element)
-    && listItemMatchesSearch(element, listSearchStore.normalizedQuery, {
-      includeRemark: shouldSearchListRemark(appearanceSetting.value),
-    });
+  return listItemMatchesSearch(element, listSearchStore.normalizedQuery, {
+    includeRemark: shouldSearchListRemark(appearanceSetting.value),
+  });
 };
 const filteredSubs = useFilteredDraggableList(subs, shouldShowElement);
 const filteredCollections = useFilteredDraggableList(collections, shouldShowElement);

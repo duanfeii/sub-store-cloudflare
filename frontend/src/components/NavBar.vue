@@ -1,105 +1,103 @@
 <template>
   <div class="nav-bar-wrapper">
     <nav class="nav-bar" :class="{ 'is-desktop': isDesktop }">
-      <div class="nav-bar__content">
-        <div class="nav-bar__left">
-          <button
-            v-if="isNeedBack"
-            type="button"
-            class="nav-btn nav-btn--leading"
-            :aria-label="t('navBar.actions.back')"
-            :title="t('navBar.actions.back')"
-            @click.stop="back"
-          >
-            <font-awesome-icon
-              class="nav-btn__icon"
-              icon="fa-solid fa-arrow-left"
-            />
-          </button>
-          <div
-            v-else
-            class="app-brand"
-            role="link"
-            tabindex="0"
-            :aria-label="t('navBar.brand.home')"
-            @click.stop="router.push('/')"
-            @keydown.enter.stop.prevent="router.push('/')"
-          >
-            <img
-              class="app-brand__logo"
-              :src="brandLogo"
-              alt=""
-              width="20"
-              height="20"
-            />
-            <span class="app-brand__name">Sub Store</span>
-          </div>
+      <div class="nav-bar__left">
+        <button
+          v-if="isNeedBack"
+          type="button"
+          class="nav-btn nav-btn--leading"
+          :aria-label="t('navBar.actions.back')"
+          :title="t('navBar.actions.back')"
+          @click.stop="back"
+        >
+          <font-awesome-icon
+            class="nav-btn__icon"
+            icon="fa-solid fa-arrow-left"
+          />
+        </button>
+        <div
+          v-else
+          class="app-brand"
+          role="link"
+          tabindex="0"
+          :aria-label="t('navBar.brand.home')"
+          @click.stop="router.push('/')"
+          @keydown.enter.stop.prevent="router.push('/')"
+        >
+          <img
+            class="app-brand__logo"
+            :src="brandLogo"
+            alt=""
+            width="20"
+            height="20"
+          />
+          <span class="app-brand__name">Sub Store</span>
         </div>
+      </div>
 
-        <div class="nav-bar__center">
-          <div v-if="!isNeedBack" class="nav-segmented-control">
-            <button
-              v-for="item in navTabs"
-              :key="item.path"
-              type="button"
-              class="nav-segmented-item"
-              :class="{ 'is-active': route.path === item.path }"
-              @click="router.push(item.path)"
-            >
-              <font-awesome-icon :icon="item.icon" class="nav-segmented-item__icon" />
-              <span>{{ item.label }}</span>
-            </button>
-          </div>
-          <h1
-            v-else-if="currentTitle"
-            class="nav-title"
-            :title="currentTitle"
+      <div class="nav-bar__center">
+        <div v-if="!isNeedBack" class="nav-segmented-control">
+          <button
+            v-for="item in navTabs"
+            :key="item.path"
+            type="button"
+            class="nav-segmented-item"
+            :class="{ 'is-active': route.path === item.path }"
+            @click="router.push(item.path)"
           >
-            {{ currentTitle }}
-          </h1>
+            <font-awesome-icon :icon="item.icon" class="nav-segmented-item__icon" />
+            <span>{{ item.label }}</span>
+          </button>
         </div>
+        <h1
+          v-else-if="currentTitle"
+          class="nav-title"
+          :title="currentTitle"
+        >
+          {{ currentTitle }}
+        </h1>
+      </div>
 
-        <div class="nav-bar__right">
-          <button
-            v-if="showRefreshButton"
-            type="button"
-            class="nav-btn"
-            :aria-label="t('navBar.actions.refresh')"
-            :title="t('navBar.actions.refresh')"
-            @click.stop="refresh"
-          >
-            <font-awesome-icon
-              class="nav-btn__icon"
-              icon="fa-solid fa-arrow-rotate-right"
-            />
-          </button>
-          <button
-            v-if="showAddButton"
-            type="button"
-            class="nav-btn"
-            :aria-label="t('navBar.actions.add')"
-            :title="t('navBar.actions.add')"
-            @click.stop="add(route)"
-          >
-            <font-awesome-icon
-              class="nav-btn__icon"
-              icon="fa-solid fa-plus"
-            />
-          </button>
-          <LanguageSwitcherButton variant="icon" />
-          <button
-            type="button"
-            class="nav-btn"
-            :aria-label="t('navBar.actions.theme')"
-            :title="t('navBar.actions.theme')"
-            @click.stop="toggleTheme"
-          >
-            <font-awesome-icon
-              class="nav-btn__icon"
-              :icon="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
-            />
-          </button>
-        </div>
+      <div class="nav-bar__right">
+        <button
+          v-if="showRefreshButton"
+          type="button"
+          class="nav-btn"
+          :aria-label="t('navBar.actions.refresh')"
+          :title="t('navBar.actions.refresh')"
+          @click.stop="refresh"
+        >
+          <font-awesome-icon
+            class="nav-btn__icon"
+            icon="fa-solid fa-arrow-rotate-right"
+          />
+        </button>
+        <button
+          v-if="showAddButton"
+          type="button"
+          class="nav-btn"
+          :aria-label="t('navBar.actions.add')"
+          :title="t('navBar.actions.add')"
+          @click.stop="add(route)"
+        >
+          <font-awesome-icon
+            class="nav-btn__icon"
+            icon="fa-solid fa-plus"
+          />
+        </button>
+        <LanguageSwitcherButton variant="icon" />
+        <button
+          type="button"
+          class="nav-btn"
+          :aria-label="t('navBar.actions.theme')"
+          :title="t('navBar.actions.theme')"
+          @click.stop="toggleTheme"
+        >
+          <font-awesome-icon
+            class="nav-btn__icon"
+            :icon="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
+          />
+        </button>
       </div>
     </nav>
   </div>
@@ -108,7 +106,7 @@
 <script lang="ts" setup>
 import { useMediaQuery } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -225,85 +223,89 @@ const toggleTheme = async () => {
 </script>
 
 <style lang="scss" scoped>
+/* Full-bleed fixed bar (background + border span the viewport) */
 .nav-bar-wrapper {
+  position: fixed;
   top: 0;
-  height: v-bind(navBarHeight);
+  left: 0;
+  right: 0;
   z-index: 20;
-  @include centered-fixed-container;
-}
-
-.nav-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
   width: 100%;
   height: v-bind(navBarHeight);
-  padding: 0;
-  box-shadow: none;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  box-sizing: border-box;
   background: var(--nav-bar-color);
   border-bottom: 1px solid var(--divider-color);
-  border-radius: 0;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/*
+ * Content row: logo | tabs | actions in one horizontal line,
+ * constrained to the same max-width as .page-body so edges align.
+ */
+.nav-bar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: $content-max-width;
+  height: 100%;
+  margin-inline: auto;
+  padding: v-bind(navBartop) var(--space-4) 0;
   overflow: visible;
 
-  &__content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-    max-width: $content-max-width;
-    height: 100%;
-    margin-inline: auto;
-    padding: v-bind(navBartop) var(--space-4) 0;
-    box-sizing: border-box;
-
-    @media screen and (min-width: $breakpoint-md) {
-      padding-inline: var(--space-5);
-    }
+  @media screen and (min-width: $breakpoint-md) {
+    padding-inline: var(--space-5);
   }
 
   &__left,
   &__right {
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 8px;
-    flex-shrink: 0;
-    min-width: 0;
-  }
-
-  &__left {
     flex: 0 0 auto;
-  }
-
-  &__right {
-    margin-left: auto;
-    position: relative;
+    min-width: 0;
   }
 
   &__center {
-    flex: 1 1 auto;
-    min-width: 0;
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 }
 
 .app-brand {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   user-select: none;
+
+  &__logo {
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
 
   &__name {
     font-size: 14px;
     font-weight: 600;
     letter-spacing: -0.015em;
     color: var(--primary-text-color);
+    white-space: nowrap;
   }
 }
 
@@ -314,10 +316,15 @@ const toggleTheme = async () => {
   letter-spacing: -0.015em;
   color: var(--primary-text-color);
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-segmented-control {
   display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   padding: 3px;
   border-radius: 9999px;
@@ -328,6 +335,7 @@ const toggleTheme = async () => {
 
 .nav-segmented-item {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 6px;
   padding: 4px 14px;
@@ -378,6 +386,7 @@ const toggleTheme = async () => {
   justify-content: center;
   color: var(--second-text-color);
   cursor: pointer;
+  flex-shrink: 0;
   transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, color 200ms ease;
 
   @media (hover: hover) and (pointer: fine) {

@@ -3,9 +3,11 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 import { useListPageViewStore } from "@/store/listPageView";
-import { SIDEBAR_EXPANDED_BREAKPOINT, useSystemStore } from "@/store/system";
+import { useSystemStore } from "@/store/system";
 
-export const LIST_VIEW_MODE_BREAKPOINT = SIDEBAR_EXPANDED_BREAKPOINT;
+// Dual-column once viewport is wide enough for two cards inside the
+// centered content column ($content-max-width: 1024px).
+export const LIST_VIEW_MODE_BREAKPOINT = 900;
 
 export const useListViewMode = () => {
   const route = useRoute();
