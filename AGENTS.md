@@ -10,9 +10,9 @@ Deploy Sub-Store Cloudflare into the user's Cloudflare account, import their sub
 
 - Keep the app Cloudflare-native and small: Workers Static Assets + Worker API + D1 + Worker Secrets.
 - Use D1 for structured configuration. Do not switch to R2/KV/Durable Objects/Queues/Cron/Pages unless the user explicitly changes the architecture and the code is updated for it.
-- The public data model is `sources`, `collections`, `templates`, `filters`, `settings`, and `sourceIds`.
+- The public data model is `sources`, `collections`, `templates`, `filters`, `settings`, `sourceIds`, scoped `download_grants`, and bounded `recycle_bin` entries.
 - Treat upstream Sub-Store as a reference for retained source, collection, filter, template, preview, backup/restore, and download workflows only.
-- Do not add files, Gist sync, share, archive, script runtime, logs, queues, cron, or artifact features during install or cleanup work.
+- Do not add files, Gist sync, public sharing, unbounded archives, runtime-evaluated scripts, logs, queues, cron, or artifact features during install or cleanup work. Build-time bundled Filter / Operator scripts, scoped download grants, and the bounded configuration recycle bin are supported through the existing pipeline.
 
 ## Deployment Paths
 
@@ -29,6 +29,8 @@ There are two supported install paths:
    - Let the installer create or reuse D1, render local Wrangler config, set secrets, migrate, deploy, seed, and verify.
 
 Prefer the installer over manually running every deployment command.
+
+For a human empty install, `pnpm run install:quick` may deploy first and let the user configure in the web UI. Do not use quick mode when an Agent was asked to import Sources or Collections. A non-interactive installer run without `config/agent-setup.local.json` must stop before deployment.
 
 ## Privacy Rules
 
@@ -69,6 +71,7 @@ Ask only for missing inputs. Prefer reasonable defaults when the user does not c
 - Collections:
   - collection ids and names.
   - which sources each collection includes.
+  - `sourceIds: []` means all enabled sources; list ids to pin a collection to specific sources.
 - Rule template:
   - read `config/rule-presets.json`.
   - default to `acl4ssr-mihomo`.
@@ -76,6 +79,10 @@ Ask only for missing inputs. Prefer reasonable defaults when the user does not c
   - default collection filters: `dedupe-by-endpoint`, `sort-by-name`.
   - provider-info cleanup: `clean-provider-nodes`.
   - ask before using region include filters such as `hk-jp-sg-us-only`.
+- Build-time scripts:
+  - use public built-ins for ordinary installs.
+  - put personal manifests in `config/script-plugins.local.json` and code in `config/scripts.local/`.
+  - never store or execute script source from D1, the browser, or a remote URL.
 
 ## Workflow
 
@@ -90,8 +97,10 @@ Ask only for missing inputs. Prefer reasonable defaults when the user does not c
 2. Prepare private setup:
    - Copy `config/agent-setup.example.json` to `config/agent-setup.local.json` if needed.
    - Fill `sources`, `collections`, optional custom `templates`.
+   - Use 1-64 lowercase letters, numbers, underscores, or hyphens for record ids.
    - Prefer `filterPresetIds` from `config/rule-presets.json` for common filters.
    - Validate with `pnpm run seed:validate`.
+   - Do not rely on the installer to deploy `config/agent-setup.example.json`; missing non-interactive setup is a handoff state.
 3. Deploy with one command:
    - `pnpm run install:cloudflare`
 4. Verify installer output:

@@ -1,6 +1,9 @@
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
+import { createInterface } from "node:readline/promises";
+
+import { createQuickSetup, parseRemoteSourceUrls } from "./lib/install-setup.mjs";
 
 const args = process.argv.slice(2);
 const flags = new Set(args.filter((arg) => arg.startsWith("--")));
@@ -10,6 +13,9 @@ const SETUP_PATH = "config/agent-setup.local.json";
 const SETUP_EXAMPLE_PATH = "config/agent-setup.example.json";
 const LOCAL_WRANGLER_PATH = "cloudflare/wrangler.deploy.local.jsonc";
 const SEED_SQL_PATH = "cloudflare/agent.seed.local.sql";
+const LOCAL_SCRIPT_MANIFEST_PATH = "config/script-plugins.local.json";
+const LOCAL_SCRIPT_DIRECTORY = "config/scripts.local";
+const GENERATED_SCRIPT_DIRECTORY = "cloudflare/src/generated";
 const ADMIN_SECRET = "SUB_STORE_ADMIN_TOKEN";
 const DOWNLOAD_SECRET = "SUB_STORE_PUBLIC_DOWNLOAD_TOKEN";
 
@@ -25,32 +31,45 @@ const state = {
   verified: false,
 };
 
-main();
+await main();
 
-function main() {
+async function main() {
   banner("Sub-Store Cloudflare installer");
   const doctorOnly = flags.has("--doctor");
 
   checkCommand("node", ["--version"], { label: "Node.js" });
   checkCommand("pnpm", ["--version"], { label: "pnpm" });
-  run("pnpm", ["run", "setup"], { label: "Install frontend and Worker dependencies", skip: doctorOnly });
-  checkCommand("pnpm", ["--dir", "cloudflare", "exec", "wrangler", "--version"], { label: "Wrangler" });
+  checkCommand("curl", ["--version"], { label: "curl" });
 
   if (doctorOnly) {
+    checkCommand("pnpm", ["--dir", "cloudflare", "exec", "wrangler", "--version"], { label: "Wrangler" });
     checkWranglerLogin({ soft: true });
     maybePrintSetupStatus();
     info("Doctor finished. Run `pnpm run install:cloudflare` to deploy.");
     return;
   }
 
-  ensureSetupFile();
+  await ensureSetupFile();
+  run("pnpm", ["run", "setup"], { label: "Install frontend and Worker dependencies" });
+  checkCommand("pnpm", ["--dir", "cloudflare", "exec", "wrangler", "--version"], { label: "Wrangler" });
   const setup = readSetup();
+  run("pnpm", ["run", "seed:validate"], { label: "Validate seed setup" });
   const deployment = setup.deployment && typeof setup.deployment === "object" ? setup.deployment : {};
   const workerName = stringValue(options.workerName, stringValue(deployment.workerName, "sub-store-cloudflare"));
   const d1DatabaseName = stringValue(options.d1DatabaseName, stringValue(deployment.d1DatabaseName, "sub-store-cloudflare"));
   const downloadTargets = normalizeTargets(deployment.downloadTargets);
-  const adminToken = options.adminToken || process.env.SUB_STORE_ADMIN_TOKEN || generateToken();
-  const downloadToken = options.downloadToken || process.env.SUB_STORE_PUBLIC_DOWNLOAD_TOKEN || generateToken();
+  const configuredAdminToken = stringValue(options.adminToken) || stringValue(process.env.SUB_STORE_ADMIN_TOKEN) || stringValue(deployment.adminToken);
+  const configuredDownloadToken = stringValue(options.downloadToken) || stringValue(process.env.SUB_STORE_PUBLIC_DOWNLOAD_TOKEN) || stringValue(deployment.downloadToken);
+  const adminToken = configuredAdminToken || generateToken();
+  const downloadToken = configuredDownloadToken || generateToken();
+
+  if (!configuredAdminToken || !configuredDownloadToken) {
+    if (!configuredAdminToken) deployment.adminToken = adminToken;
+    if (!configuredDownloadToken) deployment.downloadToken = downloadToken;
+    setup.deployment = deployment;
+    writeFileSync(SETUP_PATH, `${JSON.stringify(setup, null, 2)}\n`);
+    info(`Generated tokens were saved to ignored file ${SETUP_PATH} for safe resume.`);
+  }
 
   checkWranglerLogin({ soft: false });
   const databaseId = options.databaseId || process.env.CLOUDFLARE_D1_DATABASE_ID || stringValue(deployment.d1DatabaseId) || ensureD1(d1DatabaseName);
@@ -70,7 +89,6 @@ function main() {
   const deployResult = run("pnpm", ["run", "deploy:local"], { label: "Deploy Worker", capture: true, echo: true });
   state.deployed = true;
 
-  run("pnpm", ["run", "seed:validate"], { label: "Validate seed setup" });
   run("pnpm", ["run", "seed:render"], { label: "Render seed SQL" });
   state.renderedSeed = true;
   run("pnpm", ["run", "seed:remote"], { label: "Import seed into D1" });
@@ -86,23 +104,83 @@ function main() {
     downloadToken,
     workerName,
     d1DatabaseName,
-    databaseId,
     sources: setup.sources || [],
     collections: setup.collections || [],
     downloadTargets,
     verification,
   });
+  if (!verification.ok) {
+    printHandoff();
+    fail("Deployment verification failed. Review the failed HTTP checks, then resume the installer.", 2);
+  }
 }
 
-function ensureSetupFile() {
+async function ensureSetupFile() {
   if (existsSync(SETUP_PATH)) return;
+
+  if (flags.has("--quick")) {
+    const setup = createQuickSetup({
+      workerName: options.workerName,
+      d1DatabaseName: options.d1DatabaseName,
+      adminHostname: options.adminHostname,
+      downloadHostname: options.downloadHostname,
+      sourceUrls: parseRemoteSourceUrls(options.sourceUrls),
+    });
+    writeSetup(setup);
+    state.createdSetup = true;
+    info(`Created quick setup at ${SETUP_PATH}.`);
+    if (setup.sources.length === 0) {
+      info("No sources were provided. Add them in the admin UI after deployment.");
+    }
+    return;
+  }
+
+  if (process.stdin.isTTY && process.stdout.isTTY && !flags.has("--non-interactive")) {
+    writeSetup(await promptForSetup());
+    state.createdSetup = true;
+    info(`Saved guided setup to ignored file ${SETUP_PATH}.`);
+    return;
+  }
+
   copyFileSync(SETUP_EXAMPLE_PATH, SETUP_PATH);
   state.createdSetup = true;
   warn(`${SETUP_PATH} was created from ${SETUP_EXAMPLE_PATH}.`);
-  warn("Edit it with your real sources and collections, then rerun `pnpm run install:cloudflare`.");
-  if (!flags.has("--use-example-setup")) {
-    process.exit(2);
+  warn("This non-interactive run stopped before deployment so example subscription URLs are never deployed.");
+  warn("Edit the file with real sources and collections, then rerun `pnpm run install:cloudflare`.");
+  warn("For an empty deployment configured later in the web UI, run `pnpm run install:cloudflare -- --quick`.");
+  process.exit(2);
+}
+
+async function promptForSetup() {
+  banner("Quick setup");
+  info("Press Enter to accept defaults. Subscription URLs are saved only in the ignored local setup file.");
+  const prompt = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const workerName = await ask(prompt, "Worker name", "sub-store-cloudflare");
+    const d1DatabaseName = await ask(prompt, "D1 database name", "sub-store-cloudflare");
+    const adminHostname = await ask(prompt, "Custom admin hostname (optional)", "");
+    const downloadHostname = await ask(prompt, "Separate download hostname (optional)", "");
+    const sourceInput = await ask(prompt, "Remote subscription URLs, separated by spaces or commas (optional)", "");
+    return createQuickSetup({
+      workerName,
+      d1DatabaseName,
+      adminHostname,
+      downloadHostname,
+      sourceUrls: parseRemoteSourceUrls(sourceInput),
+    });
+  } finally {
+    prompt.close();
   }
+}
+
+async function ask(prompt, label, fallback) {
+  const suffix = fallback ? ` [${fallback}]` : "";
+  const answer = (await prompt.question(`${label}${suffix}: `)).trim();
+  return answer || fallback;
+}
+
+function writeSetup(setup) {
+  writeFileSync(SETUP_PATH, `${JSON.stringify(setup, null, 2)}\n`);
 }
 
 function readSetup() {
@@ -112,7 +190,7 @@ function readSetup() {
 function ensureD1(name) {
   const existing = findD1(name);
   if (existing?.uuid) {
-    info(`Using existing D1 database ${name} (${existing.uuid}).`);
+    info(`Using existing D1 database ${name}.`);
     return existing.uuid;
   }
 
@@ -170,12 +248,12 @@ function verifyDeployment({ baseUrl, adminToken, downloadToken, collections }) {
   const checks = [];
   const adminPaths = ["/api/env", "/api/templates", "/api/sources", "/api/collections"];
   for (const path of adminPaths) {
-    checks.push(fetchCheck(`${baseUrl}${path}?token=${encodeURIComponent(adminToken)}`, path));
+    checks.push(fetchCheck(`${baseUrl}${path}`, path, adminToken));
   }
 
   const collectionId = collections.map((collection) => stringValue(collection.id || collection.name)).find(Boolean);
   if (collectionId) {
-    checks.push(fetchCheck(`${baseUrl}/api/link/collection/${encodeURIComponent(collectionId)}?token=${encodeURIComponent(adminToken)}`, `/api/link/collection/${collectionId}`));
+    checks.push(fetchCheck(`${baseUrl}/api/link/collection/${encodeURIComponent(collectionId)}`, `/api/link/collection/${collectionId}`, adminToken));
     checks.push(fetchCheck(`${baseUrl}/download/collection/${encodeURIComponent(collectionId)}/mihomo?token=${encodeURIComponent(downloadToken)}`, `/download/collection/${collectionId}/mihomo`));
   }
 
@@ -186,8 +264,11 @@ function verifyDeployment({ baseUrl, adminToken, downloadToken, collections }) {
   };
 }
 
-function fetchCheck(url, label) {
-  const result = spawnSync("curl", ["-fsS", "--max-time", "30", url], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+function fetchCheck(url, label, bearerToken = "") {
+  const args = ["-fsS", "--max-time", "30"];
+  if (bearerToken) args.push("--header", `Authorization: Bearer ${bearerToken}`);
+  args.push(url);
+  const result = spawnSync("curl", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   if (result.status === 0) {
     info(`Verified ${label}.`);
     return { label, ok: true };
@@ -226,10 +307,10 @@ function parseWorkersDevSubdomain() {
   return match?.[1] || "";
 }
 
-function printResult({ baseUrl, adminToken, downloadToken, workerName, d1DatabaseName, databaseId, sources, collections, downloadTargets, verification }) {
+function printResult({ baseUrl, adminToken, downloadToken, workerName, d1DatabaseName, sources, collections, downloadTargets, verification }) {
   banner("Deployment result");
   console.log(`Worker: ${workerName}`);
-  console.log(`D1: ${d1DatabaseName} (${databaseId})`);
+  console.log(`D1: ${d1DatabaseName}`);
   console.log(`Admin URL: ${baseUrl}/?token=${adminToken}`);
   console.log("");
   console.log("Download URLs:");
@@ -249,8 +330,18 @@ function printResult({ baseUrl, adminToken, downloadToken, workerName, d1Databas
   console.log("");
   console.log("Privacy check:");
   run("git", ["status", "--short"], { label: "git status --short", passthrough: true, soft: true });
+  verifyPrivatePaths();
   console.log("");
-  info(`Private local files remain ignored: ${SETUP_PATH}, ${LOCAL_WRANGLER_PATH}, ${SEED_SQL_PATH}.`);
+  info(`Private local files remain ignored: ${SETUP_PATH}, ${LOCAL_WRANGLER_PATH}, ${SEED_SQL_PATH}, ${LOCAL_SCRIPT_MANIFEST_PATH}, ${LOCAL_SCRIPT_DIRECTORY}.`);
+}
+
+function verifyPrivatePaths() {
+  for (const path of [SETUP_PATH, LOCAL_WRANGLER_PATH, SEED_SQL_PATH, LOCAL_SCRIPT_MANIFEST_PATH, LOCAL_SCRIPT_DIRECTORY, GENERATED_SCRIPT_DIRECTORY, ".dev.vars", "cloudflare/.dev.vars"]) {
+    const tracked = spawnSync("git", ["ls-files", "--error-unmatch", path], { stdio: "ignore" });
+    if (tracked.status === 0) fail(`Privacy check failed: ${path} is tracked by git.`);
+    const ignored = spawnSync("git", ["check-ignore", "-q", path], { stdio: "ignore" });
+    if (ignored.status !== 0) fail(`Privacy check failed: ${path} is not covered by .gitignore.`);
+  }
 }
 
 function checkWranglerLogin({ soft }) {
@@ -284,7 +375,10 @@ function checkWranglerLogin({ soft }) {
 
 function maybePrintSetupStatus() {
   if (!existsSync(SETUP_PATH)) {
-    warn(`${SETUP_PATH} is missing. The installer will create it from ${SETUP_EXAMPLE_PATH}.`);
+    warn(`${SETUP_PATH} is missing.`);
+    info("Interactive terminals will open the guided setup.");
+    info("Non-interactive Agents should write the file before deployment.");
+    info("Use `pnpm run install:cloudflare -- --quick` for an empty web-configured deployment.");
     return;
   }
   run("pnpm", ["run", "seed:validate"], { label: "Validate local setup", soft: true });

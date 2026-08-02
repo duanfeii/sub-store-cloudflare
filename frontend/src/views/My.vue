@@ -29,12 +29,10 @@
             <font-awesome-icon v-if="!restoreIsLoading" icon="fa-solid fa-cloud-arrow-up" />
             {{ t("myPage.backup.restore") }}
           </nut-button>
-          <a :href="backupUrl" target="_blank" rel="noreferrer">
-            <nut-button type="primary" size="small">
-              <font-awesome-icon icon="fa-solid fa-cloud-arrow-down" />
-              {{ t("myPage.backup.export") }}
-            </nut-button>
-          </a>
+          <nut-button type="primary" size="small" :loading="exportIsLoading" @click="exportBackup">
+            <font-awesome-icon v-if="!exportIsLoading" icon="fa-solid fa-cloud-arrow-down" />
+            {{ t("myPage.backup.export") }}
+          </nut-button>
         </div>
       </div>
     </section>
@@ -105,6 +103,12 @@
         <nut-input class="input" v-model="requestForm.defaultTimeout" :placeholder="t('myPage.request.defaultTimeout')" type="number" input-align="left" />
         <nut-input class="input" v-model="requestForm.backendRequestConcurrency" :placeholder="t('myPage.request.backendRequestConcurrency')" type="number" input-align="left" />
         <nut-input class="input" v-model="requestForm.backendRequestConcurrencyWaitTime" :placeholder="t('myPage.request.backendRequestConcurrencyWaitTime')" type="number" input-align="left" />
+        <nut-input class="input" v-model="requestForm.remoteCacheTtl" :placeholder="t('myPage.request.remoteCacheTtl')" type="number" input-align="left" />
+        <nut-input class="input" v-model="requestForm.nodeInfoApiUrl" :placeholder="t('myPage.request.nodeInfoApiUrl')" type="text" input-align="left" />
+        <label class="boolean-setting">
+          <input v-model="requestForm.remoteCacheStaleOnError" type="checkbox" />
+          {{ t('myPage.request.remoteCacheStaleOnError') }}
+        </label>
       </div>
       <p v-else class="card-desc">{{ requestSummary }}</p>
     </section>
@@ -128,7 +132,7 @@
           </view>
         </nut-cell>
         <div class="template-content-editor">
-          <cmView :is-read-only="false" id="TemplateEditor" />
+          <CmView v-if="templateImportVisible" :is-read-only="false" id="TemplateEditor" />
         </div>
         <nut-button block type="primary" :loading="templateImporting" @click="saveTemplate">
           {{ t("myPage.templates.save") }}
@@ -148,7 +152,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, defineAsyncComponent, onMounted, reactive, ref } from "vue";
 import { Dialog } from "@nutui/nutui";
 import { useI18n } from "vue-i18n";
 
@@ -160,9 +164,9 @@ import { useBackend } from "@/hooks/useBackend";
 import { useAppNotifyStore } from "@/store/appNotify";
 import { useCodeStore } from "@/store/codeStore";
 import { useSettingsStore } from "@/store/settings";
-import { getStoredAdminToken } from "@/utils/adminToken";
-import cmView from "@/views/editCode/cmView.vue";
 import { TEMPLATE_TARGET_OPTIONS, getTargetLabel } from "@/constants/subscriptionTargets";
+
+const CmView = defineAsyncComponent(() => import("@/views/editCode/cmView.vue"));
 
 const settingsStore = useSettingsStore();
 const settingsApi = useSettingsApi();
@@ -176,6 +180,7 @@ const TEMPLATE_EDITOR_ID = "TemplateEditor";
 const fileInput = ref<HTMLInputElement | null>(null);
 const templateFileInput = ref<HTMLInputElement | null>(null);
 const restoreIsLoading = ref(false);
+const exportIsLoading = ref(false);
 const requestEditing = ref(false);
 const requestSaving = ref(false);
 const templateImporting = ref(false);
@@ -190,6 +195,9 @@ const requestForm = reactive({
   defaultTimeout: "",
   backendRequestConcurrency: "",
   backendRequestConcurrencyWaitTime: "",
+  remoteCacheTtl: "",
+  remoteCacheStaleOnError: true,
+  nodeInfoApiUrl: "",
 });
 const templateForm = reactive({
   id: "",
@@ -218,19 +226,15 @@ const requestSummary = computed(() => {
   });
 });
 
-const backupUrl = computed(() => {
-  const url = new URL("/api/storage", window.location.origin);
-  const token = getStoredAdminToken();
-  if (token) url.searchParams.set("token", token);
-  return url.toString();
-});
-
 const syncRequestForm = () => {
   requestForm.defaultUserAgent = settingsStore.defaultUserAgent || "";
   requestForm.defaultFlowUserAgent = settingsStore.defaultFlowUserAgent || "";
   requestForm.defaultTimeout = settingsStore.defaultTimeout || "";
   requestForm.backendRequestConcurrency = settingsStore.backendRequestConcurrency || "";
   requestForm.backendRequestConcurrencyWaitTime = settingsStore.backendRequestConcurrencyWaitTime || "";
+  requestForm.remoteCacheTtl = settingsStore.remoteCacheTtl || "300";
+  requestForm.remoteCacheStaleOnError = settingsStore.remoteCacheStaleOnError !== false;
+  requestForm.nodeInfoApiUrl = settingsStore.nodeInfoApiUrl || "https://ipwho.is/{ip}";
 };
 
 const startRequestEdit = () => {
@@ -255,6 +259,23 @@ const saveRequestSettings = async () => {
 
 const selectBackupFile = () => {
   fileInput.value?.click();
+};
+
+const exportBackup = async () => {
+  exportIsLoading.value = true;
+  try {
+    const response = await settingsApi.downloadBackup();
+    const objectUrl = URL.createObjectURL(response.data);
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = `sub-store-cloudflare-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(objectUrl);
+  } catch (error) {
+    showNotify({ type: "danger", title: t("myPage.notify.backup.failedWithError", { e: errorMessage(error) }) });
+  } finally {
+    exportIsLoading.value = false;
+  }
 };
 
 const fetchTemplates = async () => {
@@ -661,6 +682,15 @@ onMounted(fetchTemplates);
   .input {
     border-bottom: 1px solid var(--divider-color);
   }
+}
+
+.boolean-setting {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--second-text-color);
+  font-size: 13px;
 }
 
 @media screen and (max-width: 430px) {

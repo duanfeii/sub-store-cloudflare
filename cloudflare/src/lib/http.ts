@@ -1,6 +1,4 @@
 import type { Context } from "hono";
-import type { SubStoreEnv } from "../types";
-
 export function success(c: Context<{ Bindings: SubStoreEnv }>, data: unknown) {
   return c.json({ status: "success", data });
 }
@@ -27,7 +25,7 @@ export async function isTokenValid(secret: string | undefined, input: string | u
     crypto.subtle.digest("SHA-256", encoder.encode(input)),
     crypto.subtle.digest("SHA-256", encoder.encode(secret)),
   ]);
-  return timingSafeEqual(new Uint8Array(inputDigest), new Uint8Array(secretDigest));
+  return crypto.subtle.timingSafeEqual(inputDigest, secretDigest);
 }
 
 export function getBearerToken(c: Context<{ Bindings: SubStoreEnv }>) {
@@ -60,9 +58,20 @@ export function applyCorsHeaders(response: Response, origin: string | undefined,
   });
 }
 
-function timingSafeEqual(left: Uint8Array, right: Uint8Array) {
-  if (left.length !== right.length) return false;
-  let diff = 0;
-  for (let index = 0; index < left.length; index += 1) diff |= left[index] ^ right[index];
-  return diff === 0;
+export function applySecurityHeaders(response: Response) {
+  const headers = new Headers(response.headers);
+  headers.set(
+    "Content-Security-Policy",
+    "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'",
+  );
+  headers.set("Referrer-Policy", "no-referrer");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }

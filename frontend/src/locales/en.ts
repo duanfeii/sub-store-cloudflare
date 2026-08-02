@@ -1,6 +1,6 @@
 export default {
   specificWord: {
-    singleSub: "Single",
+    singleSub: "Source",
     collectionSub: "Collection",
     unknownType: "Unknown Type",
     unknownSource: "Unknown Source",
@@ -36,8 +36,9 @@ export default {
       language: "Language"
     },
     actions: {
+      back: "Back",
       refresh: "Refresh data",
-      add: "Create subscription"
+      add: "Create"
     },
     listSearch: {
       open: "Search",
@@ -47,15 +48,58 @@ export default {
     },
     pagesTitle: {
       sub: "Subscriptions",
+      tools: "Compatibility Tools",
       my: "Settings",
-      subEditor: "Subscription Editor",
+      subEditor: "Edit Subscription",
+      sourceCreate: "Create Source",
+      sourceEdit: "Edit Source",
+      collectionCreate: "Create Collection",
+      collectionEdit: "Edit Collection",
       preview: "Preview",
       notFound: "404 Not Found"
     }
   },
   tabBar: {
-    sub: "Subs",
+    sub: "Subscriptions",
+    tools: "Tools",
     my: "Settings"
+  },
+  toolsPage: {
+    converter: {
+      title: "One-shot conversion",
+      desc: "Paste nodes, a subscription, or rules and convert without saving to D1.",
+      proxy: "Nodes / subscription",
+      rule: "Rules",
+      input: "Paste content to convert",
+      output: "Converted result",
+      run: "Convert",
+      copy: "Copy result"
+    },
+    shares: {
+      title: "Scoped share links",
+      desc: "Create revocable and expiring links restricted to one source or collection and optional output target. Tokens are shown only once.",
+      resourceType: "Resource type",
+      resourceId: "Resource ID",
+      target: "Optional output restriction",
+      expires: "Lifetime in hours; 0 never expires",
+      create: "Create link",
+      empty: "No scoped links",
+      disable: "Disable",
+      enable: "Enable"
+    },
+    recycle: {
+      title: "Recycle bin",
+      desc: "Keeps at most 50 deleted configuration records. Restore never overwrites an existing ID.",
+      empty: "Recycle bin is empty",
+      restore: "Restore",
+      purge: "Delete permanently"
+    },
+    notify: {
+      converted: "Conversion complete",
+      copied: "Copied",
+      shareCreated: "Share link created",
+      failed: "Operation failed\n{e}"
+    }
   },
   notFoundPage: {
     title: "Oops! URL Error!",
@@ -82,18 +126,34 @@ export default {
       desc: "Add a remote subscription or local node text to start aggregating.",
       btn: "Create Subscription Now"
     },
+    onboarding: {
+      welcome: "First run",
+      title: "Create your first subscription link in three steps",
+      desc: "Your configuration stays in your Cloudflare D1 database. Add a source, create a collection, then copy a client link.",
+      addSource: "Add a remote subscription or local node text",
+      addCollection: "Review the default Daily collection or create one",
+      copyLink: "Copy a Mihomo, sing-box, or other download link",
+      createSource: "Add the first source",
+      openGuide: "Open the five-minute guide",
+      step2: "Next step · 2/3",
+      collectionTitle: "Create a collection",
+      collectionDesc: "If the default Daily collection was removed, create a collection to combine, deduplicate, and apply a routing template.",
+      createCollection: "Create collection"
+    },
     loadFailed: {
-      title: "Load data failed",
-      desc: "Check the admin token, Worker API, and network connection.",
+      title: "Unable to load data",
+      desc: "If you just deployed the app, enter the admin token first. Otherwise, check the Worker API and network connection.",
       btn: "Retry",
+      tokenLabel: "Admin token",
+      tokenPlaceholder: "Enter SUB_STORE_ADMIN_TOKEN",
+      saveAndRetry: "Save and retry",
       doc: "Open deployment docs",
       followOfficialChannel: "Check the project docs before debugging the deployment.",
       about: "Open project docs"
     },
     collectionItem: {
-      noSub: "No subscription included",
-      contain: "Included subs",
-      containTag: "Included subscription tags"
+      noSub: "All enabled sources",
+      contain: "Included sources"
     },
     actions: {
       openMenu: "Expand quick actions",
@@ -218,10 +278,10 @@ export default {
         previewDisabledResponseOnlyTips: "Modify Response runs only before sending the download response. Instant preview does not execute it.",
         nodeActionsHelp: "Node Actions Help",
         name: {
-          label: "Name",
-          placeholder: "Unique name(do not include / )",
-          isEmpty: "Name cannot be empty",
-          isInvalid: "The name has been used or is invalid"
+          label: "ID",
+          placeholder: "Lowercase letters, numbers, underscores, or hyphens",
+          isEmpty: "ID is required",
+          isInvalid: "ID is already used or does not match the 1–64 character format"
         },
         remark: {
           label: "Remarks",
@@ -246,14 +306,6 @@ export default {
         tag: {
           label: "Tag(s)",
           placeholder: "Click on the right icon, The tag(s) (separated by comma) will be used for grouping."
-        },
-        subscriptionTags: {
-          label: "Subscription Tag(s)",
-          placeholder: "Click on the right icon, Include all subscriptions that contain one of these tag(s) (separated by comma)",
-          tips: {
-            title: "Collections and single subscriptions",
-            content: "A collection includes:\n\n1. Single subscriptions matched by linked subscription tags\n\n2. Manually selected single subscriptions\n\nFor example, if linked tags are \"A, B\", every single subscription tagged with \"A\" or \"B\" will be included automatically."
-          }
         },
         template: {
           label: "Rule Template",
@@ -280,15 +332,16 @@ export default {
             fullScreenEditCancel: "Exit Full Screen Editing",
             label: "Usage",
             title: "Subscription URL(s)",
-            content: "Put one full http(s) remote subscription URL on each line. Multiple lines are fetched and merged.\n\nUsage info parameters:\n\nflowUrl: custom URL for subscription usage info; reads the response body or subscription-userinfo/profile-web-page-url/plan-name response headers\nflowUserAgent: User-Agent for usage info requests\nflowHeaders: request headers for usage info requests, as a URL-encoded one-line JSON string\nnoFlow: skip usage info\nhideExpire: hide expiration time\nshowRemaining: show remaining traffic instead of used traffic\n\nThe remote subscription User-Agent can be set on this page. Timeout and concurrency are configured on the My page.\n\nExample: https://example.com/sub?token=1#flowUrl=https%3A%2F%2Fexample.com%2Fuserinfo&showRemaining"
+            content: "Put one full http(s) remote subscription URL on each line. Multiple lines are fetched and merged.\n\nUsage info parameters:\n\nflowUrl: custom URL for subscription usage info; reads the response body or subscription-userinfo/profile-web-page-url/plan-name response headers\nflowUserAgent: User-Agent for usage info requests\nflowHeaders: request headers for usage info requests, as a URL-encoded one-line JSON string\nnoFlow: skip usage info\nhideExpire: hide expiration time\nshowRemaining: show remaining traffic instead of used traffic\n\nThe remote subscription User-Agent can be set on this page. Timeout and concurrency are configured on the Settings page.\n\nExample: https://example.com/sub?token=1#flowUrl=https%3A%2F%2Fexample.com%2Fuserinfo&showRemaining"
           },
           isEmpty: "URL cannot be empty",
           isIllegal: "Invalid URL"
         },
         subscriptions: {
-          label: "Select included subscriptions",
-          empty: "Please create a subscription first, then use the collection feature",
-          none: "None"
+          label: "Included sources",
+          empty: "Create a source before creating a collection",
+          none: "None",
+          allEnabled: "All enabled sources"
         },
         content: {
           label: "Content",
@@ -319,22 +372,11 @@ export default {
           label: "Custom Icon Use Original Color"
         },
         ignoreFailedRemoteSub: {
-          label: "Sub Failure Handling",
-          disabled: "Strict Errors",
-          disabledDesc: "Fail immediately and show a notification when subscription processing errors occur.",
-          disabledNote: "fail and notify",
-          enabled: "Skip Remote + Notify",
-          enabledDesc: "Skip failed remote subscriptions and show a notification; other errors still fail.",
-          enabledNote: "other errors still fail",
-          quiet: "Skip Remote Silently",
-          quietDesc: "Skip failed remote subscriptions without showing a notification; other errors still fail.",
-          quietNote: "other errors still fail",
-          fallbackNotify: "Empty on Error + Notify",
-          fallbackNotifyDesc: "If subscription processing hits any error, return an empty result and show a notification.",
-          fallbackNotifyNote: "return empty result",
-          fallbackQuiet: "Empty on Error Silently",
-          fallbackQuietDesc: "If subscription processing hits any error, return an empty result without showing a notification.",
-          fallbackQuietNote: "return empty result"
+          label: "Source failure handling",
+          disabled: "Fail the collection",
+          disabledNote: "stop when any source fails",
+          skip: "Skip failed sources",
+          skipNote: "keep the remaining available sources"
         },
         ua: {
           label: "User-Agent",
@@ -418,7 +460,13 @@ export default {
           invalidData: "Invalid data format"
         },
         enable: "Enable",
-        disable: "Disable"
+        disable: "Disable",
+        script: {
+          freeVerified: "Cloudflare Free verified",
+          personal: "Personal build-time script",
+          unavailable: "This script is not available in the deployed Worker. Redeploy a Worker that includes it.",
+          limit: "A source or collection can use at most two script actions"
+        }
       },
       nodeActions: {
         "Flag Operator": {
@@ -638,6 +686,16 @@ export default {
           },
           tipsTitle: "Handle Duplicate Tips",
           tipsDes: "Node deduplication operation instructions"
+        },
+        "Script Filter": {
+          label: "Build-time Script Filter",
+          tipsTitle: "Script Filter",
+          tipsDes: "Runs a filter already bundled with the Worker. No script text is evaluated from the browser, D1, or a remote URL."
+        },
+        "Script Operator": {
+          label: "Build-time Script Operator",
+          tipsTitle: "Script Operator",
+          tipsDes: "Runs a node transformer already bundled with the Worker. Built-ins are Free-verified; personal scripts require redeployment."
         }
       },
       sourceNamePicker: {
@@ -690,6 +748,9 @@ export default {
       defaultTimeout: "Request timeout in milliseconds",
       backendRequestConcurrency: "Remote subscription concurrency",
       backendRequestConcurrencyWaitTime: "Wait time between concurrent requests in milliseconds",
+      remoteCacheTtl: "Remote subscription edge-cache TTL in seconds; 0 disables it",
+      remoteCacheStaleOnError: "Use the latest edge cache when a remote source fails",
+      nodeInfoApiUrl: "HTTPS node-info API URL containing {ip}",
       summary: "Remote subscription concurrency is {concurrency}; timeout is {timeout}ms."
     },
     btn: {
@@ -699,6 +760,9 @@ export default {
       delete: "Delete"
     },
     notify: {
+      backup: {
+        failedWithError: "Backup failed\n{e}"
+      },
       save: {
         succeed: "Saved",
         failed: "Save failed",

@@ -1,21 +1,21 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { failed, isTokenValid } from "../lib/http";
-import { buildSubscription, getTargetContentType, normalizeTarget, normalizeTargetAlias } from "../lib/subscription";
-import { ensureSchema, getRoutingTemplate, getSettings, getSource, getSubscriptionCollection, getSubscriptionSources } from "../lib/store";
-import type { SubscriptionCollection, SubscriptionSource, SubStoreEnv, SubscriptionTarget } from "../types";
+import { authorizeScopedDownload } from "../lib/compatibility-resources";
+import { buildSubscriptionResult, getTargetContentType, normalizeTarget, normalizeTargetAlias } from "../lib/subscription";
+import { getRoutingTemplate, getSettings, getSource, getSubscriptionCollection, getSubscriptionSources } from "../lib/store";
+import type { SubscriptionCollection, SubscriptionSource, SubscriptionTarget } from "../types";
 
 export const downloadRoutes = new Hono<{ Bindings: SubStoreEnv }>();
 
 type DownloadContext = Context<{ Bindings: SubStoreEnv }>;
 
 downloadRoutes.get("/download/collection/:name/:target?/:token?", async (c) => {
-  const invalidToken = await rejectInvalidDownloadToken(c);
-  if (invalidToken) return invalidToken;
   const target = getDownloadTarget(c);
   if (!target) return failed(c, "Unsupported target", 400);
+  const invalidToken = await rejectInvalidDownloadToken(c, "collection", c.req.param("name"), target);
+  if (invalidToken) return invalidToken;
 
-  await ensureSchema(c.env);
   const collection = await getSubscriptionCollection(c.env, c.req.param("name"));
   if (!collection) return failed(c, "Collection not found", 404);
 
@@ -28,16 +28,23 @@ downloadRoutes.get("/download/collection/:name/:target?/:token?", async (c) => {
 });
 
 downloadRoutes.get("/download/source/:name/:target?/:token?", async (c) => {
-  const invalidToken = await rejectInvalidDownloadToken(c);
-  if (invalidToken) return invalidToken;
   const target = getDownloadTarget(c);
   if (!target) return failed(c, "Unsupported target", 400);
+  const invalidToken = await rejectInvalidDownloadToken(c, "source", c.req.param("name"), target);
+  if (invalidToken) return invalidToken;
 
-  await ensureSchema(c.env);
   const source = await getSource(c.env, c.req.param("name"));
   if (!source || !source.enabled) return failed(c, "Subscription not found", 404);
-  const subscriptionSource = (await getSubscriptionSources(c.env)).find((item) => item.id === source.id);
-  if (!subscriptionSource) return failed(c, "Subscription not found", 404);
+  const subscriptionSource: SubscriptionSource = {
+    id: source.id,
+    name: source.name,
+    type: source.type,
+    url: source.url,
+    content: source.content,
+    filters: source.filters,
+    enabled: source.enabled,
+    meta: source.meta,
+  };
 
   return renderDownload(c, {
     source: subscriptionSource,
@@ -59,10 +66,12 @@ async function renderDownload(
   const sourceOverride = getTemporarySourceOverride(c);
   const sources = sourceOverride ? applyTemporarySourceOverride(options.sources, sourceOverride, options.collection) : options.sources;
   const source = sourceOverride && options.source ? applyTemporarySourceOverride([options.source], sourceOverride)[0] : options.source;
-  const template = await getRoutingTemplate(c.env, options.templateId);
-  const settings = await getSettings(c.env);
+  const [template, settings] = await Promise.all([
+    getRoutingTemplate(c.env, options.templateId),
+    getSettings(c.env),
+  ]);
   try {
-    const body = await buildSubscription({
+    const result = await buildSubscriptionResult({
       source,
       collection: options.collection,
       sources,
@@ -71,17 +80,26 @@ async function renderDownload(
       template,
       settings,
       requestUserAgent: c.req.header("user-agent") || "",
+      forceRefresh: ["1", "true"].includes(c.req.query("refresh") || c.req.query("noCache") || ""),
+      waitUntil: (promise) => c.executionCtx.waitUntil(promise),
     });
-    return new Response(body, {
-      headers: {
-        "content-type": getTargetContentType(options.target),
-        "profile-update-interval": "6",
-        "cache-control": "no-store",
-      },
+    const headers = new Headers({
+      "content-type": getTargetContentType(options.target),
+      "profile-update-interval": result.metadata.profileUpdateInterval || "6",
+      "cache-control": "no-store",
     });
+    setResponseHeader(headers, "subscription-userinfo", result.metadata.subscriptionUserinfo);
+    setResponseHeader(headers, "profile-web-page-url", result.metadata.profileWebPageUrl);
+    setResponseHeader(headers, "content-disposition", result.metadata.contentDisposition);
+    setResponseHeader(headers, "x-sub-store-cache", result.metadata.cacheStatus);
+    return new Response(result.body, { headers });
   } catch (error) {
     return failed(c, error instanceof Error ? error.message : String(error), 500);
   }
+}
+
+function setResponseHeader(headers: Headers, name: string, value: string | undefined) {
+  if (value && !/[\r\n]/.test(value)) headers.set(name, value);
 }
 
 type TemporarySourceOverride = {
@@ -128,8 +146,15 @@ function getDownloadToken(c: DownloadContext) {
   return c.req.param("token") || c.req.query("token");
 }
 
-async function rejectInvalidDownloadToken(c: DownloadContext) {
-  if (await isTokenValid(c.env.SUB_STORE_PUBLIC_DOWNLOAD_TOKEN, getDownloadToken(c))) return undefined;
+async function rejectInvalidDownloadToken(
+  c: DownloadContext,
+  resourceType: "source" | "collection",
+  resourceId: string,
+  target: SubscriptionTarget,
+) {
+  const token = getDownloadToken(c);
+  if (await isTokenValid(c.env.SUB_STORE_PUBLIC_DOWNLOAD_TOKEN, token)) return undefined;
+  if (await authorizeScopedDownload(c.env, token, resourceType, resourceId, target)) return undefined;
   return failed(c, "Download token is invalid", 403);
 }
 

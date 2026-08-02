@@ -1,20 +1,28 @@
-# v0.1.1
+# v1.1.0
 
-Open-source polish release for Sub-Store Cloudflare.
+Safer and faster first deployment for Sub-Store Cloudflare.
 
 ## Highlights
 
-- Removes GitHub Actions and Dependabot from the upstream repository.
-- Keeps lightweight GitHub issue forms and a pull request template for contributor intake; they do not run CI/CD.
-- Keeps releases gated by local checks: `pnpm run check:release` and `pnpm run deploy:dry-run`.
-- Clarifies the two deployment paths: Cloudflare Deploy Button for quick template import, and `pnpm run install:cloudflare` for local Agent/CLI installs.
-- Updates Worker compatibility dates and documents the Node 22 + pnpm baseline.
-- Keeps the Cloudflare-native architecture: Workers Static Assets + Worker API + D1 + Worker Secrets.
+- Fixes a Deploy to Cloudflare security footgun where public placeholder values from the root `.dev.vars.example` could appear as already-filled required secrets.
+- Rebuilds the Chinese and English README files around a three-step Deploy Button path and a clear install-method decision table.
+- Adds `pnpm run tokens:generate` for cross-platform admin and download token generation.
+- Adds a guided `pnpm run install:cloudflare` flow for human terminals.
+- Adds `pnpm run install:quick` for an intentional empty deployment configured later in the browser.
+- Keeps Agent installs safe: a missing private setup in a non-interactive environment stops before example URLs can be deployed.
+- Adds a first-run admin checklist for Source → Collection → client link.
+- Adds dedicated quick-start and upgrade guides covering repository copies, Workers Builds, D1 migrations, backup, verification, and rollback.
+- Adds installer helper tests and a deployment-experience release gate.
 
-## Install
+## Upgrade
 
-Use the Deploy to Cloudflare button in `README.md`, or run:
+Keep the existing Worker, D1 database, and Worker Secrets. Update the repository and deploy normally:
 
 ```bash
+git pull --ff-only
 pnpm run install:cloudflare
 ```
+
+Deploy Button repository copies do not receive upstream releases automatically. See `docs/upgrading.md` before merging upstream into a deployed copy.
+
+No new D1 migration is required for v1.1.0.
