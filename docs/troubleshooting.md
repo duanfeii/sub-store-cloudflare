@@ -155,10 +155,10 @@ pnpm run install:doctor
 
 ## 节点被过滤掉
 
-先移除 aggressive include filter，例如只保留地区的过滤器。保守起步建议只用：
+先移除包含规则较严格的 `include` 过滤器（例如只匹配指定地区的正则表达式）。保守起步建议只使用：
 
-- `clean-provider-nodes`
-- `dedupe-by-endpoint`
-- `sort-by-name`
+- `quick` 过滤器（开启清理无效节点等常用属性设置）
+- `dedupe` 过滤器（按 `server` 与 `port` 去重）
+- `sort` 过滤器（按节点名升序或降序排列）
 
-再逐步增加区域过滤。
+再逐步增加区域过滤等规则。
