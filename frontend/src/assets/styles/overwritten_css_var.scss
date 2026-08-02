@@ -143,13 +143,36 @@
   // background-color: var(--nav-bar-color);
 }
 
+// Side Drawer Popup (Right-side slide-in)
+.side-drawer-popup {
+  &.popup-right {
+    border-top-left-radius: 24px !important;
+    border-bottom-left-radius: 24px !important;
+    border-left: 1px solid var(--divider-color) !important;
+    box-shadow: -12px 0 36px rgba(0, 0, 0, 0.3) !important;
+    background-color: var(--popup-color) !important;
+    color: var(--primary-text-color) !important;
+    overflow-y: auto !important;
+
+    .drawer-header {
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--divider-color);
+
+      .drawer-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--primary-text-color);
+        margin: 0;
+      }
+    }
+  }
+}
+
 // picker
 .nut-popup {
   -webkit-user-select: none;
   user-select: none;
-  // NutUI popups are teleported to body, so scoped pop-class styles on pages
-  // cannot reliably theme the popup root after CSS code splitting. The doubled
-  // selector keeps this override stable when Vite dev injects NutUI styles later.
   &.nut-popup {
     background-color: var(--popup-color);
     color: var(--primary-text-color);
