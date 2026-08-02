@@ -1,12 +1,5 @@
 <template>
-  <div
-    class="app-shell"
-    :class="{
-      'app-shell--sidenav': shouldShowSideBar,
-      'app-shell--sidenav-expanded': shouldShowSideBar && isSideNavExpanded,
-    }"
-  >
-    <SideBar v-show="shouldShowSideBar" />
+  <div class="app-shell">
     <div class="app-shell__main">
       <NavBar />
       <main class="page-body">
@@ -17,27 +10,17 @@
 </template>
 
 <script setup lang="ts">
-import SideBar from "@/components/SideBar.vue";
 import NavBar from "@/components/NavBar.vue";
-import { useWideScreenNarrowMode } from "@/hooks/useWideScreenNarrowMode";
 import { useThemes } from "@/hooks/useThemes";
 import { useGlobalStore } from "@/store/global";
 import { useSubsStore } from "@/store/subs";
-import { SIDEBAR_EXPANDED_BREAKPOINT } from "@/store/system";
 import { getFlowsUrlList } from "@/utils/getFlowsUrlList";
 import { initStores } from "@/utils/initApp";
-import { useWindowSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { computed, ref, watchEffect, onMounted } from "vue";
+import { ref, watchEffect, onMounted } from "vue";
 
 const subsStore = useSubsStore();
 const globalStore = useGlobalStore();
-const { shouldShowSideBar } = useWideScreenNarrowMode();
-const { width: windowWidth } = useWindowSize();
-
-const isSideNavExpanded = computed(
-  () => windowWidth.value >= SIDEBAR_EXPANDED_BREAKPOINT,
-);
 
 const { subs, flows } = storeToRefs(subsStore);
 
@@ -56,7 +39,6 @@ watchEffect(() => {
     flowKeys.some(url => !(url in flows.value)),
   );
 });
-
 </script>
 
 <style lang="scss">
@@ -68,21 +50,16 @@ watchEffect(() => {
   background: var(--background-color);
   overflow: hidden;
   overflow-y: auto;
-  // Default: no sidenav offset (mobile / routes without shell nav)
-  --app-sidenav-width: 0px;
 }
 
-// Chinese / CJK: avoid English-tuned negative tracking on titles and stats
+// Chinese / CJK: avoid English-tuned negative tracking on titles
 :lang(zh),
 :lang(zh-CN),
 :lang(zh-TW),
 :lang(zh-HK) {
   h1, h2, h3,
   .nav-title,
-  .app-brand__name,
-  .sidebar-brand__name,
-  .overview-stat-label,
-  .overview-stat-value {
+  .app-brand__name {
     letter-spacing: 0;
   }
 }
@@ -94,15 +71,6 @@ watchEffect(() => {
   min-height: 100%;
   width: 100%;
   box-sizing: border-box;
-  --app-sidenav-width: 0px;
-
-  &--sidenav {
-    --app-sidenav-width: #{$sidenav-width-collapsed};
-  }
-
-  &--sidenav-expanded {
-    --app-sidenav-width: #{$sidenav-width-expanded};
-  }
 }
 
 .app-shell__main {
@@ -113,13 +81,6 @@ watchEffect(() => {
   min-height: 100%;
   width: 100%;
   box-sizing: border-box;
-  transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  .app-shell--sidenav & {
-    @media screen and (min-width: $breakpoint-md) {
-      padding-left: var(--app-sidenav-width);
-    }
-  }
 }
 
 .page-body {
