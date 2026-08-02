@@ -8,8 +8,8 @@ export default {
   },
   colors: {
     // Solid neutral primary (shared language with light: inverted black/white)
-    'primary-color': '#EDEDED',
-    'primary-color-end': '#EDEDED',
+    'primary-color': '#F4F4F5',
+    'primary-color-end': '#F4F4F5',
     'second-color': '#F97316',
     'third-color': '#10B981',
 
@@ -17,37 +17,37 @@ export default {
     'succeed-color': '#34D399',
 
     // icon色
-    'icon-nav-bar-right': '#A1A1A1',
-    'unimportant-icon-color': 'rgba(255, 255, 255, 0.3)',
+    'icon-nav-bar-right': '#A1A1AA',
+    'unimportant-icon-color': 'rgba(255, 255, 255, 0.35)',
 
-    // Surface
-    'status-bar-background-color': '#000000',
-    'background-color': '#0A0A0A',
-    'nav-bar-color': 'rgba(10, 10, 10, 0.8)',
-    'tab-bar-color': 'rgba(10, 10, 10, 0.8)',
-    'popup-color': '#121212',
-    'divider-color': '#222222',
-    'card-color': '#111111',
-    'dialog-color': '#121212',
+    // Surface & Fills (Zinc Scale - #09090b base, #18181b card/surface, #27272a hover/borders)
+    'status-bar-background-color': '#09090B',
+    'background-color': '#09090B',
+    'nav-bar-color': 'rgba(9, 9, 11, 0.75)',
+    'tab-bar-color': 'rgba(9, 9, 11, 0.75)',
+    'popup-color': '#18181B',
+    'divider-color': 'rgba(255, 255, 255, 0.08)',
+    'card-color': '#18181B',
+    'dialog-color': '#18181B',
     'switch-close-background-color': 'rgba(255, 255, 255, 0.12)',
-    'switch-active-background-color': '#EDEDED',
-    'compare-item-background-color': '#181818',
-    'picker-mask-near-color': 'rgba(10, 10, 10, 0.5)',
-    'picker-mask-far-color': '#0A0A0A',
+    'switch-active-background-color': '#F4F4F5',
+    'compare-item-background-color': '#27272A',
+    'picker-mask-near-color': 'rgba(9, 9, 11, 0.5)',
+    'picker-mask-far-color': '#09090B',
 
-    // Text
-    'primary-text-color': '#EDEDED',
-    'second-text-color': '#A1A1A1',
-    'comment-text-color': '#666666',
-    'lowest-text-color': '#444444',
+    // Text (Zinc hierarchy)
+    'primary-text-color': '#F4F4F5',
+    'second-text-color': '#A1A1AA',
+    'comment-text-color': '#71717A',
+    'lowest-text-color': '#52525B',
 
     // Other
     'img-brightness': '100',
-    'nav-bar-blur': '24px',
-    'tab-bar-blur': '24px',
-    'sticky-title-blur': '24px',
+    'nav-bar-blur': '20px',
+    'tab-bar-blur': '20px',
+    'sticky-title-blur': '20px',
 
-    'compare-tag-text-color': '#A1A1A1',
+    'compare-tag-text-color': '#A1A1AA',
     'compare-tag-background-color': 'rgba(255, 255, 255, 0.08)',
   },
 };

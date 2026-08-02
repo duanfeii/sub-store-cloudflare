@@ -242,7 +242,7 @@ img.auto-reverse {
   z-index: var(--z-overlay) !important;
   backdrop-filter: blur(var(--overlay-blur)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--overlay-blur)) saturate(180%);
-  background-color: rgba(0, 0, 0, 0.45) !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 .auto-dialog {
@@ -250,7 +250,7 @@ img.auto-reverse {
   background-color: var(--dialog-color) !important;
   border-radius: var(--radius-lg) !important;
   border: 1px solid var(--divider-color);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--divider-color) !important;
   overflow: hidden;
 
   > .nut-dialog {
