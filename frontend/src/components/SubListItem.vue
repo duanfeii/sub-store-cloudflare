@@ -61,10 +61,8 @@
             class="sub-item-title"
             :title="displayName"
           >
+            <span class="status-pulse-dot" :class="statusDotClass"></span>
             <span class="sub-item-name">{{ displayName }}</span>
-            <!-- <span v-if="appOpenBtnVisible" class="app-url" @click.stop="openAppUrl" :title="typeof flow === 'object' ? flow.appUrl : ''">
-              <font-awesome-icon icon="fa-solid fa-square-arrow-up-right" />
-            </span> -->
             <span v-for="i in tag" :key="i" class="tag">
               <nut-tag>{{ i }}</nut-tag>
             </span>
@@ -75,10 +73,8 @@
             style="color: var(--primary-text-color); font-size: 16px"
             :title="displayName"
           >
+            <span class="status-pulse-dot" :class="statusDotClass"></span>
             <span class="sub-item-name">{{ displayName }}</span>
-            <!-- <span v-if="appOpenBtnVisible" class="app-url" @click.stop="openAppUrl" :title="typeof flow === 'object' ? flow.appUrl : ''">
-              <font-awesome-icon icon="fa-solid fa-square-arrow-up-right" />
-            </span> -->
             <span v-for="i in tag" :key="i" class="tag">
               <nut-tag>{{ i }}</nut-tag>
             </span>
@@ -502,6 +498,15 @@ const appendRemarkToSimpleDetailLine = (value: string) => {
 };
 const simpleCollectionDetailLine = computed(() => {
   return appendRemarkToSimpleDetailLine(collectionDetail.value);
+});
+
+const statusDotClass = computed(() => {
+  if (isFlowFetching.value && typeof flow.value === 'string') return 'is-fetching';
+  if (typeof flow.value === 'object') {
+    if (flow.value.progress !== undefined && flow.value.progress < 0.1) return 'is-warning';
+    if (flow.value.firstLine === t("subPage.subItem.flowError")) return 'is-error';
+  }
+  return 'is-online';
 });
 
 const flow = computed(() => {
@@ -1291,5 +1296,54 @@ const refreshSubFlowsIfNeeded = async () => {
 .sub-img-wrappers {
   display: flex;
   align-items: center;
+}
+
+.status-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  flex-shrink: 0;
+  position: relative;
+
+  &.is-online {
+    background-color: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    animation: statusPulse 2s infinite;
+  }
+
+  &.is-warning {
+    background-color: #f97316;
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+    animation: statusPulse 2s infinite;
+  }
+
+  &.is-error {
+    background-color: #ef4444;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    animation: statusPulse 2s infinite;
+  }
+
+  &.is-fetching {
+    background-color: #3b82f6;
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    animation: statusPulse 1.2s infinite;
+  }
+}
+
+@keyframes statusPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 </style>

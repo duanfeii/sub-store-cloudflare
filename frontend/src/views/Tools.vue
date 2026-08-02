@@ -157,6 +157,16 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
   flex-direction: column;
   gap: 16px;
   animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media screen and (min-width: 900px) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+
+    .tool-card:first-child {
+      grid-column: 1 / -1;
+    }
+  }
 }
 
 .tool-card {
