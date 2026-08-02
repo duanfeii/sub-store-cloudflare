@@ -36,30 +36,14 @@
         :style="{ 'margin-top': imageMarginTop }"
         @click.stop="compareSub"
       >
-        <!-- icon visible -->
+        <!-- icon: stored URL or deterministic public avatar from name -->
         <div v-if="appearanceSetting.isShowIcon">
-          <div v-if="isIconColor">
-            <nut-avatar
-              v-if="props[props.type].icon"
-              :size="avatarSize"
-              :url="props[props.type].icon"
-              bg-color=""
-            />
-            <nut-avatar
-              v-else
-              :size="avatarSize"
-              :url="icon"
-              bg-color=""
-            />
-          </div>
-          <div v-else>
-            <nut-avatar
-              class="sub-item-customer-icon"
-              :size="avatarSize"
-              :url="props[props.type].icon || icon"
-              bg-color=""
-            />
-          </div>
+          <nut-avatar
+            :class="{ 'sub-item-customer-icon': !isIconColor }"
+            :size="avatarSize"
+            :url="resolvedIcon"
+            bg-color=""
+          />
         </div>
       </div>
       <div class="sub-item-content">
@@ -338,6 +322,7 @@ import { useSettingsStore } from "@/store/settings";
 import { useSubsStore } from "@/store/subs";
 import { getString } from "@/utils/flowTransfer";
 import { isMobile } from "@/utils/isMobile";
+import { buildSubscriptionIconUrl } from "@/utils/subscriptionIcon";
 import CompareTable from "@/views/CompareTable.vue";
 
 const props = defineProps<{
@@ -413,6 +398,17 @@ const isDualNonSimpleMode = computed(() => {
 });
 const { flows } = storeToRefs(subsStore);
 
+const resolvedIcon = computed(() => {
+  const item = props[props.type];
+  const stored = (item?.icon || "").trim();
+  if (stored) return stored;
+  const seed = String(item?.name || displayName || "subscription");
+  return buildSubscriptionIconUrl(
+    seed,
+    props.type === "collection" ? "collection" : "sub",
+  );
+});
+// Keep legacy logo fallback for rare offline/broken URL paths
 const icon = computed(() => {
   return appearanceSetting.value.isDefaultIcon ? logoIcon : logoRedIcon;
 });
@@ -429,8 +425,12 @@ const imageMarginTop = computed(() => {
   return props.isDualColumn ? "2px" : "0";
 });
 
+// Public SVG avatars stay colored; only desaturate legacy grayscale icons
 const isIconColor = computed(() => {
-  return props[props.type].isIconColor !== false;
+  const item = props[props.type];
+  if (!item?.icon) return true;
+  if (String(item.icon).includes("api.dicebear.com")) return true;
+  return item.isIconColor !== false;
 });
 
 const collectionDetail = computed(() => {
