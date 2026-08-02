@@ -327,6 +327,7 @@ const refresh = async () => {
           border: 0;
           margin: 0;
           background: transparent;
+          border-radius: 50%;
           transform: translateY(-50%);
           display: flex;
           align-items: center;
@@ -335,6 +336,11 @@ const refresh = async () => {
           cursor: pointer;
           pointer-events: auto;
           z-index: 3;
+          transition: background-color 0.2s ease, transform 0.15s ease, color 0.2s ease;
+
+          &:hover {
+            background: rgba(148, 163, 184, 0.15);
+          }
 
           .icon {
             pointer-events: none;
@@ -345,6 +351,7 @@ const refresh = async () => {
 
           &.is-active {
             color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.12);
           }
         }
 
@@ -374,13 +381,14 @@ const refresh = async () => {
         height: 32px;
         box-sizing: border-box;
         border: 1px solid var(--divider-color);
-        border-radius: var(--item-card-radios);
+        border-radius: 20px;
         background: var(--card-color);
         color: var(--primary-text-color);
-        padding: 0 30px 0 10px;
-        font-size: 14px;
+        padding: 0 30px 0 14px;
+        font-size: 13px;
         line-height: 32px;
         outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
         &::placeholder {
           color: var(--comment-text-color);
@@ -395,6 +403,7 @@ const refresh = async () => {
 
         &:focus {
           border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
       }
 

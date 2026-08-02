@@ -647,28 +647,43 @@ const importTips = () => {
   z-index: 999;
 
   .drag-btn {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background-image: linear-gradient(
       to bottom right,
       var(--primary-color),
       var(--primary-color-end)
     );
-    box-shadow: 0 4px 8px #0003;
+    box-shadow: 0 6px 20px -2px rgba(99, 102, 241, 0.45);
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      transform: scale(1.08);
+      box-shadow: 0 10px 28px -2px rgba(99, 102, 241, 0.6);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
 
     &.refresh {
       background: var(--second-color);
+      box-shadow: 0 6px 20px -2px rgba(249, 115, 22, 0.45);
       margin-bottom: 12px;
+
+      &:hover {
+        box-shadow: 0 10px 28px -2px rgba(249, 115, 22, 0.6);
+      }
     }
 
     > svg {
       width: 20px;
       height: 20px;
-      color: #fffb;
+      color: #fff;
     }
   }
 }
@@ -985,18 +1000,29 @@ const importTips = () => {
         overflow: hidden;
       }
     .tag {
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 500;
       color: var(--second-text-color);
-      margin: 0px 5px;
-      padding: 7.5px 2.5px 4px;
+      margin: 2px 4px;
+      padding: 6px 14px;
+      border-radius: 20px;
       cursor: pointer;
       -webkit-user-select: none;
       user-select: none;
-      border-bottom: 1px solid transparent;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &:hover {
+        background: rgba(99, 102, 241, 0.08);
+        color: var(--primary-color);
+      }
     }
     .current {
-      border-bottom: 1px solid var(--primary-color);
+      background: var(--card-color);
+      border-color: var(--divider-color);
       color: var(--primary-color);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
   }
   .subs-list-content {

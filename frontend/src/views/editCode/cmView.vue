@@ -30,8 +30,12 @@
       <button @click="setPanel"><img :src="more" /></button>
     </div>
 
-    <div ref="viewRef" style="width: 100%; font-size: 12px" />
-    <div style="height: 10px" />
+    <div ref="viewRef" style="width: 100%; font-size: 13px" />
+    <div class="cm-status-bar">
+      <span class="status-item"><i class="dot"></i> UTF-8</span>
+      <span class="status-item">{{ isJS ? 'JavaScript' : 'YAML / JSON' }}</span>
+      <span class="status-item" v-if="Length">{{ Length }}</span>
+    </div>
   </div>
 </template>
 
@@ -490,5 +494,34 @@ input[type="checkbox"]:checked {
 
 .cm-button:active {
   background-color: #b6d9eba6 !important;
+}
+
+.cm-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--comment-text-color);
+  background: var(--card-color);
+  border-top: 1px solid var(--divider-color);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  .status-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    display: inline-block;
+  }
 }
 </style>
