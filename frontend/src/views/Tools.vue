@@ -1,7 +1,12 @@
 <template>
   <div class="tools-page">
     <section class="tool-card">
-      <h2>{{ t('toolsPage.converter.title') }}</h2>
+      <h2 class="card-title-with-icon">
+        <span class="tool-icon-wrapper converter">
+          <font-awesome-icon icon="fa-solid fa-arrows-rotate" />
+        </span>
+        {{ t('toolsPage.converter.title') }}
+      </h2>
       <p>{{ t('toolsPage.converter.desc') }}</p>
       <div class="row">
         <select v-model="conversionKind">
@@ -14,15 +19,26 @@
       </div>
       <textarea v-model="conversionInput" :placeholder="t('toolsPage.converter.input')" />
       <div class="actions">
-        <nut-button type="primary" :loading="converting" @click="runConversion">{{ t('toolsPage.converter.run') }}</nut-button>
-        <nut-button plain type="primary" :disabled="!conversionOutput" @click="copyText(conversionOutput)">{{ t('toolsPage.converter.copy') }}</nut-button>
+        <nut-button type="primary" :loading="converting" @click="runConversion">
+          <font-awesome-icon icon="fa-solid fa-play" style="margin-right: 4px" />
+          {{ t('toolsPage.converter.run') }}
+        </nut-button>
+        <nut-button plain type="primary" :disabled="!conversionOutput" @click="copyText(conversionOutput)">
+          <font-awesome-icon icon="fa-solid fa-clone" style="margin-right: 4px" />
+          {{ t('toolsPage.converter.copy') }}
+        </nut-button>
       </div>
       <textarea v-model="conversionOutput" readonly :placeholder="t('toolsPage.converter.output')" />
       <p v-if="conversionStats" class="stats">{{ conversionStats }}</p>
     </section>
 
     <section class="tool-card">
-      <h2>{{ t('toolsPage.shares.title') }}</h2>
+      <h2 class="card-title-with-icon">
+        <span class="tool-icon-wrapper shares">
+          <font-awesome-icon icon="fa-solid fa-share-nodes" />
+        </span>
+        {{ t('toolsPage.shares.title') }}
+      </h2>
       <p>{{ t('toolsPage.shares.desc') }}</p>
       <div class="row share-form">
         <select v-model="shareForm.resourceType">
@@ -36,7 +52,10 @@
         </select>
         <input v-model="shareForm.expiresHours" type="number" min="0" max="8760" :placeholder="t('toolsPage.shares.expires')" />
       </div>
-      <nut-button type="primary" :loading="shareCreating" @click="createShare">{{ t('toolsPage.shares.create') }}</nut-button>
+      <nut-button type="primary" :loading="shareCreating" @click="createShare">
+        <font-awesome-icon icon="fa-solid fa-plus" style="margin-right: 4px" />
+        {{ t('toolsPage.shares.create') }}
+      </nut-button>
       <div v-if="createdShareUrl" class="created-link" @click="copyText(createdShareUrl)">{{ createdShareUrl }}</div>
       <p v-if="shares.length === 0" class="empty">{{ t('toolsPage.shares.empty') }}</p>
       <div v-for="share in shares" :key="share.id" class="list-item">
@@ -52,7 +71,12 @@
     </section>
 
     <section class="tool-card">
-      <h2>{{ t('toolsPage.recycle.title') }}</h2>
+      <h2 class="card-title-with-icon">
+        <span class="tool-icon-wrapper recycle">
+          <font-awesome-icon icon="fa-solid fa-trash-can" />
+        </span>
+        {{ t('toolsPage.recycle.title') }}
+      </h2>
       <p>{{ t('toolsPage.recycle.desc') }}</p>
       <p v-if="recycleEntries.length === 0" class="empty">{{ t('toolsPage.recycle.empty') }}</p>
       <div v-for="entry in recycleEntries" :key="entry.id" class="list-item">
@@ -204,6 +228,42 @@ p {
   display: flex;
   gap: 10px;
   margin-bottom: 12px;
+}
+
+.card-title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  .tool-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 16px;
+    flex-shrink: 0;
+
+    &.converter {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(139, 92, 246, 0.18));
+      color: #6366F1;
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+
+    &.shares {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(59, 130, 246, 0.18));
+      color: #10B981;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    &.recycle {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(239, 68, 68, 0.18));
+      color: #F97316;
+      border: 1px solid rgba(249, 115, 22, 0.25);
+    }
+  }
 }
 
 select, input, textarea {
