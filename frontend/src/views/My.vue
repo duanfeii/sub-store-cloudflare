@@ -37,6 +37,7 @@
       </div>
     </section>
 
+    <!-- Backup Card -->
     <section class="config-card storage-card">
       <div class="title-wrapper">
         <h1>{{ t("myPage.backup.title") }}</h1>
@@ -44,6 +45,7 @@
       <p class="card-desc">{{ t("myPage.backup.desc") }}</p>
     </section>
 
+    <!-- Templates Card -->
     <section class="config-card">
       <div class="title-wrapper">
         <h1>{{ t("myPage.templates.title") }}</h1>
@@ -59,13 +61,40 @@
           </nut-button>
         </div>
       </div>
-      <div class="template-list">
-        <div v-for="template in templates" :key="template.name" class="template-item">
-          <div class="template-text">
-            <span class="template-title">{{ template.displayName || template.name }}</span>
-            <span class="template-meta">
-              {{ template.readonly ? t("myPage.templates.builtIn") : t("myPage.templates.custom") }}
-              · {{ getTargetLabel(template.target || "mihomo") }}
+
+      <!-- Skeleton pulse loader for templates -->
+      <div v-if="loadingTemplates" class="template-card-list">
+        <div class="template-card skeleton-card skeleton-pulse">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line sub"></div>
+          </div>
+        </div>
+        <div class="template-card skeleton-card skeleton-pulse">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line sub"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template Feature Cards -->
+      <div v-else class="template-card-list">
+        <div v-for="template in templates" :key="template.name" class="template-card">
+          <div class="template-icon-badge">
+            <font-awesome-icon icon="fa-solid fa-code" />
+          </div>
+          <div class="template-info">
+            <div class="template-header-line">
+              <span class="template-title">{{ template.displayName || template.name }}</span>
+              <nut-tag :type="template.readonly ? 'warning' : 'primary'" plain>
+                {{ template.readonly ? t("myPage.templates.builtIn") : t("myPage.templates.custom") }}
+              </nut-tag>
+            </div>
+            <span class="template-target-pill">
+              {{ getTargetLabel(template.target || "mihomo") }}
             </span>
           </div>
           <div class="template-actions">
@@ -80,6 +109,7 @@
       </div>
     </section>
 
+    <!-- Request Settings Card -->
     <section class="config-card">
       <div class="title-wrapper" @click="requestEditing ? cancelRequestEdit() : startRequestEdit()">
         <h1>{{ t("myPage.request.title") }}</h1>
@@ -97,18 +127,83 @@
           <nut-icon v-else class="right-icon" name="right"></nut-icon>
         </div>
       </div>
-      <div v-if="requestEditing" class="config-input-wrapper">
-        <nut-input class="input" v-model="requestForm.defaultUserAgent" :placeholder="t('myPage.request.defaultUserAgent')" type="text" input-align="left" />
-        <nut-input class="input" v-model="requestForm.defaultFlowUserAgent" :placeholder="t('myPage.request.defaultFlowUserAgent')" type="text" input-align="left" />
-        <nut-input class="input" v-model="requestForm.defaultTimeout" :placeholder="t('myPage.request.defaultTimeout')" type="number" input-align="left" />
-        <nut-input class="input" v-model="requestForm.backendRequestConcurrency" :placeholder="t('myPage.request.backendRequestConcurrency')" type="number" input-align="left" />
-        <nut-input class="input" v-model="requestForm.backendRequestConcurrencyWaitTime" :placeholder="t('myPage.request.backendRequestConcurrencyWaitTime')" type="number" input-align="left" />
-        <nut-input class="input" v-model="requestForm.remoteCacheTtl" :placeholder="t('myPage.request.remoteCacheTtl')" type="number" input-align="left" />
-        <nut-input class="input" v-model="requestForm.nodeInfoApiUrl" :placeholder="t('myPage.request.nodeInfoApiUrl')" type="text" input-align="left" />
-        <label class="boolean-setting">
-          <input v-model="requestForm.remoteCacheStaleOnError" type="checkbox" />
-          {{ t('myPage.request.remoteCacheStaleOnError') }}
-        </label>
+
+      <!-- Modernized Request Settings Form Grid -->
+      <div v-if="requestEditing" class="settings-form-grid">
+        <div class="form-field-group">
+          <label class="form-field-label">{{ t("myPage.request.defaultUserAgent") }}</label>
+          <input
+            v-model="requestForm.defaultUserAgent"
+            class="settings-input"
+            type="text"
+            :placeholder="t('myPage.request.defaultUserAgent')"
+          />
+        </div>
+
+        <div class="form-field-group">
+          <label class="form-field-label">{{ t("myPage.request.defaultFlowUserAgent") }}</label>
+          <input
+            v-model="requestForm.defaultFlowUserAgent"
+            class="settings-input"
+            type="text"
+            :placeholder="t('myPage.request.defaultFlowUserAgent')"
+          />
+        </div>
+
+        <div class="form-field-group">
+          <label class="form-field-label">{{ t("myPage.request.defaultTimeout") }}</label>
+          <input
+            v-model="requestForm.defaultTimeout"
+            class="settings-input"
+            type="number"
+            :placeholder="t('myPage.request.defaultTimeout')"
+          />
+        </div>
+
+        <div class="form-field-group">
+          <label class="form-field-label">{{ t("myPage.request.backendRequestConcurrency") }}</label>
+          <input
+            v-model="requestForm.backendRequestConcurrency"
+            class="settings-input"
+            type="number"
+            :placeholder="t('myPage.request.backendRequestConcurrency')"
+          />
+        </div>
+
+        <div class="form-field-group">
+          <label class="form-field-label">{{ t("myPage.request.backendRequestConcurrencyWaitTime") }}</label>
+          <input
+            v-model="requestForm.backendRequestConcurrencyWaitTime"
+            class="settings-input"
+            type="number"
+            :placeholder="t('myPage.request.backendRequestConcurrencyWaitTime')"
+          />
+        </div>
+
+        <div class="form-field-group">
+          <label class="form-field-label">{{ t("myPage.request.remoteCacheTtl") }}</label>
+          <input
+            v-model="requestForm.remoteCacheTtl"
+            class="settings-input"
+            type="number"
+            :placeholder="t('myPage.request.remoteCacheTtl')"
+          />
+        </div>
+
+        <div class="form-field-group form-field-group--full">
+          <label class="form-field-label">{{ t("myPage.request.nodeInfoApiUrl") }}</label>
+          <input
+            v-model="requestForm.nodeInfoApiUrl"
+            class="settings-input"
+            type="text"
+            :placeholder="t('myPage.request.nodeInfoApiUrl')"
+          />
+        </div>
+
+        <div class="toggle-card-row form-field-group--full">
+          <span class="toggle-card-title">{{ t('myPage.request.remoteCacheStaleOnError') }}</span>
+          <nut-switch v-model="requestForm.remoteCacheStaleOnError" />
+        </div>
       </div>
       <p v-else class="card-desc">{{ requestSummary }}</p>
     </section>
@@ -189,6 +284,7 @@ const templateImportVisible = ref(false);
 const templateEditingId = ref("");
 const templateTargetPickerVisible = ref(false);
 const templates = ref<any[]>([]);
+const loadingTemplates = ref(true);
 
 const requestForm = reactive({
   defaultUserAgent: "",
@@ -280,9 +376,16 @@ const exportBackup = async () => {
 };
 
 const fetchTemplates = async () => {
-  const res = await cloudflareApi.getTemplates();
-  if (res?.data?.status === "success" && Array.isArray(res.data.data)) {
-    templates.value = res.data.data;
+  loadingTemplates.value = true;
+  try {
+    const res = await cloudflareApi.getTemplates();
+    if (res?.data?.status === "success" && Array.isArray(res.data.data)) {
+      templates.value = res.data.data;
+    }
+  } catch {
+    templates.value = [];
+  } finally {
+    loadingTemplates.value = false;
   }
 };
 
@@ -423,7 +526,8 @@ onMounted(fetchTemplates);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .profile-block {
@@ -554,54 +658,118 @@ onMounted(fetchTemplates);
   color: var(--comment-text-color);
 }
 
-.template-list {
+/* Feature Cards for Templates */
+.template-card-list {
   display: flex;
   flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
 }
 
-.template-item {
+.template-card {
   min-height: 54px;
-  padding: 10px 16px;
+  padding: var(--space-3);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px solid var(--divider-color);
+  gap: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--card-color);
+  border: 1px solid var(--divider-color);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
 
-  &:last-child {
-    border-bottom: 0;
+  &:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+    box-shadow: 0 6px 18px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .template-icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    flex-shrink: 0;
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+  }
+
+  .template-info {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .template-header-line {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .template-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--primary-text-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .template-target-pill {
+    font-size: var(--text-xs);
+    color: var(--comment-text-color);
+  }
+
+  .template-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
   }
 }
 
-.template-text {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.template-title,
-.template-meta {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.template-title {
-  font-size: 14px;
-  color: var(--primary-text-color);
-}
-
-.template-meta {
-  font-size: 12px;
-  color: var(--comment-text-color);
-}
-
-.template-actions {
+/* Skeleton Loaders */
+.skeleton-card {
+  min-height: 56px;
+  padding: var(--space-3);
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: var(--space-3);
+}
+
+.skeleton-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--divider-color) 60%, transparent);
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--divider-color) 50%, transparent);
+
+  &.title {
+    width: 50%;
+    height: 14px;
+  }
+
+  &.sub {
+    width: 35%;
+  }
 }
 
 .template-import-panel {
@@ -682,24 +850,69 @@ onMounted(fetchTemplates);
   line-height: 1.6;
 }
 
-.config-input-wrapper {
-  padding: 8px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Settings Form Grid & Standardized Controls (40px/44px) */
+.settings-form-grid {
+  padding: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
 
-  .input {
-    border-bottom: 1px solid var(--divider-color);
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
   }
 }
 
-.boolean-setting {
-  min-height: 38px;
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.form-field-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--second-text-color);
+}
+
+.settings-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--divider-color);
+  background: var(--background-color);
+  color: var(--primary-text-color);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
+    outline: none;
+  }
+}
+
+.toggle-card-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--second-text-color);
-  font-size: 13px;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--background-color);
+  border: 1px solid var(--divider-color);
+
+  .toggle-card-title {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--primary-text-color);
+  }
 }
 
 @media screen and (max-width: 430px) {
@@ -730,7 +943,7 @@ onMounted(fetchTemplates);
     flex-wrap: wrap;
   }
 
-  .template-item {
+  .template-card {
     align-items: flex-start;
     flex-direction: column;
   }

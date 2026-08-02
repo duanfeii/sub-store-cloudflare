@@ -55,6 +55,7 @@ export const designTokens: Record<string, string> = {
   'z-drawer': '1100',
   'z-dialog': '1200',
   'z-toast': '1300',
+  'focus-ring-color': 'color-mix(in srgb, var(--primary-color) 20%, transparent)',
 };
 
 // Back-compat alias used elsewhere in this file

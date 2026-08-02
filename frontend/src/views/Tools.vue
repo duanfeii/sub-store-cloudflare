@@ -1,5 +1,6 @@
 <template>
   <div class="tools-page">
+    <!-- Converter Tool Card -->
     <section class="tool-card">
       <h2 class="card-title-with-icon">
         <span class="tool-icon-wrapper converter">
@@ -8,39 +9,50 @@
         {{ t('toolsPage.converter.title') }}
       </h2>
       <p>{{ t('toolsPage.converter.desc') }}</p>
-      <div class="row">
-        <select v-model="conversionKind" class="field-control">
-          <option value="proxy">{{ t('toolsPage.converter.proxy') }}</option>
-          <option value="rule">{{ t('toolsPage.converter.rule') }}</option>
-        </select>
-        <select v-model="conversionTarget" class="field-control">
-          <option v-for="target in conversionTargets" :key="target" :value="target">{{ target }}</option>
-        </select>
+
+      <div class="form-section-card">
+        <div class="row">
+          <div class="form-field">
+            <select v-model="conversionKind" class="field-control">
+              <option value="proxy">{{ t('toolsPage.converter.proxy') }}</option>
+              <option value="rule">{{ t('toolsPage.converter.rule') }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <select v-model="conversionTarget" class="field-control">
+              <option v-for="target in conversionTargets" :key="target" :value="target">{{ target }}</option>
+            </select>
+          </div>
+        </div>
+
+        <textarea
+          v-model="conversionInput"
+          class="field-control field-control--mono"
+          :placeholder="t('toolsPage.converter.input')"
+        />
+
+        <div class="actions">
+          <nut-button type="primary" :loading="converting" @click="runConversion">
+            <font-awesome-icon icon="fa-solid fa-play" class="btn-icon" />
+            {{ t('toolsPage.converter.run') }}
+          </nut-button>
+          <nut-button plain type="primary" :disabled="!conversionOutput" @click="copyText(conversionOutput)">
+            <font-awesome-icon icon="fa-solid fa-clone" class="btn-icon" />
+            {{ t('toolsPage.converter.copy') }}
+          </nut-button>
+        </div>
+
+        <textarea
+          v-model="conversionOutput"
+          class="field-control field-control--mono"
+          readonly
+          :placeholder="t('toolsPage.converter.output')"
+        />
+        <p v-if="conversionStats" class="stats">{{ conversionStats }}</p>
       </div>
-      <textarea
-        v-model="conversionInput"
-        class="field-control field-control--mono"
-        :placeholder="t('toolsPage.converter.input')"
-      />
-      <div class="actions">
-        <nut-button type="primary" :loading="converting" @click="runConversion">
-          <font-awesome-icon icon="fa-solid fa-play" class="btn-icon" />
-          {{ t('toolsPage.converter.run') }}
-        </nut-button>
-        <nut-button plain type="primary" :disabled="!conversionOutput" @click="copyText(conversionOutput)">
-          <font-awesome-icon icon="fa-solid fa-clone" class="btn-icon" />
-          {{ t('toolsPage.converter.copy') }}
-        </nut-button>
-      </div>
-      <textarea
-        v-model="conversionOutput"
-        class="field-control field-control--mono"
-        readonly
-        :placeholder="t('toolsPage.converter.output')"
-      />
-      <p v-if="conversionStats" class="stats">{{ conversionStats }}</p>
     </section>
 
+    <!-- Shares Tool Card -->
     <section class="tool-card">
       <h2 class="card-title-with-icon">
         <span class="tool-icon-wrapper shares">
@@ -49,48 +61,88 @@
         {{ t('toolsPage.shares.title') }}
       </h2>
       <p>{{ t('toolsPage.shares.desc') }}</p>
-      <div class="row share-form">
-        <select v-model="shareForm.resourceType" class="field-control">
-          <option value="source">{{ t('toolsPage.shares.source') }}</option>
-          <option value="collection">{{ t('toolsPage.shares.collection') }}</option>
-        </select>
-        <input
-          v-model.trim="shareForm.resourceId"
-          class="field-control"
-          :placeholder="t('toolsPage.shares.resourceId')"
-        />
-        <select v-model="shareForm.target" class="field-control">
-          <option value="">{{ t('toolsPage.shares.auto') }}</option>
-          <option v-for="target in proxyTargets" :key="target" :value="target">{{ target }}</option>
-        </select>
-        <input
-          v-model="shareForm.expiresHours"
-          class="field-control"
-          type="number"
-          min="0"
-          max="8760"
-          :placeholder="t('toolsPage.shares.expires')"
-        />
+
+      <div class="form-section-card">
+        <div class="row share-form">
+          <div class="form-field">
+            <select v-model="shareForm.resourceType" class="field-control">
+              <option value="source">{{ t('toolsPage.shares.source') }}</option>
+              <option value="collection">{{ t('toolsPage.shares.collection') }}</option>
+            </select>
+          </div>
+          <div class="form-field form-field--grow">
+            <input
+              v-model.trim="shareForm.resourceId"
+              class="field-control"
+              :placeholder="t('toolsPage.shares.resourceId')"
+            />
+          </div>
+          <div class="form-field">
+            <select v-model="shareForm.target" class="field-control">
+              <option value="">{{ t('toolsPage.shares.auto') }}</option>
+              <option v-for="target in proxyTargets" :key="target" :value="target">{{ target }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <input
+              v-model="shareForm.expiresHours"
+              class="field-control"
+              type="number"
+              min="0"
+              max="8760"
+              :placeholder="t('toolsPage.shares.expires')"
+            />
+          </div>
+        </div>
+
+        <nut-button type="primary" :loading="shareCreating" @click="createShare">
+          <font-awesome-icon icon="fa-solid fa-plus" class="btn-icon" />
+          {{ t('toolsPage.shares.create') }}
+        </nut-button>
       </div>
-      <nut-button type="primary" :loading="shareCreating" @click="createShare">
-        <font-awesome-icon icon="fa-solid fa-plus" class="btn-icon" />
-        {{ t('toolsPage.shares.create') }}
-      </nut-button>
-      <div v-if="createdShareUrl" class="created-link" @click="copyText(createdShareUrl)">{{ createdShareUrl }}</div>
-      <p v-if="shares.length === 0" class="empty">{{ t('toolsPage.shares.empty') }}</p>
-      <div v-else class="list-table">
-        <div v-for="share in shares" :key="share.id" class="list-row">
-          <div class="list-row__main">
-            <strong>{{ resourceTypeLabel(share.resourceType) }}/{{ share.resourceId }}</strong>
-            <small class="list-row__meta">
+
+      <div v-if="createdShareUrl" class="created-link" @click="copyText(createdShareUrl)">
+        <font-awesome-icon icon="fa-solid fa-link" class="btn-icon" />
+        {{ createdShareUrl }}
+      </div>
+
+      <!-- Loading Skeleton for Shares -->
+      <div v-if="loadingShares" class="feature-card-list">
+        <div class="feature-card skeleton-card skeleton-pulse">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line sub"></div>
+          </div>
+        </div>
+        <div class="feature-card skeleton-card skeleton-pulse">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line sub"></div>
+          </div>
+        </div>
+      </div>
+
+      <p v-else-if="shares.length === 0" class="empty">{{ t('toolsPage.shares.empty') }}</p>
+      
+      <!-- Shares Feature Cards -->
+      <div v-else class="feature-card-list">
+        <div v-for="share in shares" :key="share.id" class="feature-card">
+          <div class="feature-card__badge-icon">
+            <font-awesome-icon icon="fa-solid fa-link" />
+          </div>
+          <div class="feature-card__main">
+            <strong class="feature-card__title">{{ resourceTypeLabel(share.resourceType) }}/{{ share.resourceId }}</strong>
+            <div class="feature-card__meta">
               <span>{{ shareMeta(share) }}</span>
               <span
                 class="status-pill"
                 :class="share.enabled ? 'is-on' : 'is-off'"
               >{{ share.enabled ? t('toolsPage.shares.enabled') : t('toolsPage.shares.disabled') }}</span>
-            </small>
+            </div>
           </div>
-          <div class="list-row__actions">
+          <div class="feature-card__actions">
             <nut-button plain size="mini" @click="toggleShare(share)">
               {{ share.enabled ? t('toolsPage.shares.disable') : t('toolsPage.shares.enable') }}
             </nut-button>
@@ -102,6 +154,7 @@
       </div>
     </section>
 
+    <!-- Recycle Bin Tool Card -->
     <section class="tool-card">
       <h2 class="card-title-with-icon">
         <span class="tool-icon-wrapper recycle">
@@ -110,14 +163,38 @@
         {{ t('toolsPage.recycle.title') }}
       </h2>
       <p>{{ t('toolsPage.recycle.desc') }}</p>
-      <p v-if="recycleEntries.length === 0" class="empty">{{ t('toolsPage.recycle.empty') }}</p>
-      <div v-else class="list-table">
-        <div v-for="entry in recycleEntries" :key="entry.id" class="list-row">
-          <div class="list-row__main">
-            <strong>{{ resourceTypeLabel(entry.resourceType) }}/{{ entry.resourceId }}</strong>
-            <small class="list-row__meta mono-time">{{ new Date(entry.deletedAt).toLocaleString() }}</small>
+
+      <!-- Loading Skeleton for Recycle -->
+      <div v-if="loadingRecycle" class="feature-card-list">
+        <div class="feature-card skeleton-card skeleton-pulse">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line sub"></div>
           </div>
-          <div class="list-row__actions">
+        </div>
+        <div class="feature-card skeleton-card skeleton-pulse">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line sub"></div>
+          </div>
+        </div>
+      </div>
+
+      <p v-else-if="recycleEntries.length === 0" class="empty">{{ t('toolsPage.recycle.empty') }}</p>
+
+      <!-- Recycle Feature Cards -->
+      <div v-else class="feature-card-list">
+        <div v-for="entry in recycleEntries" :key="entry.id" class="feature-card">
+          <div class="feature-card__badge-icon recycle">
+            <font-awesome-icon icon="fa-solid fa-trash-can" />
+          </div>
+          <div class="feature-card__main">
+            <strong class="feature-card__title">{{ resourceTypeLabel(entry.resourceType) }}/{{ entry.resourceId }}</strong>
+            <div class="feature-card__meta mono-time">{{ new Date(entry.deletedAt).toLocaleString() }}</div>
+          </div>
+          <div class="feature-card__actions">
             <nut-button plain type="primary" size="mini" @click="restoreEntry(entry.id)">
               {{ t('toolsPage.recycle.restore') }}
             </nut-button>
@@ -150,6 +227,8 @@ const conversionStats = ref('');
 const converting = ref(false);
 const shares = ref<any[]>([]);
 const recycleEntries = ref<any[]>([]);
+const loadingShares = ref(true);
+const loadingRecycle = ref(true);
 const shareCreating = ref(false);
 const createdShareUrl = ref('');
 const shareForm = reactive({ resourceType: 'source', resourceId: '', target: '', expiresHours: '0' });
@@ -192,15 +271,31 @@ const runConversion = async () => {
 };
 
 const loadShares = async () => {
-  const response = await api.getShares();
-  const data = (response?.data as any)?.data;
-  shares.value = Array.isArray(data) ? data : [];
+  loadingShares.value = true;
+  try {
+    const response = await api.getShares();
+    const data = (response?.data as any)?.data;
+    shares.value = Array.isArray(data) ? data : [];
+  } catch (error) {
+    shares.value = [];
+  } finally {
+    loadingShares.value = false;
+  }
 };
+
 const loadRecycle = async () => {
-  const response = await api.getRecycleBin();
-  const data = (response?.data as any)?.data;
-  recycleEntries.value = Array.isArray(data) ? data : [];
+  loadingRecycle.value = true;
+  try {
+    const response = await api.getRecycleBin();
+    const data = (response?.data as any)?.data;
+    recycleEntries.value = Array.isArray(data) ? data : [];
+  } catch (error) {
+    recycleEntries.value = [];
+  } finally {
+    loadingRecycle.value = false;
+  }
 };
+
 const createShare = async () => {
   shareCreating.value = true;
   try {
@@ -219,6 +314,7 @@ const createShare = async () => {
     shareCreating.value = false;
   }
 };
+
 const toggleShare = async (share: any) => { await api.updateShare(share.id, { enabled: !share.enabled }); await loadShares(); };
 const removeShare = async (id: string) => { await api.deleteShare(id); await Promise.all([loadShares(), loadRecycle()]); };
 const restoreEntry = async (id: string) => { await api.restoreRecycleEntry(id); await loadRecycle(); };
@@ -251,7 +347,7 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
 
 .tool-card {
   padding: var(--space-5);
-  border-radius: var(--item-card-radios);
+  border-radius: var(--item-card-radios, 12px);
   background: var(--card-color);
   color: var(--second-text-color);
   border: 1px solid var(--divider-color);
@@ -280,12 +376,6 @@ p {
   margin-bottom: var(--space-3);
 }
 
-.row {
-  display: flex;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-}
-
 .card-title-with-icon {
   display: flex;
   align-items: center;
@@ -301,7 +391,6 @@ p {
     border-radius: var(--radius-md);
     font-size: var(--text-md);
     flex-shrink: 0;
-    // Monochrome outline + light accent wash (no multi-color gradients)
     color: var(--primary-color);
     background: color-mix(in srgb, var(--primary-color) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
@@ -314,32 +403,57 @@ p {
   }
 }
 
-.btn-icon {
-  margin-right: var(--space-1);
+.form-section-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--background-color) 50%, var(--card-color));
+  border: 1px solid var(--divider-color);
 }
 
-// Shared control language with global form inputs
+.row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.form-field {
+  flex: 1;
+  min-width: 130px;
+
+  &--grow {
+    flex: 2;
+    min-width: 180px;
+  }
+}
+
+// Standardized Control Heights (40px/44px) & Focus Ring
 .field-control {
   box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
   border: 1px solid var(--divider-color);
   border-radius: var(--radius-md);
-  background: var(--background-color);
+  background: var(--card-color);
   color: var(--primary-text-color);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
-  min-height: 40px;
   padding: 0 var(--space-3);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
     outline: none;
   }
 
   &--mono,
   &:is(textarea) {
-    width: 100%;
+    height: auto;
     min-height: 140px;
     padding: var(--space-3);
     resize: vertical;
@@ -348,28 +462,27 @@ p {
   }
 }
 
-select.field-control,
-input.field-control:not([type='checkbox']) {
-  min-height: 40px;
+select.field-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  padding-right: 28px;
+}
+
+.btn-icon {
+  margin-right: var(--space-1);
 }
 
 .actions {
   display: flex;
   gap: var(--space-2);
-  margin: var(--space-3) 0;
-}
-
-.share-form {
-  flex-wrap: wrap;
-
-  input {
-    flex: 1;
-    min-width: 150px;
-  }
+  margin-top: var(--space-1);
 }
 
 .created-link {
-  margin: var(--space-3) 0;
+  margin-bottom: var(--space-3);
   padding: var(--space-3) 14px;
   border-radius: var(--radius-md);
   background: var(--background-color);
@@ -379,30 +492,61 @@ input.field-control:not([type='checkbox']) {
   font-size: var(--text-sm);
   color: var(--primary-color);
   font-family: var(--font-mono);
-  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 
   &:hover {
     background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    border-color: var(--primary-color);
   }
 }
 
-// Denser table-like rows: time/status left, actions right-aligned
-.list-table {
+/* Feature Cards & Micro-interactions */
+.feature-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   margin-top: var(--space-2);
-  border-top: 1px solid var(--divider-color);
 }
 
-.list-row {
-  min-height: 44px;
+.feature-card {
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--divider-color);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--card-color);
+  border: 1px solid var(--divider-color);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
 
-  &:last-child {
-    border-bottom: none;
+  &:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+    box-shadow: 0 6px 18px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  &__badge-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    flex-shrink: 0;
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+
+    &.recycle {
+      color: var(--danger-color);
+      background: color-mix(in srgb, var(--danger-color) 12%, transparent);
+      border-color: color-mix(in srgb, var(--danger-color) 20%, transparent);
+    }
   }
 
   &__main {
@@ -410,10 +554,10 @@ input.field-control:not([type='checkbox']) {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
   }
 
-  strong {
+  &__title {
     color: var(--primary-text-color);
     font-size: var(--text-base);
     font-weight: 600;
@@ -433,8 +577,45 @@ input.field-control:not([type='checkbox']) {
     display: flex;
     flex-shrink: 0;
     align-items: center;
-    justify-content: flex-end;
     gap: var(--space-2);
+  }
+}
+
+/* Skeleton Loaders */
+.skeleton-card {
+  min-height: 56px;
+  padding: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.skeleton-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--divider-color) 60%, transparent);
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--divider-color) 50%, transparent);
+
+  &.title {
+    width: 60%;
+    height: 14px;
+  }
+
+  &.sub {
+    width: 40%;
   }
 }
 
@@ -480,14 +661,14 @@ input.field-control:not([type='checkbox']) {
   .row {
     flex-direction: column;
   }
-  .list-row {
+  .feature-card {
     align-items: flex-start;
     flex-direction: column;
-    padding: var(--space-3) 0;
 
     &__actions {
       width: 100%;
       justify-content: flex-start;
+      margin-top: var(--space-1);
     }
   }
 }
