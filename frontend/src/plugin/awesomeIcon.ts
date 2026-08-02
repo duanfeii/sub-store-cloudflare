@@ -47,8 +47,13 @@ import {
   faMinimize,
   faMobileScreenButton,
   faBars,
-  faMagnifyingGlass
+  faMagnifyingGlass,
+  faSun,
+  faMoon
 } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faSun);
+library.add(faMoon);
 
 library.add(faFileImport);
 library.add(faFileExport);
