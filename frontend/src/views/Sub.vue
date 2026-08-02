@@ -1107,25 +1107,32 @@ const importTips = () => {
       font-weight: 500;
       color: var(--second-text-color);
       margin: 2px 4px;
-      padding: 6px 14px;
-      border-radius: 20px;
+      padding: 5px 14px;
+      border-radius: 9999px;
       cursor: pointer;
       -webkit-user-select: none;
       user-select: none;
-      border: 1px solid transparent;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--divider-color);
+      background: var(--card-color);
+      transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 
-      &:hover {
-        background: color-mix(in srgb, var(--primary-color) 8%, transparent);
-        color: var(--primary-color);
+      @media (hover: hover) and (pointer: fine) {
+        &:hover:not(.current) {
+          color: var(--primary-text-color);
+          background: rgba(148, 163, 184, 0.12);
+        }
+      }
+
+      &:active {
+        transform: scale(0.95);
       }
     }
     .current {
-      background: var(--card-color);
-      border-color: var(--divider-color);
-      color: var(--primary-color);
+      background: var(--primary-text-color);
+      border-color: var(--primary-text-color);
+      color: var(--background-color);
       font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
   }
   .subs-list-content {
