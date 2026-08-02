@@ -20,15 +20,16 @@
           {{ $t(`editorPage.subConfig.editorTabs.${tab}`) }}
         </button>
       </div>
-      <EditorGroupingTips />
+      <!-- Help tip removed from always-visible chrome — less noise for daily edit -->
     </div>
     <!-- 基础表单 -->
     <div
       v-show="isSubFormTabActive"
       class="form-block-wrapper"
     >
+      <!-- Icon preview only when useful (edit mode or custom icon set) -->
       <div
-        v-if="appearanceSetting.isShowIcon && (!editorTabsEnabled || activeEditorTab === 'display')"
+        v-if="showIconPreview && (!editorTabsEnabled || activeEditorTab === 'display')"
         class="sticky-title-icon-container"
       >
         <nut-image
@@ -186,12 +187,9 @@
             ]"
           >
             <template v-slot:label>
-              <span class="label-tips" @click="urlTips">
-                <p>{{$t(`editorPage.subConfig.basic.url.label`)}}</p>
-                <span class="tips">
-                  <span>{{$t(`editorPage.subConfig.basic.url.tips.label`)}}</span>
-                  <!-- <nut-icon name="tips"></nut-icon> -->
-                </span>
+              <span class="label-with-tip" @click.stop="urlTips">
+                <span>{{ $t(`editorPage.subConfig.basic.url.label`) }}</span>
+                <font-awesome-icon class="label-tip-icon" icon="fa-solid fa-circle-question" />
               </span>
             </template>
             <nut-textarea
@@ -219,25 +217,34 @@
               "
               type="text"
             /> -->
-            <button class="cimg-button" @click="isDis = false">
-              <font-awesome-icon icon="fa-solid fa-maximize" />
-              {{ $t(`editorPage.subConfig.basic.url.tips.fullScreenEdit`) }}
-            </button>
-            <input type="file" ref="fileInput" @change="fileChange" style="display: none">
-            <button class="cimg-button" @click="upload">
-              <font-awesome-icon icon="fa-solid fa-cloud-arrow-up" />
-              {{ $t(`editorPage.subConfig.basic.url.tips.importFromFile`) }}
-            </button>
-            <button class="cimg-button" :disabled="localPreviewLoading || !localContentText.trim()" @click="validateLocalContent()">
-              <font-awesome-icon icon="fa-solid fa-check" />
-              {{ localPreviewLoading ? $t(`editorPage.subConfig.basic.content.validation.checking`) : $t(`editorPage.subConfig.basic.content.validation.action`) }}
-            </button>
-            <span class="button-tips" @click="contentTips">
-                <span class="tips">
-                  <span>{{$t(`editorPage.subConfig.basic.url.tips.label`)}}</span>
-                  <!-- <nut-icon name="tips"></nut-icon> -->
-                </span>
-              </span>
+            <div class="local-content-toolbar">
+              <button type="button" class="toolbar-btn" @click="isDis = false">
+                <font-awesome-icon icon="fa-solid fa-maximize" />
+                <span>{{ $t(`editorPage.subConfig.basic.url.tips.fullScreenEdit`) }}</span>
+              </button>
+              <input type="file" ref="fileInput" @change="fileChange" style="display: none">
+              <button type="button" class="toolbar-btn" @click="upload">
+                <font-awesome-icon icon="fa-solid fa-cloud-arrow-up" />
+                <span>{{ $t(`editorPage.subConfig.basic.url.tips.importFromFile`) }}</span>
+              </button>
+              <button
+                type="button"
+                class="toolbar-btn"
+                :disabled="localPreviewLoading || !localContentText.trim()"
+                @click="validateLocalContent()"
+              >
+                <font-awesome-icon icon="fa-solid fa-check" />
+                <span>{{ localPreviewLoading ? $t(`editorPage.subConfig.basic.content.validation.checking`) : $t(`editorPage.subConfig.basic.content.validation.action`) }}</span>
+              </button>
+              <button
+                type="button"
+                class="toolbar-btn toolbar-btn--ghost"
+                :aria-label="$t(`editorPage.subConfig.basic.url.tips.label`)"
+                @click="contentTips"
+              >
+                <font-awesome-icon icon="fa-solid fa-circle-question" />
+              </button>
+            </div>
             <div
               v-if="localPreviewSummary"
               class="local-preview-summary"
@@ -471,10 +478,16 @@
   </div>
 
   <div class="bottom-btn-wrapper">
-    <nut-button @click="compare" class="compare-btn btn" plain shape="square">
+    <!-- Single primary action (Save). Compare is secondary, not competing chrome. -->
+    <button
+      type="button"
+      class="compare-link"
+      :title="$t('editorPage.subConfig.btn.compare')"
+      @click="compare"
+    >
       <font-awesome-icon icon="fa-solid fa-eye" />
-      {{ $t("editorPage.subConfig.btn.compare") }}
-    </nut-button>
+      <span>{{ $t("editorPage.subConfig.btn.compare") }}</span>
+    </button>
     <nut-button
       @click="submit"
       class="submit-btn btn"
@@ -565,7 +578,6 @@ import Regex from "@/views/editor/components/Regex.vue";
 import Sort from "@/views/editor/components/Sort.vue";
 import TagPopup from "@/components/TagPopup.vue";
 import DesktopPicker from "@/components/DesktopPicker.vue";
-import EditorGroupingTips from "@/components/EditorGroupingTips.vue";
 import { Dialog, Toast } from "@nutui/nutui";
 import { storeToRefs } from "pinia";
 import {
@@ -1419,6 +1431,11 @@ const urlValidator = (val: string): Promise<boolean> => {
       return appearanceSetting.value.isDefaultIcon ? logoIcon : logoRedIcon
     }
   })
+  // Skip empty decorative icon on create — only show when editing or custom icon set
+  const showIconPreview = computed(() => {
+    if (!appearanceSetting.value.isShowIcon) return false;
+    return isEditMode.value || Boolean(form.icon);
+  });
   const uaTips = () => {
     Dialog({
         title: t("editorPage.subConfig.basic.ua.tips.title"),
@@ -1837,47 +1854,74 @@ const handleEditGlobalClick = () => {
       }
     }
   }
-  .button-tips {
-    color: var(--primary-color);
-    cursor: pointer;
-    font-size: 12px;
-    text-decoration: underline;
-    margin-left: 6px;
-  }
-  .label-tips {
-    display: inline-flex;
-    flex-direction: column;
-    cursor: pointer;
-    .tips {
-      display: inline-flex;
-      align-items: center;
-      span {
-        color: var(--primary-color);
-        text-decoration: underline;
-        font-size: 12px;
-        // color: #fa2c19;
-      }
-    }
-  }
   .label-with-tip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     cursor: pointer;
+    color: var(--comment-text-color);
+    font-size: 13px;
+  }
 
-    :deep(.nut-icon) {
-      color: inherit;
+  .label-tip-icon {
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+    color: var(--lowest-text-color);
+    flex-shrink: 0;
+  }
+
+  .local-content-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid var(--divider-color);
+    border-radius: 9999px;
+    background: var(--background-color);
+    color: var(--second-text-color);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 140ms ease-out, background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+
+    svg {
+      width: 12px;
+      height: 12px;
     }
 
-    :deep(.nut-icon-tips) {
-      display: inline-flex;
-      width: 20px;
-      height: 20px;
-      flex: 0 0 auto;
-      align-items: center;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        color: var(--primary-color);
+        border-color: color-mix(in srgb, var(--primary-color) 28%, transparent);
+        background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+      }
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    &--ghost {
+      width: 30px;
+      padding: 0;
       justify-content: center;
-      font-size: 14px;
-      line-height: 20px;
+      border-color: transparent;
+      background: transparent;
     }
   }
 
@@ -1960,6 +2004,40 @@ const handleEditGlobalClick = () => {
     padding-right: max(var(--space-5), calc((100% - #{$content-max-width}) / 2 + var(--space-5)));
   }
 
+  .compare-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    height: 40px;
+    padding: 0 12px;
+    margin: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--second-text-color);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 140ms ease-out, color 160ms ease, background-color 160ms ease;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        color: var(--primary-color);
+        background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+      }
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
   .btn {
     border-radius: var(--radius-md);
     padding: 8px 14px;
@@ -1967,7 +2045,7 @@ const handleEditGlobalClick = () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.15s ease;
+    transition: transform 140ms ease-out;
 
     &:active {
       transform: scale(0.97);
@@ -1978,13 +2056,10 @@ const handleEditGlobalClick = () => {
     }
   }
 
-  .compare-btn {
-    background: transparent;
-    width: 36%;
-  }
-
   .submit-btn {
-    width: 62%;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto !important;
   }
 }
 

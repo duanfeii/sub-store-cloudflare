@@ -529,18 +529,18 @@ select.field-control {
   border-radius: var(--radius-lg);
   background: var(--card-color);
   border: 1px solid var(--divider-color);
-  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease, border-color 200ms ease;
+  /* High-frequency list: only press feedback, no lift decoration */
+  transition: transform 140ms ease-out, border-color 160ms ease, background-color 160ms ease;
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      transform: translateY(-2px);
-      border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
-      box-shadow: 0 6px 18px -2px rgba(0, 0, 0, 0.08);
+      border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+      background: color-mix(in srgb, var(--primary-color) 4%, var(--card-color));
     }
   }
 
   &:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
   }
 
   &__badge-icon {
