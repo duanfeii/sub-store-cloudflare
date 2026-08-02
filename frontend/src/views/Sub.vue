@@ -1131,11 +1131,13 @@ const importTips = () => {
     backdrop-filter: blur(var(--nav-bar-blur));
     -webkit-backdrop-filter: blur(var(--nav-bar-blur));
     background: var(--nav-bar-color);
+    border-bottom: 1px solid var(--divider-color);
     @include centered-fixed-container;
-      @media screen and (min-width: 768px) {
-        border-radius: var(--item-card-radios);
-        overflow: hidden;
-      }
+    @media screen and (min-width: $breakpoint-md) {
+      border-radius: 0;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
     .tag {
       font-size: 13px;
       font-weight: 500;

@@ -61,16 +61,17 @@
       backdrop-filter: blur(var(--tab-bar-blur));
       -webkit-backdrop-filter: blur(var(--tab-bar-blur));
       background: var(--tab-bar-color);
-      @media screen and (min-width: 768px) {
-        border-radius: var(--item-card-radios);
-        overflow: hidden;
-      }
+      border-top: 1px solid var(--divider-color);
     }
 
     :deep(.tabbar-item) {
       cursor: pointer;
       &.nut-tabbar-item__icon--unactive {
         color: var(--lowest-text-color);
+      }
+      // Active item uses NutUI default + primary color — matches SideBar.active
+      &.nut-tabbar-item__icon--active {
+        color: var(--primary-color);
       }
       & > .nut-tabbar-item_icon-box > .nut-tabbar-item_icon-box_nav-word {
         margin-top: 8px;

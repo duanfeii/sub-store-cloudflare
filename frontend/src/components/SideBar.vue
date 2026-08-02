@@ -1,20 +1,36 @@
 <template>
-  <div class="side-bar-wrapper" :class="{ 'is-expanded': isExpanded }">
-    <div class="sidebar-content">
+  <aside
+    class="side-bar-wrapper"
+    :class="{ 'is-expanded': isExpanded }"
+    aria-label="Primary"
+  >
+    <div class="sidebar-brand" @click="router.push('/')" role="link" tabindex="0"
+      @keydown.enter.prevent="router.push('/')">
+      <img class="sidebar-brand__logo" :src="brandLogo" alt="" width="28" height="28" />
+      <span class="sidebar-brand__name" v-show="isExpanded">Sub Store</span>
+    </div>
+
+    <nav class="sidebar-content">
       <div class="menu-items">
-        <div 
-          class="menu-item" 
-          :class="{ active: activeTab === 0 }" 
+        <div
+          class="menu-item"
+          :class="{ active: activeTab === 0 }"
+          role="link"
+          tabindex="0"
           @click="router.push('/subs')"
+          @keydown.enter.prevent="router.push('/subs')"
         >
           <nut-icon name="link" size="22px" />
           <span class="label" v-show="isExpanded">{{ $t('tabBar.sub') }}</span>
         </div>
 
-        <div 
-          class="menu-item" 
-          :class="{ active: activeTab === 1 }" 
+        <div
+          class="menu-item"
+          :class="{ active: activeTab === 1 }"
+          role="link"
+          tabindex="0"
           @click="router.push('/tools')"
+          @keydown.enter.prevent="router.push('/tools')"
         >
           <nut-icon name="more-x" size="22px" />
           <span class="label" v-show="isExpanded">{{ $t('tabBar.tools') }}</span>
@@ -23,7 +39,10 @@
         <div
           class="menu-item"
           :class="{ active: activeTab === 2 }"
+          role="link"
+          tabindex="0"
           @click="router.push('/my')"
+          @keydown.enter.prevent="router.push('/my')"
         >
           <div class="icon-container">
             <nut-icon name="setting" size="22px" />
@@ -31,14 +50,13 @@
           <span class="label" v-show="isExpanded">{{ $t('tabBar.my') }}</span>
         </div>
       </div>
-    </div>
-  </div>
+    </nav>
+  </aside>
 </template>
 
 <script lang="ts" setup>
-import { useSystemStore } from "@/store/system";
+import brandLogo from "@/assets/icons/logo.png";
 import { SIDEBAR_EXPANDED_BREAKPOINT } from "@/store/system";
-import { storeToRefs } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useWindowSize } from '@vueuse/core';
@@ -69,50 +87,89 @@ const { width: windowWidth } = useWindowSize();
 const isExpanded = computed(() => {
   return windowWidth.value >= SIDEBAR_EXPANDED_BREAKPOINT;
 });
-
-const systemStore = useSystemStore();
-
-const { navBarHeight } = storeToRefs(systemStore);
-
 </script>
 
 <style lang="scss" scoped>
 .side-bar-wrapper {
   display: none; // Hidden by default, shown on medium+ screens
 
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: $breakpoint-md) {
     display: flex;
     flex-direction: column;
     position: fixed;
-    height: max-content;
-    top: calc(v-bind(navBarHeight) + 16px);
-    width: 60px;
-    padding: 8px 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    width: $sidenav-width-collapsed;
+    padding: 12px 0;
+    box-sizing: border-box;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 101;
-    
+    z-index: 110;
+
     background: var(--tab-bar-color);
-    border: 1px solid var(--divider-color);
-    border-radius: var(--item-card-radios, 20px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-right: 1px solid var(--divider-color);
+    border-radius: 0;
+    box-shadow: none;
     backdrop-filter: blur(var(--tab-bar-blur, 20px));
     -webkit-backdrop-filter: blur(var(--tab-bar-blur, 20px));
-
-    // Anchor purely to the left of the .page-body
-    left: calc(50vw - 315px);
-    transform: translateX(-100%);
-  }
-
-  @media screen and (min-width: 900px) {
-    left: calc(50vw - 350px);
-  }
-
-  @media screen and (min-width: 1200px) {
-    left: calc(50vw - 450px);
+    transform: none;
   }
 
   &.is-expanded {
-    width: 160px;
+    @media screen and (min-width: $breakpoint-md) {
+      width: $sidenav-width-expanded;
+    }
+  }
+
+  .sidebar-brand {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 40px;
+    margin: 4px 8px 16px;
+    padding: 6px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    color: var(--primary-text-color);
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background: rgba(148, 163, 184, 0.08);
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+
+    &__logo {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    &__name {
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &.is-expanded .sidebar-brand {
+    justify-content: flex-start;
   }
 
   .sidebar-content {
@@ -120,6 +177,9 @@ const { navBarHeight } = storeToRefs(systemStore);
     flex-direction: column;
     align-items: stretch;
     width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   .menu-items {
@@ -138,11 +198,12 @@ const { navBarHeight } = storeToRefs(systemStore);
     color: var(--lowest-text-color);
     width: calc(100% - 12px);
     margin: 0 6px;
-    padding: 12px 18px;
+    padding: 12px 14px;
     border-radius: 12px;
     box-sizing: border-box;
     transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
 
+    // Shared active-state language with TabBar
     &.active {
       color: var(--primary-color);
       background: color-mix(in srgb, var(--primary-color) 12%, transparent);
@@ -154,6 +215,15 @@ const { navBarHeight } = storeToRefs(systemStore);
       background: rgba(148, 163, 184, 0.08);
     }
 
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+
     .icon-container {
       position: relative;
       display: flex;
@@ -162,7 +232,7 @@ const { navBarHeight } = storeToRefs(systemStore);
     }
 
     .label {
-      margin-left: 14px;
+      margin-left: 12px;
       font-weight: 600;
       white-space: nowrap;
       font-size: 14px;
@@ -170,11 +240,15 @@ const { navBarHeight } = storeToRefs(systemStore);
     }
   }
 
-  // Adjustments for collapsed icon-only mode
+  // Collapsed icon-only mode
   &:not(.is-expanded) {
     .menu-item {
       padding: 14px 0;
       justify-content: center;
+
+      .label {
+        display: none;
+      }
     }
   }
 
