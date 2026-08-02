@@ -1,16 +1,15 @@
 <template>
   <div class="tools-page">
-    <!-- Converter Tool Card -->
-    <section class="tool-card">
-      <h2 class="card-title-with-icon">
-        <span class="tool-icon-wrapper converter">
-          <font-awesome-icon icon="fa-solid fa-arrows-rotate" />
-        </span>
-        {{ t('toolsPage.converter.title') }}
-      </h2>
-      <p>{{ t('toolsPage.converter.desc') }}</p>
+    <!-- Converter -->
+    <section class="tool-section">
+      <header class="section-header">
+        <div class="section-header__text">
+          <h2 class="section-header__title">{{ t('toolsPage.converter.title') }}</h2>
+          <p class="section-header__desc">{{ t('toolsPage.converter.desc') }}</p>
+        </div>
+      </header>
 
-      <div class="form-section-card">
+      <div class="tool-card">
         <div class="row">
           <div class="form-field">
             <select v-model="conversionKind" class="field-control">
@@ -52,17 +51,16 @@
       </div>
     </section>
 
-    <!-- Shares Tool Card -->
-    <section class="tool-card">
-      <h2 class="card-title-with-icon">
-        <span class="tool-icon-wrapper shares">
-          <font-awesome-icon icon="fa-solid fa-share-nodes" />
-        </span>
-        {{ t('toolsPage.shares.title') }}
-      </h2>
-      <p>{{ t('toolsPage.shares.desc') }}</p>
+    <!-- Shares -->
+    <section class="tool-section">
+      <header class="section-header">
+        <div class="section-header__text">
+          <h2 class="section-header__title">{{ t('toolsPage.shares.title') }}</h2>
+          <p class="section-header__desc">{{ t('toolsPage.shares.desc') }}</p>
+        </div>
+      </header>
 
-      <div class="form-section-card">
+      <div class="tool-card">
         <div class="row share-form">
           <div class="form-field">
             <select v-model="shareForm.resourceType" class="field-control">
@@ -106,17 +104,14 @@
         {{ createdShareUrl }}
       </div>
 
-      <!-- Loading Skeleton for Shares -->
       <div v-if="loadingShares" class="feature-card-list">
         <div class="feature-card skeleton-card skeleton-pulse">
-          <div class="skeleton-avatar"></div>
           <div class="skeleton-content">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line sub"></div>
           </div>
         </div>
         <div class="feature-card skeleton-card skeleton-pulse">
-          <div class="skeleton-avatar"></div>
           <div class="skeleton-content">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line sub"></div>
@@ -125,13 +120,9 @@
       </div>
 
       <p v-else-if="shares.length === 0" class="empty">{{ t('toolsPage.shares.empty') }}</p>
-      
-      <!-- Shares Feature Cards -->
+
       <div v-else class="feature-card-list">
         <div v-for="share in shares" :key="share.id" class="feature-card">
-          <div class="feature-card__badge-icon">
-            <font-awesome-icon icon="fa-solid fa-link" />
-          </div>
           <div class="feature-card__main">
             <strong class="feature-card__title">{{ resourceTypeLabel(share.resourceType) }}/{{ share.resourceId }}</strong>
             <div class="feature-card__meta">
@@ -154,27 +145,23 @@
       </div>
     </section>
 
-    <!-- Recycle Bin Tool Card -->
-    <section class="tool-card">
-      <h2 class="card-title-with-icon">
-        <span class="tool-icon-wrapper recycle">
-          <font-awesome-icon icon="fa-solid fa-trash-can" />
-        </span>
-        {{ t('toolsPage.recycle.title') }}
-      </h2>
-      <p>{{ t('toolsPage.recycle.desc') }}</p>
+    <!-- Recycle Bin -->
+    <section class="tool-section">
+      <header class="section-header">
+        <div class="section-header__text">
+          <h2 class="section-header__title">{{ t('toolsPage.recycle.title') }}</h2>
+          <p class="section-header__desc">{{ t('toolsPage.recycle.desc') }}</p>
+        </div>
+      </header>
 
-      <!-- Loading Skeleton for Recycle -->
       <div v-if="loadingRecycle" class="feature-card-list">
         <div class="feature-card skeleton-card skeleton-pulse">
-          <div class="skeleton-avatar"></div>
           <div class="skeleton-content">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line sub"></div>
           </div>
         </div>
         <div class="feature-card skeleton-card skeleton-pulse">
-          <div class="skeleton-avatar"></div>
           <div class="skeleton-content">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line sub"></div>
@@ -184,12 +171,8 @@
 
       <p v-else-if="recycleEntries.length === 0" class="empty">{{ t('toolsPage.recycle.empty') }}</p>
 
-      <!-- Recycle Feature Cards -->
       <div v-else class="feature-card-list">
         <div v-for="entry in recycleEntries" :key="entry.id" class="feature-card">
-          <div class="feature-card__badge-icon recycle">
-            <font-awesome-icon icon="fa-solid fa-trash-can" />
-          </div>
           <div class="feature-card__main">
             <strong class="feature-card__title">{{ resourceTypeLabel(entry.resourceType) }}/{{ entry.resourceId }}</strong>
             <div class="feature-card__meta mono-time">{{ new Date(entry.deletedAt).toLocaleString() }}</div>
@@ -332,89 +315,65 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
   animation: fadeIn 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
   @media screen and (min-width: 900px) {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
+    column-gap: var(--space-4);
+    row-gap: var(--space-5);
 
-    .tool-card:first-child {
+    .tool-section:first-child {
       grid-column: 1 / -1;
     }
   }
 }
 
+/* Match home section rhythm: quiet title + short desc above content */
+.tool-section {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px 0 4px;
+  color: var(--comment-text-color);
+}
+
+.section-header__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--comment-text-color);
+  line-height: 1.2;
+}
+
+.section-header__desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--lowest-text-color, var(--comment-text-color));
+}
+
 .tool-card {
-  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
   border-radius: var(--radius-lg, var(--item-card-radios));
   background: var(--card-color);
   color: var(--second-text-color);
   border: 1px solid var(--divider-color);
-  box-shadow: var(--card-shadow, 0 2px 12px -2px rgba(0, 0, 0, 0.06));
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
-
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      box-shadow: var(--card-shadow-hover, 0 8px 24px -4px rgba(0, 0, 0, 0.1));
-      border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
-    }
-  }
-}
-
-h2 {
-  margin: 0 0 var(--space-2) 0;
-  color: var(--primary-text-color);
-  font-size: var(--text-md);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-p {
-  color: var(--comment-text-color);
-  font-size: var(--text-sm);
-  line-height: 1.6;
-  margin-top: 0;
-  margin-bottom: var(--space-3);
-}
-
-.card-title-with-icon {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
-
-  .tool-icon-wrapper {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    font-size: var(--text-md);
-    flex-shrink: 0;
-    color: var(--primary-color);
-    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
-
-    &.recycle {
-      color: var(--danger-color);
-      background: color-mix(in srgb, var(--danger-color) 12%, transparent);
-      border-color: color-mix(in srgb, var(--danger-color) 22%, transparent);
-    }
-  }
-}
-
-.form-section-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--background-color) 50%, var(--card-color));
-  border: 1px solid var(--divider-color);
+  box-shadow: var(--card-shadow, none);
 }
 
 .row {
@@ -520,47 +479,26 @@ select.field-control {
 }
 
 .feature-card {
-  min-height: 52px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  border-radius: var(--radius-lg, var(--item-card-radios));
   background: var(--card-color);
   border: 1px solid var(--divider-color);
-  /* High-frequency list: only press feedback, no lift decoration */
   transition: transform 140ms ease-out, border-color 160ms ease, background-color 160ms ease;
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      border-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+      border-color: color-mix(in srgb, var(--primary-color) 22%, transparent);
       background: color-mix(in srgb, var(--primary-color) 4%, var(--card-color));
     }
   }
 
   &:active {
-    transform: scale(0.98);
-  }
-
-  &__badge-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    flex-shrink: 0;
-    color: var(--primary-color);
-    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
-
-    &.recycle {
-      color: var(--danger-color);
-      background: color-mix(in srgb, var(--danger-color) 12%, transparent);
-      border-color: color-mix(in srgb, var(--danger-color) 20%, transparent);
-    }
+    transform: scale(0.99);
   }
 
   &__main {
@@ -597,18 +535,8 @@ select.field-control {
 
 /* Skeleton Loaders */
 .skeleton-card {
-  min-height: 56px;
-  padding: var(--space-3);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.skeleton-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--divider-color) 60%, transparent);
+  min-height: 48px;
+  pointer-events: none;
 }
 
 .skeleton-content {

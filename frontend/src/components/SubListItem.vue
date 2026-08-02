@@ -274,28 +274,36 @@
     @closeCompare="closeCompare"
     @refresh="refreshCompare"
   />
+  <!-- Desktop: centered modal · Mobile: bottom sheet (no right drawer) -->
   <nut-popup
     v-model:visible="previewPanelVisible"
-    position="right"
-    pop-class="side-drawer-popup preview-drawer-popup"
+    :position="previewPopupPosition"
+    :pop-class="previewPopupClass"
+    :round="!isDesktop"
     closeable
     close-icon-position="top-right"
-    :style="{ width: drawerWidth, height: '100%' }"
+    :style="previewPopupStyle"
     @opened="swipe?.close()"
   >
-    <div class="drawer-header">
-      <h3 class="drawer-title">{{ t('subPage.previewTitle') }}</h3>
-    </div>
-    <div class="drawer-body">
-      <PreviewPanel
-        v-if="previewPanelVisible"
-        :name="name"
-        :display-name="displayName"
-        :type="props.type"
-        :general="t('subPage.panel.general')"
-        :notify="t('subPage.copyNotify.succeed')"
-        :desc="t('subPage.panel.tips.desc')"
-      />
+    <div class="preview-panel-shell">
+      <div v-if="!isDesktop" class="preview-sheet-handle" aria-hidden="true" />
+      <header class="preview-panel-header">
+        <h3 class="preview-panel-title">{{ t('subPage.previewTitle') }}</h3>
+        <p v-if="displayName || name" class="preview-panel-subtitle">
+          {{ displayName || name }}
+        </p>
+      </header>
+      <div class="preview-panel-body">
+        <PreviewPanel
+          v-if="previewPanelVisible"
+          :name="name"
+          :display-name="displayName"
+          :type="props.type"
+          :general="t('subPage.panel.general')"
+          :notify="t('subPage.copyNotify.succeed')"
+          :desc="t('subPage.panel.tips.desc')"
+        />
+      </div>
     </div>
   </nut-popup>
 </template>
@@ -321,7 +329,6 @@ import { useGlobalStore } from "@/store/global";
 import { useSettingsStore } from "@/store/settings";
 import { useSubsStore } from "@/store/subs";
 import { getString } from "@/utils/flowTransfer";
-import { isMobile } from "@/utils/isMobile";
 import { buildSubscriptionIconUrl } from "@/utils/subscriptionIcon";
 import CompareTable from "@/views/CompareTable.vue";
 
@@ -332,12 +339,33 @@ const props = defineProps<{
   disabled?: boolean;
   isDualColumn?: boolean;
 }>();
-const drawerWidth = computed(() => isMobile() ? '88%' : '440px');
 const { copy, isSupported } = useClipboard();
 const { toClipboard: copyFallback } = useV3Clipboard();
 
 const isDesktop = useMediaQuery("(min-width: 768px)");
 const { t } = useI18n();
+
+/** Desktop Modal · Mobile Bottom Sheet */
+const previewPopupPosition = computed(() => (isDesktop.value ? "center" : "bottom"));
+const previewPopupClass = computed(() =>
+  isDesktop.value ? "preview-modal-popup" : "preview-sheet-popup",
+);
+const previewPopupStyle = computed(() => {
+  if (isDesktop.value) {
+    return {
+      width: "min(460px, 92vw)",
+      maxHeight: "min(80vh, 720px)",
+      borderRadius: "16px",
+      overflow: "hidden",
+    };
+  }
+  return {
+    width: "100%",
+    maxHeight: "78vh",
+    borderRadius: "16px 16px 0 0",
+    overflow: "hidden",
+  };
+});
 
 let scrollTop = 0;
 
@@ -1403,6 +1431,58 @@ const refreshSubFlowsIfNeeded = async () => {
 .subs-list-wrapper {
   margin-bottom: 36px;
   position: relative;
+}
+
+/* Preview copy panel shell (lives inside teleported popup) */
+.preview-panel-shell {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+  min-height: 0;
+  box-sizing: border-box;
+  background: var(--popup-color, var(--card-color));
+  color: var(--primary-text-color);
+}
+
+.preview-sheet-handle {
+  width: 36px;
+  height: 4px;
+  margin: 10px auto 0;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--comment-text-color) 28%, transparent);
+  flex-shrink: 0;
+}
+
+.preview-panel-header {
+  flex-shrink: 0;
+  padding: 16px 44px 10px 18px;
+  border-bottom: 1px solid var(--divider-color);
+}
+
+.preview-panel-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--primary-text-color);
+  line-height: 1.3;
+}
+
+.preview-panel-subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--comment-text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
 }
 
 .sub-img-wrappers {

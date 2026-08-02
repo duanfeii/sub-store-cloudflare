@@ -120,7 +120,7 @@
   }
 }
 
-// Side Drawer Popup (Right-side slide-in)
+// Side Drawer Popup (Right-side slide-in) — legacy; prefer modal/sheet for short tasks
 .side-drawer-popup {
   &.popup-right {
     z-index: var(--z-drawer) !important;
@@ -145,6 +145,46 @@
       }
     }
   }
+}
+
+// Desktop centered modal for copy/preview subscription
+.preview-modal-popup {
+  z-index: var(--z-drawer, 11000) !important;
+  background-color: var(--popup-color) !important;
+  color: var(--primary-text-color) !important;
+  border: 1px solid var(--divider-color) !important;
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.28) !important;
+  overflow: hidden !important;
+}
+
+// Mobile bottom sheet for copy/preview subscription
+.preview-sheet-popup {
+  z-index: var(--z-drawer, 11000) !important;
+  background-color: var(--popup-color) !important;
+  color: var(--primary-text-color) !important;
+  border: 1px solid var(--divider-color) !important;
+  border-bottom: 0 !important;
+  box-shadow: 0 -12px 40px -8px rgba(0, 0, 0, 0.22) !important;
+  overflow: hidden !important;
+}
+
+// Shared shell for template editor modal/sheet (settings)
+.template-modal-popup,
+.template-sheet-popup {
+  z-index: var(--z-drawer, 11000) !important;
+  background-color: var(--popup-color) !important;
+  color: var(--primary-text-color) !important;
+  border: 1px solid var(--divider-color) !important;
+  overflow: hidden !important;
+}
+
+.template-modal-popup {
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.28) !important;
+}
+
+.template-sheet-popup {
+  border-bottom: 0 !important;
+  box-shadow: 0 -12px 40px -8px rgba(0, 0, 0, 0.22) !important;
 }
 
 // picker
