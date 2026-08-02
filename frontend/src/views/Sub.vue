@@ -104,12 +104,7 @@
     <!-- 页面内容 -->
     <!-- 有数据 -->
     <div v-if="hasSubs" class="subs-list-wrapper" :class="{ 'dual-column-mode': isDualColumnMode }">
-      <div v-if="tags && tags.length > 0" ref="radioWrapperRef" class="radio-wrapper">
-        <div class="radio-wrapper__content">
-          <span v-for="i in tags" class="tag" :class="{ 'current': i.value === tag }" @click="setTag(i.value)">{{ i.label }}</span>
-        </div>
-      </div>
-      <div class="subs-list-container" :style="{ paddingTop: `${radioWrapperHeight}px` }">
+      <div class="subs-list-container">
 
 
         <section v-if="hasSubs && !hasCollections" class="onboarding-card onboarding-inline">
@@ -1082,70 +1077,7 @@ const importTips = () => {
       overflow: visible;
     }
   }
-  .radio-wrapper {
-    box-sizing: border-box;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    padding: 0;
-    top: v-bind(tagNavBarHeight);
-    z-index: 10;
-    backdrop-filter: blur(var(--nav-bar-blur));
-    -webkit-backdrop-filter: blur(var(--nav-bar-blur));
-    background: var(--nav-bar-color);
-    border-bottom: 1px solid var(--divider-color);
-    @include centered-fixed-container;
 
-    &__content {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      width: 100%;
-      max-width: $content-max-width;
-      margin-inline: auto;
-      padding: 6px var(--space-4);
-      box-sizing: border-box;
-
-      @media screen and (min-width: $breakpoint-md) {
-        padding-inline: var(--space-5);
-      }
-    }
-
-    .tag {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--second-text-color);
-      margin: 2px 4px;
-      padding: 5px 14px;
-      border-radius: 9999px;
-      cursor: pointer;
-      -webkit-user-select: none;
-      user-select: none;
-      border: 1px solid var(--divider-color);
-      background: var(--card-color);
-      transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
-
-      @media (hover: hover) and (pointer: fine) {
-        &:hover:not(.current) {
-          color: var(--primary-text-color);
-          background: rgba(148, 163, 184, 0.12);
-        }
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-    }
-    .current {
-      background: var(--primary-text-color);
-      border-color: var(--primary-text-color);
-      color: var(--background-color);
-      font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-  }
   .subs-list-content {
     width: 100%;
     margin-left: 0;
