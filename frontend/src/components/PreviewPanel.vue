@@ -187,61 +187,96 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    background: rgba(99, 102, 241, 0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    color: var(--comment-text-color);
+    font-size: 12px;
+    gap: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(99, 102, 241, 0.14);
+      color: var(--primary-color);
+    }
   }
+
   .preview-list {
-    flex: 1;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
 
     > li {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--card-color);
+      border: 1px solid var(--divider-color);
+      border-radius: 14px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
-      &:not(:last-child) {
-        border-bottom: 1px solid var(--divider-color);
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px -2px rgba(99, 102, 241, 0.12);
+        border-color: rgba(99, 102, 241, 0.35);
       }
 
       .infos {
-        flex: 1;
-        padding: 3px 0;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 10px;
 
         div {
-          width: 32px;
-          aspect-ratio: 1;
+          width: 28px;
+          height: 28px;
+          border-radius: 8px;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         p {
           font-size: 14px;
-          color: var(--second-text-color);
+          font-weight: 500;
+          color: var(--primary-text-color);
+          margin: 0;
         }
       }
 
       .actions {
-        flex-shrink: 0;
-        flex-grow: 0;
-        cursor: pointer;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        font-size: 20px;
+        gap: 8px;
 
         > button {
-          background-color: transparent;
-          border: none;
-          padding: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 34px;
+          height: 34px;
+          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--divider-color);
           cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: scale(1.05);
+
+            .action-icon {
+              color: var(--primary-color) !important;
+            }
+          }
         }
       }
     }

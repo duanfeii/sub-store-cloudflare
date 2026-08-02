@@ -222,18 +222,36 @@ img.auto-reverse {
   }
 }
 
-// dialog
+// dialog & overlay glassmorphism
+.nut-overlay {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(0, 0, 0, 0.45) !important;
+}
+
 .auto-dialog {
   background-color: var(--dialog-color) !important;
+  border-radius: 24px !important;
+  border: 1px solid var(--divider-color);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  overflow: hidden;
 
   > .nut-dialog {
+    padding: 22px 18px !important;
+
     > .nut-dialog__content {
-      max-height: unset;
+      max-height: 70vh;
+      overflow-y: auto;
     }
 
     > .nut-dialog__header {
       color: var(--primary-text-color);
-      font-weight: bold;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--divider-color);
     }
   }
 }
