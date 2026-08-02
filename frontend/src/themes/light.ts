@@ -8,8 +8,8 @@ export default {
   },
   colors: {
     // Solid neutral primary (shared language with dark)
-    'primary-color': '#000000',
-    'primary-color-end': '#000000',
+    'primary-color': '#0F172A',
+    'primary-color-end': '#0F172A',
     'second-color': '#F97316',
     'third-color': '#10B981',
 
@@ -17,37 +17,37 @@ export default {
     'succeed-color': '#10B981',
 
     // icon色
-    'icon-nav-bar-right': '#444444',
-    'unimportant-icon-color': '#888888',
+    'icon-nav-bar-right': '#334155',
+    'unimportant-icon-color': '#94A3B8',
 
-    // Surface
+    // Surface & Fills (Slate Scale - #ffffff base/card, #f8fafc surface, #f1f5f9 muted, #e2e8f0 borders)
     'status-bar-background-color': '#FFFFFF',
-    'background-color': '#FAFAFA',
-    'nav-bar-color': 'rgba(255, 255, 255, 0.85)',
-    'tab-bar-color': 'rgba(255, 255, 255, 0.85)',
+    'background-color': '#F8FAFC',
+    'nav-bar-color': 'rgba(255, 255, 255, 0.8)',
+    'tab-bar-color': 'rgba(255, 255, 255, 0.8)',
     'popup-color': '#FFFFFF',
-    'divider-color': '#EAEAEA',
+    'divider-color': '#E2E8F0',
     'card-color': '#FFFFFF',
     'dialog-color': '#FFFFFF',
-    'switch-close-background-color': 'rgba(0, 0, 0, 0.08)',
-    'switch-active-background-color': '#000000',
-    'compare-item-background-color': '#F4F4F5',
-    'picker-mask-near-color': 'rgba(250, 250, 250, 0.5)',
-    'picker-mask-far-color': '#FAFAFA',
+    'switch-close-background-color': 'rgba(15, 23, 42, 0.08)',
+    'switch-active-background-color': '#0F172A',
+    'compare-item-background-color': '#F1F5F9',
+    'picker-mask-near-color': 'rgba(248, 250, 252, 0.5)',
+    'picker-mask-far-color': '#F8FAFC',
 
-    // Text
-    'primary-text-color': '#171717',
-    'second-text-color': '#444444',
-    'comment-text-color': '#666666',
-    'lowest-text-color': '#888888',
+    // Text (Slate hierarchy)
+    'primary-text-color': '#0F172A',
+    'second-text-color': '#334155',
+    'comment-text-color': '#64748B',
+    'lowest-text-color': '#94A3B8',
 
     // Other
     'img-brightness': '0',
-    'nav-bar-blur': '24px',
-    'tab-bar-blur': '24px',
-    'sticky-title-blur': '24px',
+    'nav-bar-blur': '20px',
+    'tab-bar-blur': '20px',
+    'sticky-title-blur': '20px',
 
-    'compare-tag-text-color': '#444444',
-    'compare-tag-background-color': '#F4F4F5',
+    'compare-tag-text-color': '#475569',
+    'compare-tag-background-color': '#F1F5F9',
   },
 };
