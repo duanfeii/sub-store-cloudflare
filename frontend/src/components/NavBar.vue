@@ -243,9 +243,10 @@ const toggleTheme = async () => {
   right: 0;
   z-index: 20;
   width: 100%;
-  height: 56px;
-  height: v-bind(navBarHeight);
-  min-height: 56px;
+  /* 56px content row + notch/status safe-area (mobile) */
+  height: calc(56px + env(safe-area-inset-top, 0px));
+  min-height: calc(56px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
   box-sizing: border-box;
   background: var(--nav-bar-color, #fff);
   border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));
@@ -263,21 +264,22 @@ const toggleTheme = async () => {
   flex-wrap: nowrap !important;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   box-sizing: border-box;
   width: 100%;
   max-width: $content-max-width;
-  height: 100%;
+  height: 56px;
   margin-left: auto;
   margin-right: auto;
   padding-top: 0;
   padding-top: v-bind(navBartop);
-  padding-right: 16px;
+  padding-right: 12px;
   padding-bottom: 0;
-  padding-left: 16px;
+  padding-left: 12px;
   overflow: visible;
 
   @media screen and (min-width: $breakpoint-md) {
+    gap: 12px;
     padding-left: 24px;
     padding-right: 24px;
   }
@@ -294,8 +296,12 @@ const toggleTheme = async () => {
 
   &__left,
   &__right {
-    gap: 6px;
+    gap: 4px;
     flex: 0 0 auto;
+
+    @media screen and (min-width: $breakpoint-md) {
+      gap: 6px;
+    }
   }
 
   &__center {
@@ -307,24 +313,7 @@ const toggleTheme = async () => {
   /* Secondary: keep left cluster compact so center tabs stay usable */
   &.is-secondary {
     .nav-bar__left {
-      max-width: min(42vw, 200px);
-    }
-
-    .nav-segmented-item {
-      padding: 4px 10px;
-
-      @media screen and (max-width: 480px) {
-        padding: 4px 8px;
-        gap: 0;
-
-        &__label {
-          display: none;
-        }
-
-        &__icon {
-          font-size: 13px;
-        }
-      }
+      max-width: min(38vw, 180px);
     }
   }
 }
@@ -336,6 +325,9 @@ const toggleTheme = async () => {
   gap: 8px;
   cursor: pointer;
   user-select: none;
+  /* Expand hit area for touch */
+  min-height: 40px;
+  padding: 4px 2px;
 
   &__logo {
     display: block;
@@ -351,6 +343,11 @@ const toggleTheme = async () => {
     letter-spacing: -0.015em;
     color: var(--primary-text-color);
     white-space: nowrap;
+
+    /* Free space for segmented tabs on narrow phones */
+    @media screen and (max-width: 480px) {
+      display: none;
+    }
   }
 }
 
@@ -367,7 +364,7 @@ const toggleTheme = async () => {
   overflow: hidden;
   text-overflow: ellipsis;
 
-  @media screen and (max-width: 360px) {
+  @media screen and (max-width: 400px) {
     display: none;
   }
 }
@@ -389,8 +386,11 @@ const toggleTheme = async () => {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 4px 14px;
+  /* Comfortable touch targets on mobile */
+  min-height: 32px;
+  padding: 6px 12px;
   border: 0;
   border-radius: 9999px;
   background: transparent;
@@ -400,6 +400,26 @@ const toggleTheme = async () => {
   cursor: pointer;
   white-space: nowrap;
   transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+
+  @media screen and (min-width: $breakpoint-md) {
+    min-height: 0;
+    padding: 4px 14px;
+  }
+
+  /* Icon-only tabs under ~420px — same control, denser */
+  @media screen and (max-width: 420px) {
+    min-width: 40px;
+    padding: 6px 10px;
+    gap: 0;
+
+    .nav-segmented-item__label {
+      display: none;
+    }
+
+    .nav-segmented-item__icon {
+      font-size: 14px;
+    }
+  }
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(.is-active) {
@@ -425,8 +445,8 @@ const toggleTheme = async () => {
 }
 
 .nav-btn {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   box-sizing: border-box;
   padding: 0;
   border: 0;
@@ -437,6 +457,11 @@ const toggleTheme = async () => {
   align-items: center;
   justify-content: center;
   color: var(--second-text-color);
+
+  @media screen and (min-width: $breakpoint-md) {
+    width: 32px;
+    height: 32px;
+  }
   cursor: pointer;
   flex-shrink: 0;
   transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, color 200ms ease;

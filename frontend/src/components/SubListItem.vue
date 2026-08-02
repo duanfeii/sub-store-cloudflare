@@ -72,10 +72,13 @@
             </span>
           </h3>
 
-          <!-- Inline action buttons (Copy, Edit, Clone, Refresh, Delete) -->
+          <!-- Actions: full strip on desktop; copy + overflow menu on mobile -->
           <div
             class="sub-item-menu"
-            :class="{ 'simple-mode': appearanceSetting.isSimpleMode }"
+            :class="{
+              'simple-mode': appearanceSetting.isSimpleMode,
+              'is-compact': !isDesktop,
+            }"
           >
             <button
               class="sub-item-action sub-item-action--primary"
@@ -85,39 +88,95 @@
             >
               <font-awesome-icon icon="fa-solid fa-link" />
             </button>
-            <button
-              class="sub-item-action"
-              :aria-label="t('subPage.actions.edit')"
-              :title="t('subPage.actions.edit')"
-              @click.stop="onClickEdit"
-            >
-              <font-awesome-icon icon="fa-solid fa-pen-to-square" />
-            </button>
-            <button
-              class="sub-item-action"
-              :aria-label="t('subPage.actions.cloneConfig')"
-              :title="t('subPage.actions.cloneConfig')"
-              @click.stop="onClickCopyConfig"
-            >
-              <font-awesome-icon icon="fa-solid fa-clone" />
-            </button>
-            <button
-              v-if="props.type === 'sub'"
-              class="sub-item-action"
-              :aria-label="t('subPage.actions.refresh')"
-              :title="t('subPage.actions.refresh')"
-              @click.stop="onClickRefresh"
-            >
-              <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
-            </button>
-            <button
-              class="sub-item-action sub-item-action--danger"
-              :aria-label="t('subPage.actions.delete')"
-              :title="t('subPage.actions.delete')"
-              @click.stop="onClickDelete"
-            >
-              <font-awesome-icon icon="fa-solid fa-trash-can" />
-            </button>
+            <template v-if="isDesktop">
+              <button
+                class="sub-item-action"
+                :aria-label="t('subPage.actions.edit')"
+                :title="t('subPage.actions.edit')"
+                @click.stop="onClickEdit"
+              >
+                <font-awesome-icon icon="fa-solid fa-pen-to-square" />
+              </button>
+              <button
+                class="sub-item-action"
+                :aria-label="t('subPage.actions.cloneConfig')"
+                :title="t('subPage.actions.cloneConfig')"
+                @click.stop="onClickCopyConfig"
+              >
+                <font-awesome-icon icon="fa-solid fa-clone" />
+              </button>
+              <button
+                v-if="props.type === 'sub'"
+                class="sub-item-action"
+                :aria-label="t('subPage.actions.refresh')"
+                :title="t('subPage.actions.refresh')"
+                @click.stop="onClickRefresh"
+              >
+                <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
+              </button>
+              <button
+                class="sub-item-action sub-item-action--danger"
+                :aria-label="t('subPage.actions.delete')"
+                :title="t('subPage.actions.delete')"
+                @click.stop="onClickDelete"
+              >
+                <font-awesome-icon icon="fa-solid fa-trash-can" />
+              </button>
+            </template>
+            <div v-else class="sub-item-overflow" @click.stop>
+              <button
+                class="sub-item-action"
+                :aria-label="t('navBar.actions.more')"
+                :title="t('navBar.actions.more')"
+                :aria-expanded="overflowMenuOpen"
+                @click.stop="toggleOverflowMenu"
+              >
+                <font-awesome-icon icon="fa-solid fa-ellipsis" />
+              </button>
+              <div
+                v-if="overflowMenuOpen"
+                class="sub-item-overflow__menu"
+                role="menu"
+              >
+                <button
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runOverflowAction(onClickEdit)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-pen-to-square" />
+                  <span>{{ t('subPage.actions.edit') }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runOverflowAction(onClickCopyConfig)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-clone" />
+                  <span>{{ t('subPage.actions.cloneConfig') }}</span>
+                </button>
+                <button
+                  v-if="props.type === 'sub'"
+                  type="button"
+                  class="sub-item-overflow__item"
+                  role="menuitem"
+                  @click.stop="runOverflowAction(onClickRefresh)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
+                  <span>{{ t('subPage.actions.refresh') }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="sub-item-overflow__item sub-item-overflow__item--danger"
+                  role="menuitem"
+                  @click.stop="runOverflowAction(onClickDelete)"
+                >
+                  <font-awesome-icon icon="fa-solid fa-trash-can" />
+                  <span>{{ t('subPage.actions.delete') }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <template v-if="!appearanceSetting.isSimpleMode">
@@ -313,7 +372,7 @@ import { Dialog, Toast } from "@nutui/nutui";
 import { useClipboard, useMediaQuery } from "@vueuse/core";
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
-import { computed, ref, toRaw } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, toRaw } from "vue";
 import useV3Clipboard from "vue-clipboard3";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -344,6 +403,31 @@ const { toClipboard: copyFallback } = useV3Clipboard();
 
 const isDesktop = useMediaQuery("(min-width: 768px)");
 const { t } = useI18n();
+
+/** Mobile: collapse secondary card actions into a compact overflow menu */
+const overflowMenuOpen = ref(false);
+const toggleOverflowMenu = () => {
+  overflowMenuOpen.value = !overflowMenuOpen.value;
+};
+const closeOverflowMenu = () => {
+  overflowMenuOpen.value = false;
+};
+const runOverflowAction = (action: () => void) => {
+  closeOverflowMenu();
+  action();
+};
+const onDocumentPointerDown = (event: Event) => {
+  if (!overflowMenuOpen.value) return;
+  const target = event.target as HTMLElement | null;
+  if (target?.closest?.(".sub-item-overflow")) return;
+  closeOverflowMenu();
+};
+onMounted(() => {
+  document.addEventListener("pointerdown", onDocumentPointerDown, true);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener("pointerdown", onDocumentPointerDown, true);
+});
 
 /** Desktop Modal · Mobile Bottom Sheet */
 const previewPopupPosition = computed(() => (isDesktop.value ? "center" : "bottom"));
@@ -1039,24 +1123,37 @@ const refreshSubFlowsIfNeeded = async () => {
   min-width: 0;
   background: var(--card-color);
   border: 1px solid var(--divider-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   position: relative;
   overflow: visible;
   transition: border-color 0.2s ease, box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-  &:hover {
-    border-color: color-mix(in srgb, var(--primary-color) 40%, var(--divider-color));
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+  /* Lift only on true hover devices — avoids sticky hover on mobile */
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: color-mix(in srgb, var(--primary-color) 40%, var(--divider-color));
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.995);
   }
 
   :deep(.nut-avatar) {
     flex-shrink: 0;
-    width: 56px;
-    height: 56px;
-    margin-right: 15px;
+    width: 48px;
+    height: 48px;
+    margin-right: 12px;
     border-radius: 12px;
+
+    @media screen and (min-width: $breakpoint-md) {
+      width: 56px;
+      height: 56px;
+      margin-right: 15px;
+    }
 
     img {
       object-fit: contain;
@@ -1076,7 +1173,7 @@ const refreshSubFlowsIfNeeded = async () => {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 2px;
+      gap: 8px;
 
       .sub-item-title {
         flex: 1 1 auto;
@@ -1086,9 +1183,15 @@ const refreshSubFlowsIfNeeded = async () => {
         gap: 3px;
         white-space: nowrap;
         overflow: hidden;
-        font-size: 16px;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
         color: var(--primary-text-color);
         vertical-align: middle;
+
+        @media screen and (min-width: $breakpoint-md) {
+          font-size: 16px;
+        }
       }
       .sub-item-name {
         min-width: 0;
@@ -1121,7 +1224,18 @@ const refreshSubFlowsIfNeeded = async () => {
 
         &.simple-mode {
           position: relative;
-          top: 4px;
+          top: 0;
+        }
+
+        /* Mobile compact: copy + more — larger hit targets */
+        &.is-compact {
+          gap: 6px;
+
+          .sub-item-action {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+          }
         }
       }
 
@@ -1191,13 +1305,14 @@ const refreshSubFlowsIfNeeded = async () => {
           top: calc(100% + 6px);
           right: 0;
           z-index: 50;
-          min-width: 176px;
+          min-width: 168px;
           padding: 6px;
           border-radius: 12px;
           border: 1px solid var(--divider-color);
-          background: var(--card-color);
-          box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
+          background: var(--popup-color, var(--card-color));
+          box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
           backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
         }
 
         &__item {
@@ -1205,12 +1320,14 @@ const refreshSubFlowsIfNeeded = async () => {
           display: flex;
           align-items: center;
           gap: 10px;
+          min-height: 40px;
           padding: 8px 12px;
           border: 0;
           border-radius: 8px;
           background: transparent;
           color: var(--primary-text-color);
           font-size: 13px;
+          font-weight: 500;
           text-align: left;
           cursor: pointer;
           white-space: nowrap;
@@ -1224,8 +1341,15 @@ const refreshSubFlowsIfNeeded = async () => {
             transition: color 0.15s ease;
           }
 
-          &:hover {
-            background: rgba(148, 163, 184, 0.12);
+          &:active {
+            background: rgba(148, 163, 184, 0.14);
+            transform: none;
+          }
+
+          @media (hover: hover) and (pointer: fine) {
+            &:hover {
+              background: rgba(148, 163, 184, 0.12);
+            }
           }
 
           &--danger {
@@ -1235,12 +1359,14 @@ const refreshSubFlowsIfNeeded = async () => {
               color: #ef4444;
             }
 
-            &:hover {
-              background: rgba(239, 68, 68, 0.1);
-              color: #dc2626;
-
-              svg {
+            @media (hover: hover) and (pointer: fine) {
+              &:hover {
+                background: rgba(239, 68, 68, 0.1);
                 color: #dc2626;
+
+                svg {
+                  color: #dc2626;
+                }
               }
             }
           }

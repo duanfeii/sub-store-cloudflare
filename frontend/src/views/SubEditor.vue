@@ -2043,10 +2043,12 @@ const handleEditGlobalClick = () => {
   .compare-link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     flex: 0 0 auto;
-    height: 40px;
-    padding: 0 12px;
+    min-height: 44px;
+    height: 44px;
+    padding: 0 14px;
     margin: 0;
     border: 0;
     border-radius: var(--radius-md);
@@ -2056,6 +2058,12 @@ const handleEditGlobalClick = () => {
     font-weight: 500;
     cursor: pointer;
     transition: transform 140ms ease-out, color 160ms ease, background-color 160ms ease;
+
+    @media screen and (min-width: $breakpoint-md) {
+      min-height: 40px;
+      height: 40px;
+      padding: 0 12px;
+    }
 
     svg {
       width: 14px;
@@ -2076,12 +2084,18 @@ const handleEditGlobalClick = () => {
 
   .btn {
     border-radius: var(--radius-md);
-    padding: 8px 14px;
+    min-height: 44px;
+    padding: 10px 16px;
     font-size: 14px;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: transform 140ms ease-out;
+
+    @media screen and (min-width: $breakpoint-md) {
+      min-height: 0;
+      padding: 8px 14px;
+    }
 
     &:active {
       transform: scale(0.97);

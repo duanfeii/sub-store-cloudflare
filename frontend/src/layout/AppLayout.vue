@@ -12,12 +12,16 @@
 
   const { shouldShowTabBar } = useWideScreenNarrowMode();
 
+  const topInset = computed(() => {
+    return 'calc(56px + env(safe-area-inset-top, 0px))';
+  });
+
   const height = computed(() => {
     if (shouldShowTabBar.value) {
-      return 'calc(56px + env(safe-area-inset-bottom))';
-    } else {
-      return '16px';
+      return 'calc(56px + env(safe-area-inset-bottom, 0px))';
     }
+    // No bottom tab bar: keep a short breathing room + home-indicator inset
+    return 'calc(12px + env(safe-area-inset-bottom, 0px))';
   });
 </script>
 
@@ -27,8 +31,8 @@
     width: 100%;
     min-width: 0;
     min-height: 0;
-    /* Reserve space for fixed NavBar (56px) + optional mobile TabBar */
-    padding-top: 56px;
+    /* Fixed NavBar (56px) + notch/status safe-area */
+    padding-top: v-bind(topInset);
     padding-bottom: v-bind(height);
     box-sizing: border-box;
     overflow: auto;
