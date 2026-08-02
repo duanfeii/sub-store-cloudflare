@@ -72,19 +72,6 @@
             icon="fa-solid fa-arrow-rotate-right"
           />
         </button>
-        <button
-          v-if="showAddButton"
-          type="button"
-          class="nav-btn"
-          :aria-label="t('navBar.actions.add')"
-          :title="t('navBar.actions.add')"
-          @click.stop="add(route)"
-        >
-          <font-awesome-icon
-            class="nav-btn__icon"
-            icon="fa-solid fa-plus"
-          />
-        </button>
         <LanguageSwitcherButton variant="icon" />
         <button
           type="button"
@@ -112,7 +99,6 @@ import { useRoute, useRouter } from "vue-router";
 
 import brandLogo from "@/assets/icons/logo.png";
 import LanguageSwitcherButton from "@/components/LanguageSwitcherButton.vue";
-import { useMethodStore } from "@/store/methodStore";
 import { useSettingsStore } from "@/store/settings";
 import { SIDEBAR_BREAKPOINT, useSystemStore } from "@/store/system";
 import { initStores } from "@/utils/initApp";
@@ -120,7 +106,6 @@ import { initStores } from "@/utils/initApp";
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
-const methodStore = useMethodStore();
 const systemStore = useSystemStore();
 const settingsStore = useSettingsStore();
 const { appearanceSetting } = storeToRefs(settingsStore);
@@ -159,19 +144,6 @@ const currentTitle = computed(() => {
 const showRefreshButton = computed(() => {
   return !isNeedBack.value && !appearanceSetting.value.showFloatingRefreshButton;
 });
-
-const showAddButton = computed(() => {
-  return ["/subs"].includes(route.path)
-    && !appearanceSetting.value.showFloatingAddButton;
-});
-
-const add = (currentRoute: typeof route) => {
-  const routePath = currentRoute.path;
-  const addMethodMap: Record<string, string> = {
-    "/subs": "addSub",
-  };
-  methodStore.invokeMethod(addMethodMap[routePath], {});
-};
 
 const back = () => {
   if (!isNeedBack.value) return;
