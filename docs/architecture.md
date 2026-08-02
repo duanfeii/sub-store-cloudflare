@@ -16,7 +16,11 @@ Cloudflare Worker
   |-- /api/sources                   订阅源
   |-- /api/collections               组合订阅
   |-- /api/templates                 分流模板
+  |-- /api/scripts                   内置脚本元数据
   |-- /api/preview/*                 节点预览
+  |-- /api/link/*                    快捷下载链接生成
+  |-- /api/source/flow/*             订阅源流量信息
+  |-- /api/utils/node-info           节点 IP/地理信息查询
   |-- /api/proxy/parse               一次性节点转换
   |-- /api/rule/parse                一次性规则转换
   |-- /api/shares                    独立下载授权

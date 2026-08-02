@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS collections (
   name TEXT NOT NULL,
   source_ids_json TEXT NOT NULL DEFAULT '[]',
   filters_json TEXT NOT NULL DEFAULT '[]',
-  template_id TEXT NOT NULL DEFAULT 'mihomo-basic',
+  template_id TEXT NOT NULL DEFAULT 'acl4ssr-mihomo',
   ignore_failed INTEGER NOT NULL DEFAULT 1,
   enabled INTEGER NOT NULL DEFAULT 1,
   meta_json TEXT NOT NULL DEFAULT '{}',
