@@ -705,7 +705,7 @@ const refresh = async () => {
 
   &__name {
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--text-base);
     letter-spacing: -0.02em;
     color: var(--primary-text-color);
     white-space: nowrap;
@@ -715,10 +715,10 @@ const refresh = async () => {
 
   &__badge {
     flex-shrink: 0;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: var(--font-mono);
     font-size: 10px;
     padding: 1px 6px;
-    border-radius: 9999px;
+    border-radius: var(--radius-full);
     background: color-mix(in srgb, var(--primary-color) 10%, transparent);
     color: var(--primary-color);
     border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);

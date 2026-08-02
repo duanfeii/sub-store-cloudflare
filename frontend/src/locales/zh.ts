@@ -77,7 +77,8 @@ export default {
       input: "粘贴待转换内容",
       output: "转换结果",
       run: "开始转换",
-      copy: "复制结果"
+      copy: "复制结果",
+      stats: "解析 {parsed} · 输出 {emitted} · 跳过 {skipped}"
     },
     shares: {
       title: "独立分享链接",
@@ -89,7 +90,14 @@ export default {
       create: "创建链接",
       empty: "还没有独立分享链接",
       disable: "停用",
-      enable: "启用"
+      enable: "启用",
+      source: "订阅源",
+      collection: "组合",
+      auto: "自动",
+      never: "永不过期",
+      enabled: "已启用",
+      disabled: "已停用",
+      meta: "{target} · {expires}"
     },
     recycle: {
       title: "回收站",

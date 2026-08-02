@@ -4,6 +4,7 @@ export default {
     author: 'DesnLee',
     label: 'dark',
     extend: '',
+    // Official dark theme — primary product palette (not legacy).
   },
   colors: {
     // Solid neutral primary (shared language with light: inverted black/white)

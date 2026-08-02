@@ -77,7 +77,8 @@ export default {
       input: "Paste content to convert",
       output: "Converted result",
       run: "Convert",
-      copy: "Copy result"
+      copy: "Copy result",
+      stats: "parsed {parsed} · emitted {emitted} · skipped {skipped}"
     },
     shares: {
       title: "Scoped share links",
@@ -89,7 +90,14 @@ export default {
       create: "Create link",
       empty: "No scoped links",
       disable: "Disable",
-      enable: "Enable"
+      enable: "Enable",
+      source: "Source",
+      collection: "Collection",
+      auto: "Auto",
+      never: "Never",
+      enabled: "Enabled",
+      disabled: "Disabled",
+      meta: "{target} · {expires}"
     },
     recycle: {
       title: "Recycle bin",

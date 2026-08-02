@@ -9,26 +9,35 @@
       </h2>
       <p>{{ t('toolsPage.converter.desc') }}</p>
       <div class="row">
-        <select v-model="conversionKind">
+        <select v-model="conversionKind" class="field-control">
           <option value="proxy">{{ t('toolsPage.converter.proxy') }}</option>
           <option value="rule">{{ t('toolsPage.converter.rule') }}</option>
         </select>
-        <select v-model="conversionTarget">
+        <select v-model="conversionTarget" class="field-control">
           <option v-for="target in conversionTargets" :key="target" :value="target">{{ target }}</option>
         </select>
       </div>
-      <textarea v-model="conversionInput" :placeholder="t('toolsPage.converter.input')" />
+      <textarea
+        v-model="conversionInput"
+        class="field-control field-control--mono"
+        :placeholder="t('toolsPage.converter.input')"
+      />
       <div class="actions">
         <nut-button type="primary" :loading="converting" @click="runConversion">
-          <font-awesome-icon icon="fa-solid fa-play" style="margin-right: 4px" />
+          <font-awesome-icon icon="fa-solid fa-play" class="btn-icon" />
           {{ t('toolsPage.converter.run') }}
         </nut-button>
         <nut-button plain type="primary" :disabled="!conversionOutput" @click="copyText(conversionOutput)">
-          <font-awesome-icon icon="fa-solid fa-clone" style="margin-right: 4px" />
+          <font-awesome-icon icon="fa-solid fa-clone" class="btn-icon" />
           {{ t('toolsPage.converter.copy') }}
         </nut-button>
       </div>
-      <textarea v-model="conversionOutput" readonly :placeholder="t('toolsPage.converter.output')" />
+      <textarea
+        v-model="conversionOutput"
+        class="field-control field-control--mono"
+        readonly
+        :placeholder="t('toolsPage.converter.output')"
+      />
       <p v-if="conversionStats" class="stats">{{ conversionStats }}</p>
     </section>
 
@@ -41,31 +50,54 @@
       </h2>
       <p>{{ t('toolsPage.shares.desc') }}</p>
       <div class="row share-form">
-        <select v-model="shareForm.resourceType">
-          <option value="source">source</option>
-          <option value="collection">collection</option>
+        <select v-model="shareForm.resourceType" class="field-control">
+          <option value="source">{{ t('toolsPage.shares.source') }}</option>
+          <option value="collection">{{ t('toolsPage.shares.collection') }}</option>
         </select>
-        <input v-model.trim="shareForm.resourceId" :placeholder="t('toolsPage.shares.resourceId')" />
-        <select v-model="shareForm.target">
-          <option value="">auto</option>
+        <input
+          v-model.trim="shareForm.resourceId"
+          class="field-control"
+          :placeholder="t('toolsPage.shares.resourceId')"
+        />
+        <select v-model="shareForm.target" class="field-control">
+          <option value="">{{ t('toolsPage.shares.auto') }}</option>
           <option v-for="target in proxyTargets" :key="target" :value="target">{{ target }}</option>
         </select>
-        <input v-model="shareForm.expiresHours" type="number" min="0" max="8760" :placeholder="t('toolsPage.shares.expires')" />
+        <input
+          v-model="shareForm.expiresHours"
+          class="field-control"
+          type="number"
+          min="0"
+          max="8760"
+          :placeholder="t('toolsPage.shares.expires')"
+        />
       </div>
       <nut-button type="primary" :loading="shareCreating" @click="createShare">
-        <font-awesome-icon icon="fa-solid fa-plus" style="margin-right: 4px" />
+        <font-awesome-icon icon="fa-solid fa-plus" class="btn-icon" />
         {{ t('toolsPage.shares.create') }}
       </nut-button>
       <div v-if="createdShareUrl" class="created-link" @click="copyText(createdShareUrl)">{{ createdShareUrl }}</div>
       <p v-if="shares.length === 0" class="empty">{{ t('toolsPage.shares.empty') }}</p>
-      <div v-for="share in shares" :key="share.id" class="list-item">
-        <div>
-          <strong>{{ share.resourceType }}/{{ share.resourceId }}</strong>
-          <small>{{ share.target || 'auto' }} · {{ share.expiresAt ? new Date(share.expiresAt).toLocaleString() : 'never' }}</small>
-        </div>
-        <div class="actions">
-          <nut-button plain size="mini" @click="toggleShare(share)">{{ share.enabled ? t('toolsPage.shares.disable') : t('toolsPage.shares.enable') }}</nut-button>
-          <nut-button plain type="danger" size="mini" @click="removeShare(share.id)">{{ t('myPage.btn.delete') }}</nut-button>
+      <div v-else class="list-table">
+        <div v-for="share in shares" :key="share.id" class="list-row">
+          <div class="list-row__main">
+            <strong>{{ resourceTypeLabel(share.resourceType) }}/{{ share.resourceId }}</strong>
+            <small class="list-row__meta">
+              <span>{{ shareMeta(share) }}</span>
+              <span
+                class="status-pill"
+                :class="share.enabled ? 'is-on' : 'is-off'"
+              >{{ share.enabled ? t('toolsPage.shares.enabled') : t('toolsPage.shares.disabled') }}</span>
+            </small>
+          </div>
+          <div class="list-row__actions">
+            <nut-button plain size="mini" @click="toggleShare(share)">
+              {{ share.enabled ? t('toolsPage.shares.disable') : t('toolsPage.shares.enable') }}
+            </nut-button>
+            <nut-button plain type="danger" size="mini" @click="removeShare(share.id)">
+              {{ t('myPage.btn.delete') }}
+            </nut-button>
+          </div>
         </div>
       </div>
     </section>
@@ -79,14 +111,20 @@
       </h2>
       <p>{{ t('toolsPage.recycle.desc') }}</p>
       <p v-if="recycleEntries.length === 0" class="empty">{{ t('toolsPage.recycle.empty') }}</p>
-      <div v-for="entry in recycleEntries" :key="entry.id" class="list-item">
-        <div>
-          <strong>{{ entry.resourceType }}/{{ entry.resourceId }}</strong>
-          <small>{{ new Date(entry.deletedAt).toLocaleString() }}</small>
-        </div>
-        <div class="actions">
-          <nut-button plain type="primary" size="mini" @click="restoreEntry(entry.id)">{{ t('toolsPage.recycle.restore') }}</nut-button>
-          <nut-button plain type="danger" size="mini" @click="purgeEntry(entry.id)">{{ t('toolsPage.recycle.purge') }}</nut-button>
+      <div v-else class="list-table">
+        <div v-for="entry in recycleEntries" :key="entry.id" class="list-row">
+          <div class="list-row__main">
+            <strong>{{ resourceTypeLabel(entry.resourceType) }}/{{ entry.resourceId }}</strong>
+            <small class="list-row__meta mono-time">{{ new Date(entry.deletedAt).toLocaleString() }}</small>
+          </div>
+          <div class="list-row__actions">
+            <nut-button plain type="primary" size="mini" @click="restoreEntry(entry.id)">
+              {{ t('toolsPage.recycle.restore') }}
+            </nut-button>
+            <nut-button plain type="danger" size="mini" @click="purgeEntry(entry.id)">
+              {{ t('toolsPage.recycle.purge') }}
+            </nut-button>
+          </div>
         </div>
       </div>
     </section>
@@ -117,6 +155,20 @@ const createdShareUrl = ref('');
 const shareForm = reactive({ resourceType: 'source', resourceId: '', target: '', expiresHours: '0' });
 const conversionTargets = computed(() => conversionKind.value === 'proxy' ? proxyTargets : ruleTargets);
 
+const resourceTypeLabel = (type: string) => {
+  if (type === 'collection') return t('toolsPage.shares.collection');
+  if (type === 'source') return t('toolsPage.shares.source');
+  return type;
+};
+
+const shareMeta = (share: { target?: string; expiresAt?: string | null }) => {
+  const target = share.target || t('toolsPage.shares.auto');
+  const expires = share.expiresAt
+    ? new Date(share.expiresAt).toLocaleString()
+    : t('toolsPage.shares.never');
+  return t('toolsPage.shares.meta', { target, expires });
+};
+
 const runConversion = async () => {
   converting.value = true;
   try {
@@ -126,7 +178,11 @@ const runConversion = async () => {
       : await api.convertRules({ content: conversionInput.value, target: conversionTarget.value });
     const data = (response?.data as any)?.data;
     conversionOutput.value = String(data?.content || data?.par_res || '');
-    conversionStats.value = `parsed ${data?.parsed || 0} · emitted ${data?.emitted || 0} · skipped ${data?.skipped || 0}`;
+    conversionStats.value = t('toolsPage.converter.stats', {
+      parsed: data?.parsed || 0,
+      emitted: data?.emitted || 0,
+      skipped: data?.skipped || 0,
+    });
     showNotify({ type: 'success', title: t('toolsPage.notify.converted') });
   } catch (error) {
     notifyError(error);
@@ -179,7 +235,7 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
   padding: var(--safe-area-side);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
   animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   @media screen and (min-width: 900px) {
@@ -194,8 +250,8 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
 }
 
 .tool-card {
-  padding: 20px;
-  border-radius: var(--item-card-radios, 14px);
+  padding: var(--space-5);
+  border-radius: var(--item-card-radios);
   background: var(--card-color);
   color: var(--second-text-color);
   border: 1px solid var(--divider-color);
@@ -209,32 +265,32 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
 }
 
 h2 {
-  margin: 0 0 6px 0;
+  margin: 0 0 var(--space-2) 0;
   color: var(--primary-text-color);
-  font-size: 17px;
+  font-size: var(--text-md);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 p {
   color: var(--comment-text-color);
-  font-size: 13px;
+  font-size: var(--text-sm);
   line-height: 1.6;
   margin-top: 0;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .card-title-with-icon {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
 
   .tool-icon-wrapper {
     display: inline-flex;
@@ -242,37 +298,37 @@ p {
     justify-content: center;
     width: 36px;
     height: 36px;
-    border-radius: 10px;
-    font-size: 16px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-md);
     flex-shrink: 0;
-
-    &.converter {
-      background: color-mix(in srgb, var(--primary-color) 14%, transparent);
-      color: var(--primary-color);
-      border: 1px solid color-mix(in srgb, var(--primary-color) 25%, transparent);
-    }
-
-    &.shares {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(59, 130, 246, 0.18));
-      color: #10B981;
-      border: 1px solid rgba(16, 185, 129, 0.25);
-    }
+    // Monochrome outline + light accent wash (no multi-color gradients)
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
 
     &.recycle {
-      background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(239, 68, 68, 0.18));
-      color: #F97316;
-      border: 1px solid rgba(249, 115, 22, 0.25);
+      color: var(--danger-color);
+      background: color-mix(in srgb, var(--danger-color) 12%, transparent);
+      border-color: color-mix(in srgb, var(--danger-color) 22%, transparent);
     }
   }
 }
 
-select, input, textarea {
+.btn-icon {
+  margin-right: var(--space-1);
+}
+
+// Shared control language with global form inputs
+.field-control {
   box-sizing: border-box;
   border: 1px solid var(--divider-color);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--background-color);
   color: var(--primary-text-color);
-  font-size: 13px;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  min-height: 40px;
+  padding: 0 var(--space-3);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
@@ -280,26 +336,27 @@ select, input, textarea {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
     outline: none;
   }
+
+  &--mono,
+  &:is(textarea) {
+    width: 100%;
+    min-height: 140px;
+    padding: var(--space-3);
+    resize: vertical;
+    font-family: var(--font-mono);
+    line-height: 1.5;
+  }
 }
 
-select, input {
+select.field-control,
+input.field-control:not([type='checkbox']) {
   min-height: 40px;
-  padding: 0 12px;
-}
-
-textarea {
-  width: 100%;
-  min-height: 140px;
-  padding: 12px;
-  resize: vertical;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  line-height: 1.5;
 }
 
 .actions {
   display: flex;
-  gap: 10px;
-  margin: 12px 0;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
 }
 
 .share-form {
@@ -312,16 +369,16 @@ textarea {
 }
 
 .created-link {
-  margin: 12px 0;
-  padding: 12px 14px;
-  border-radius: 10px;
+  margin: var(--space-3) 0;
+  padding: var(--space-3) 14px;
+  border-radius: var(--radius-md);
   background: var(--background-color);
   border: 1px dashed var(--divider-color);
   overflow-wrap: anywhere;
   cursor: copy;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--primary-color);
-  font-family: monospace;
+  font-family: var(--font-mono);
   transition: background-color 0.2s ease;
 
   &:hover {
@@ -329,49 +386,109 @@ textarea {
   }
 }
 
-.list-item {
-  min-height: 56px;
+// Denser table-like rows: time/status left, actions right-aligned
+.list-table {
+  margin-top: var(--space-2);
+  border-top: 1px solid var(--divider-color);
+}
+
+.list-row {
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-  border-top: 1px solid var(--divider-color);
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--divider-color);
 
-  div:first-child {
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__main {
     min-width: 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
   }
 
   strong {
     color: var(--primary-text-color);
-    font-size: 14px;
+    font-size: var(--text-base);
     font-weight: 600;
     overflow-wrap: anywhere;
   }
 
-  small {
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
     color: var(--comment-text-color);
-    font-size: 12px;
+    font-size: var(--text-xs);
+  }
+
+  &__actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+}
+
+.mono-time {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  &.is-on {
+    color: var(--succeed-color);
+    background: color-mix(in srgb, var(--succeed-color) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--succeed-color) 22%, transparent);
+  }
+
+  &.is-off {
+    color: var(--comment-text-color);
+    background: color-mix(in srgb, var(--comment-text-color) 10%, transparent);
+    border: 1px solid var(--divider-color);
   }
 }
 
 .stats, .empty {
   color: var(--comment-text-color);
-  font-size: 13px;
-  margin-top: 8px;
+  font-size: var(--text-sm);
+  margin-top: var(--space-2);
+}
+
+.stats {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
 }
 
 @media (max-width: 520px) {
   .row {
     flex-direction: column;
   }
-  .list-item {
+  .list-row {
     align-items: flex-start;
     flex-direction: column;
-    padding: 12px 0;
+    padding: var(--space-3) 0;
+
+    &__actions {
+      width: 100%;
+      justify-content: flex-start;
+    }
   }
 }
 </style>

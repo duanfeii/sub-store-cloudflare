@@ -68,7 +68,7 @@ $textarea-disabled-color: $disable-color;
 
 // cell && cell group
 $cell-color: $text-color-2;
-$cell-border-radius: var(--item-card-radios);
+$cell-border-radius: var(--radius-lg, var(--item-card-radios));
 $cell-background: $card-color;
 $cell-after-border-bottom: 2px solid $divider-color;
 $cell-group-title-color: $text-color-3;
