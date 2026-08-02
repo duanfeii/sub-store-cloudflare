@@ -9,8 +9,8 @@ $breakpoint-lg: 900px;
 $breakpoint-xl: 1200px;
 $sidenav-expanded-breakpoint: 1220px;
 
-// Optional readability cap for main content inside the shell
-$content-max-width: 1120px;
+// Focused readability cap for main content inside the shell (Vercel-style container)
+$content-max-width: 896px;
 
 // 容器最大宽度变量 (legacy names kept for any external references)
 $container-width-sm: 85%;

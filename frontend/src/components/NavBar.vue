@@ -1,12 +1,6 @@
 <template>
   <div class="nav-bar-wrapper">
-    <nav
-      class="nav-bar"
-      :class="{
-        'is-desktop': isDesktop,
-        'is-search-expanded': isMobileSearchExpanded,
-      }"
-    >
+    <nav class="nav-bar" :class="{ 'is-desktop': isDesktop }">
       <div class="nav-bar__left">
         <button
           v-if="isNeedBack"
@@ -22,7 +16,7 @@
           />
         </button>
         <div
-          v-else-if="!isMobileSearchExpanded && !isDesktop"
+          v-else
           class="app-brand"
           role="link"
           tabindex="0"
@@ -34,46 +28,29 @@
             class="app-brand__logo"
             :src="brandLogo"
             alt=""
-            width="22"
-            height="22"
+            width="20"
+            height="20"
           />
           <span class="app-brand__name">Sub Store</span>
-          <span class="app-brand__badge">{{ envBadge }}</span>
         </div>
       </div>
 
       <div class="nav-bar__center">
-        <div
-          v-if="showDesktopSearch || isMobileSearchExpanded"
-          class="nav-search-field"
-          @click.stop
-        >
-          <font-awesome-icon
-            class="nav-search-field__icon"
-            icon="fa-solid fa-magnifying-glass"
-          />
-          <input
-            ref="searchInputRef"
-            v-model="listSearchQuery"
-            class="nav-search-input"
-            type="search"
-            :placeholder="t('navBar.listSearch.placeholder')"
-            :aria-label="t('navBar.listSearch.placeholder')"
-            @keydown.esc.stop.prevent="handleSearchEscape"
-          />
+        <div v-if="!isNeedBack" class="nav-segmented-control">
           <button
-            v-if="listSearchQuery || isMobileSearchExpanded"
+            v-for="item in navTabs"
+            :key="item.path"
             type="button"
-            class="nav-search-clear"
-            :aria-label="listSearchQuery ? t('navBar.listSearch.clear') : t('navBar.listSearch.close')"
-            :title="listSearchQuery ? t('navBar.listSearch.clear') : t('navBar.listSearch.close')"
-            @click.stop="handleSearchCloseButton"
+            class="nav-segmented-item"
+            :class="{ 'is-active': route.path === item.path }"
+            @click="router.push(item.path)"
           >
-            <font-awesome-icon icon="fa-solid fa-circle-xmark" />
+            <font-awesome-icon :icon="item.icon" class="nav-segmented-item__icon" />
+            <span>{{ item.label }}</span>
           </button>
         </div>
         <h1
-          v-else-if="currentTitle && (!isDesktop || isNeedBack)"
+          v-else-if="currentTitle"
           class="nav-title"
           :title="currentTitle"
         >
@@ -82,108 +59,45 @@
       </div>
 
       <div class="nav-bar__right">
-        <template v-if="isDesktop">
-          <button
-            v-if="showRefreshButton"
-            type="button"
-            class="nav-btn"
-            :aria-label="t('navBar.actions.refresh')"
-            :title="t('navBar.actions.refresh')"
-            @click.stop="refresh"
-          >
-            <font-awesome-icon
-              class="nav-btn__icon"
-              icon="fa-solid fa-arrow-rotate-right"
-            />
-          </button>
-          <button
-            v-if="showAddButton"
-            type="button"
-            class="nav-btn"
-            :aria-label="t('navBar.actions.add')"
-            :title="t('navBar.actions.add')"
-            @click.stop="add(route)"
-          >
-            <font-awesome-icon
-              class="nav-btn__icon"
-              icon="fa-solid fa-plus"
-            />
-          </button>
-          <LanguageSwitcherButton variant="icon" />
-          <button
-            type="button"
-            class="nav-btn"
-            :aria-label="t('navBar.actions.theme')"
-            :title="t('navBar.actions.theme')"
-            @click.stop="toggleTheme"
-          >
-            <font-awesome-icon
-              class="nav-btn__icon"
-              :icon="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
-            />
-          </button>
-        </template>
-        <template v-else>
-          <button
-            v-if="showSearchButton && !isMobileSearchExpanded"
-            type="button"
-            class="nav-btn"
-            :class="{ 'is-active': listSearchStore.hasQuery }"
-            :aria-label="t('navBar.listSearch.open')"
-            :title="t('navBar.listSearch.open')"
-            @click.stop="openListSearch"
-          >
-            <font-awesome-icon
-              class="nav-btn__icon"
-              icon="fa-solid fa-magnifying-glass"
-            />
-          </button>
-          <div
-            v-if="showMobileOverflow"
-            class="nav-overflow"
-          >
-            <button
-              type="button"
-              class="nav-btn"
-              :class="{ 'is-active': isOverflowOpen }"
-              :aria-label="t('navBar.actions.more')"
-              :title="t('navBar.actions.more')"
-              :aria-expanded="isOverflowOpen"
-              @click.stop="toggleOverflow"
-            >
-              <font-awesome-icon
-                class="nav-btn__icon"
-                icon="fa-solid fa-ellipsis"
-              />
-            </button>
-            <div
-              v-if="isOverflowOpen"
-              class="nav-overflow__menu"
-              role="menu"
-            >
-              <button
-                v-if="showRefreshButton"
-                type="button"
-                class="nav-overflow__item"
-                role="menuitem"
-                @click.stop="runOverflowAction(refresh)"
-              >
-                <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
-                <span>{{ t('navBar.actions.refresh') }}</span>
-              </button>
-              <button
-                v-if="showAddButton"
-                type="button"
-                class="nav-overflow__item"
-                role="menuitem"
-                @click.stop="runOverflowAction(() => add(route))"
-              >
-                <font-awesome-icon icon="fa-solid fa-plus" />
-                <span>{{ t('navBar.actions.add') }}</span>
-              </button>
-            </div>
-          </div>
-        </template>
+        <button
+          v-if="showRefreshButton"
+          type="button"
+          class="nav-btn"
+          :aria-label="t('navBar.actions.refresh')"
+          :title="t('navBar.actions.refresh')"
+          @click.stop="refresh"
+        >
+          <font-awesome-icon
+            class="nav-btn__icon"
+            icon="fa-solid fa-arrow-rotate-right"
+          />
+        </button>
+        <button
+          v-if="showAddButton"
+          type="button"
+          class="nav-btn"
+          :aria-label="t('navBar.actions.add')"
+          :title="t('navBar.actions.add')"
+          @click.stop="add(route)"
+        >
+          <font-awesome-icon
+            class="nav-btn__icon"
+            icon="fa-solid fa-plus"
+          />
+        </button>
+        <LanguageSwitcherButton variant="icon" />
+        <button
+          type="button"
+          class="nav-btn"
+          :aria-label="t('navBar.actions.theme')"
+          :title="t('navBar.actions.theme')"
+          @click.stop="toggleTheme"
+        >
+          <font-awesome-icon
+            class="nav-btn__icon"
+            :icon="isDarkTheme ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
+          />
+        </button>
       </div>
     </nav>
   </div>
@@ -192,7 +106,7 @@
 <script lang="ts" setup>
 import { useMediaQuery } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -200,14 +114,12 @@ import brandLogo from "@/assets/icons/logo.png";
 import LanguageSwitcherButton from "@/components/LanguageSwitcherButton.vue";
 import i18n from "@/locales";
 import { useAppNotifyStore } from "@/store/appNotify";
-import { useListSearchStore } from "@/store/listSearch";
 import { useMethodStore } from "@/store/methodStore";
 import { useSettingsStore } from "@/store/settings";
 import { SIDEBAR_BREAKPOINT, useSystemStore } from "@/store/system";
 import { initStores } from "@/utils/initApp";
 
 const { t: i18n_global } = i18n.global;
-const envBadge = import.meta.env.DEV ? "dev" : "prod";
 const { showNotify } = useAppNotifyStore();
 const { t } = useI18n();
 const router = useRouter();
@@ -215,28 +127,24 @@ const route = useRoute();
 const methodStore = useMethodStore();
 const systemStore = useSystemStore();
 const settingsStore = useSettingsStore();
-const listSearchStore = useListSearchStore();
 const { appearanceSetting } = storeToRefs(settingsStore);
 const { navBarHeight, navBartop } = storeToRefs(systemStore);
 
 const isDesktop = useMediaQuery(`(min-width: ${SIDEBAR_BREAKPOINT}px)`);
-const searchInputRef = ref<HTMLInputElement | null>(null);
-const isOverflowOpen = ref(false);
-const isMobileSearchOpen = ref(false);
 
 onMounted(() => {
   systemStore.initSystemState();
-  window.addEventListener("keydown", handleGlobalKeydown);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("keydown", handleGlobalKeydown);
-  document.removeEventListener("click", handleDocumentClick);
 });
 
 const isNeedBack = computed(() => {
   return route.meta.needNavBack ?? false;
 });
+
+const navTabs = computed(() => [
+  { path: "/subs", label: t("tabBar.sub"), icon: "fa-solid fa-link" },
+  { path: "/tools", label: t("tabBar.tools"), icon: "fa-solid fa-sliders" },
+  { path: "/my", label: t("tabBar.my"), icon: "fa-solid fa-gear" },
+]);
 
 const currentTitle = computed(() => {
   if (route.meta.title === "subEditor") {
@@ -260,142 +168,6 @@ const showAddButton = computed(() => {
   return ["/subs"].includes(route.path)
     && !appearanceSetting.value.showFloatingAddButton;
 });
-
-const showSearchButton = computed(() => {
-  return Boolean(route.meta.supportsListSearch);
-});
-
-const showDesktopSearch = computed(() => {
-  return isDesktop.value && showSearchButton.value;
-});
-
-const isMobileSearchExpanded = computed(() => {
-  return !isDesktop.value
-    && showSearchButton.value
-    && isMobileSearchOpen.value;
-});
-
-const showMobileOverflow = computed(() => {
-  return !isDesktop.value && (showRefreshButton.value || showAddButton.value);
-});
-
-const listSearchQuery = computed({
-  get: () => listSearchStore.query,
-  set: (value: string) => {
-    listSearchStore.setQuery(value);
-  },
-});
-
-watch(
-  () => route.path,
-  () => {
-    listSearchStore.syncRoute(route.path, Boolean(route.meta.supportsListSearch));
-    isMobileSearchOpen.value = false;
-    isOverflowOpen.value = false;
-  },
-  { immediate: true },
-);
-
-watch(isDesktop, (desktop) => {
-  if (desktop) {
-    isMobileSearchOpen.value = false;
-    isOverflowOpen.value = false;
-    if (showSearchButton.value) {
-      listSearchStore.open(route.path);
-    }
-  }
-});
-
-watch(
-  showDesktopSearch,
-  (visible) => {
-    if (visible) {
-      listSearchStore.open(route.path);
-    }
-  },
-  { immediate: true },
-);
-
-const focusSearchInput = async () => {
-  await nextTick();
-  searchInputRef.value?.focus();
-};
-
-const openListSearch = async () => {
-  listSearchStore.open(route.path);
-  isMobileSearchOpen.value = true;
-  isOverflowOpen.value = false;
-  await focusSearchInput();
-};
-
-const closeMobileSearch = () => {
-  isMobileSearchOpen.value = false;
-  listSearchStore.close();
-};
-
-const handleSearchEscape = () => {
-  if (listSearchQuery.value) {
-    listSearchStore.setQuery("");
-    return;
-  }
-
-  if (isMobileSearchExpanded.value) {
-    closeMobileSearch();
-  }
-};
-
-const handleSearchCloseButton = async () => {
-  if (listSearchQuery.value) {
-    listSearchStore.setQuery("");
-    if (showDesktopSearch.value || isMobileSearchExpanded.value) {
-      await focusSearchInput();
-    }
-    return;
-  }
-
-  if (isMobileSearchExpanded.value) {
-    closeMobileSearch();
-  }
-};
-
-const toggleOverflow = () => {
-  isOverflowOpen.value = !isOverflowOpen.value;
-};
-
-const runOverflowAction = async (action: () => void | Promise<void>) => {
-  isOverflowOpen.value = false;
-  await action();
-};
-
-const handleDocumentClick = () => {
-  isOverflowOpen.value = false;
-};
-
-watch(isOverflowOpen, (open) => {
-  if (open) {
-    // Defer so the opening click does not immediately close the menu.
-    setTimeout(() => {
-      document.addEventListener("click", handleDocumentClick);
-    }, 0);
-  } else {
-    document.removeEventListener("click", handleDocumentClick);
-  }
-});
-
-const handleGlobalKeydown = (event: KeyboardEvent) => {
-  if (!showSearchButton.value) return;
-  const isModK = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
-  if (!isModK) return;
-
-  event.preventDefault();
-  if (isDesktop.value) {
-    listSearchStore.open(route.path);
-    void focusSearchInput();
-    return;
-  }
-
-  void openListSearch();
-};
 
 const add = (currentRoute: typeof route) => {
   const routePath = currentRoute.path;
@@ -450,7 +222,7 @@ const toggleTheme = async () => {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .nav-bar-wrapper {
   top: 0;
   height: v-bind(navBarHeight);
@@ -465,31 +237,31 @@ const toggleTheme = async () => {
   box-sizing: border-box;
   width: 100%;
   height: v-bind(navBarHeight);
-  padding: v-bind(navBartop) 12px 0;
+  padding: v-bind(navBartop) 16px 0;
   box-shadow: none;
-  backdrop-filter: blur(var(--nav-bar-blur));
-  -webkit-backdrop-filter: blur(var(--nav-bar-blur));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   background: var(--nav-bar-color);
   border-bottom: 1px solid var(--divider-color);
   border-radius: 0;
   overflow: visible;
 
   @media screen and (min-width: $breakpoint-md) {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   &__left,
   &__right {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     flex-shrink: 0;
     min-width: 0;
   }
 
   &__left {
-    max-width: min(46vw, 200px);
+    flex: 0 0 auto;
   }
 
   &__right {
@@ -504,49 +276,78 @@ const toggleTheme = async () => {
     align-items: center;
     justify-content: center;
   }
+}
 
-  &.is-desktop {
-    .nav-bar__left {
-      flex: 0 0 auto;
-      max-width: 220px;
-    }
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
 
-    .nav-bar__center {
-      justify-content: center;
-      max-width: 520px;
-      margin: 0 auto;
-    }
-
-    .nav-bar__right {
-      flex: 0 0 auto;
-      min-width: 72px;
-      justify-content: flex-end;
-    }
-  }
-
-  &.is-search-expanded {
-    .nav-bar__left {
-      display: none;
-    }
-
-    .nav-bar__center {
-      justify-content: stretch;
-    }
+  &__name {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--primary-text-color);
   }
 }
 
 .nav-title {
   margin: 0;
-  min-width: 0;
-  max-width: 100%;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 1.2;
+  letter-spacing: -0.015em;
   color: var(--primary-text-color);
   text-align: center;
+}
+
+.nav-segmented-control {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid var(--divider-color);
+  gap: 2px;
+}
+
+.nav-segmented-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--second-text-color);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(.is-active) {
+      color: var(--primary-text-color);
+      background: rgba(148, 163, 184, 0.12);
+    }
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &.is-active {
+    background: var(--card-color);
+    color: var(--primary-text-color);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  &__icon {
+    font-size: 12px;
+  }
 }
 
 .nav-btn {
@@ -561,203 +362,29 @@ const toggleTheme = async () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--icon-nav-bar-right);
+  color: var(--second-text-color);
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, color 200ms ease;
 
-  &:hover {
-    background: rgba(148, 163, 184, 0.15);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--primary-text-color);
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 
   &:focus {
     outline: none;
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-
-  &.is-active {
-    color: var(--primary-color);
-    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
   }
 
   &__icon {
     width: 14px;
     height: 14px;
     font-size: 14px;
-  }
-}
-
-.nav-search-field {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-}
-
-.nav-search-field__icon {
-  position: absolute;
-  left: 12px;
-  width: 12px;
-  height: 12px;
-  color: var(--comment-text-color);
-  pointer-events: none;
-}
-
-.nav-search-input {
-  width: 100%;
-  min-width: 0;
-  height: 32px;
-  box-sizing: border-box;
-  border: 1px solid var(--divider-color);
-  border-radius: 20px;
-  background: var(--card-color);
-  color: var(--primary-text-color);
-  padding: 0 30px 0 32px;
-  font-size: 13px;
-  line-height: 32px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-  &::placeholder {
-    color: var(--comment-text-color);
-  }
-
-  &::-webkit-search-cancel-button,
-  &::-webkit-search-decoration {
-    -webkit-appearance: none;
-    appearance: none;
-    display: none;
-  }
-
-  &:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
-  }
-}
-
-.nav-search-clear {
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  border: 0;
-  margin: 0;
-  background: transparent;
-  color: var(--comment-text-color);
-  transform: translateY(-50%);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    width: 13px;
-    height: 13px;
-  }
-}
-
-.nav-overflow {
-  position: relative;
-
-  &__menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    z-index: 30;
-    min-width: 160px;
-    padding: 6px;
-    border-radius: 10px;
-    border: 1px solid var(--divider-color);
-    background: var(--card-color);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  }
-
-  &__item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--primary-text-color);
-    font-size: 13px;
-    text-align: left;
-    cursor: pointer;
-
-    svg {
-      width: 14px;
-      height: 14px;
-      color: var(--comment-text-color);
-    }
-
-    &:hover {
-      background: rgba(148, 163, 184, 0.12);
-    }
-  }
-}
-
-.app-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  max-width: 100%;
-  cursor: pointer;
-  user-select: none;
-  transition: opacity 0.15s ease;
-
-  &:hover {
-    opacity: 0.85;
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-    border-radius: 6px;
-  }
-
-  &__logo {
-    width: 22px;
-    height: 22px;
-    flex-shrink: 0;
-    border-radius: 6px;
-    object-fit: contain;
-  }
-
-  &__name {
-    font-weight: 600;
-    font-size: var(--text-base);
-    letter-spacing: -0.02em;
-    color: var(--primary-text-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  &__badge {
-    flex-shrink: 0;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: var(--radius-full);
-    background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-    color: var(--primary-color);
-    border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.05em;
   }
 }
 </style>

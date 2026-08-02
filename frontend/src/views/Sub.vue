@@ -111,43 +111,7 @@
         <!-- </nut-radiogroup> -->
       </div>
       <div class="subs-list-container" :style="{ paddingTop: `${radioWrapperHeight}px` }">
-        <!-- Actionable overview: real counts, flow issues, last refresh only -->
-        <div
-          v-if="hasSubs || hasCollections"
-          class="overview-summary-strip"
-          role="region"
-          :aria-label="$t('subPage.overview.title')"
-        >
-          <div class="overview-stat">
-            <span class="overview-stat-label">{{ $t('subPage.overview.subscriptions') }}</span>
-            <span class="overview-stat-value font-mono">{{ totalSubscriptionCount }}</span>
-            <span class="overview-stat-detail">
-              {{
-                $t('subPage.overview.subBreakdown', {
-                  single: subs.length,
-                  collection: collections.length,
-                })
-              }}
-            </span>
-          </div>
 
-          <div
-            class="overview-stat"
-            :class="{
-              'is-error': flowIssueCounts.failed > 0,
-              'is-warning': flowIssueCounts.failed === 0 && flowIssueCounts.warning > 0,
-            }"
-          >
-            <span class="overview-stat-label">{{ $t('subPage.overview.flowStatus') }}</span>
-            <span class="overview-stat-value font-mono">{{ flowStatusValue }}</span>
-            <span class="overview-stat-detail">{{ flowStatusDetail }}</span>
-          </div>
-
-          <div class="overview-stat overview-stat-refresh">
-            <span class="overview-stat-label">{{ $t('subPage.overview.lastRefresh') }}</span>
-            <span class="overview-stat-value font-mono">{{ lastRefreshDisplay }}</span>
-          </div>
-        </div>
 
         <section v-if="hasSubs && !hasCollections" class="onboarding-card onboarding-inline">
           <div>

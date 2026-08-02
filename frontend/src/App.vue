@@ -128,19 +128,16 @@ watchEffect(() => {
   flex-direction: column;
   overflow: auto;
   width: 100%;
+  max-width: $content-max-width;
+  margin-inline: auto;
   min-width: 0;
   box-sizing: border-box;
-  @include responsive-container-width;
+  padding-inline: var(--space-4);
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-6);
 
   @media screen and (min-width: $breakpoint-md) {
-    // Fluid content with a soft readability cap on very wide screens
-    max-width: $content-max-width;
-    margin-inline: auto;
     padding-inline: var(--space-5);
-  }
-
-  @media screen and (min-width: $breakpoint-xl) {
-    padding-inline: var(--space-6);
   }
 }
 </style>
