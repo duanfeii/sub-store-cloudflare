@@ -3,7 +3,8 @@
   "name": "sub-store-cloudflare",
   "main": "cloudflare/src/index.ts",
   "workers_dev": true,
-  "compatibility_date": "2026-06-28",
+  "compatibility_date": "2026-07-08",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "frontend/dist",
     "binding": "ASSETS",
@@ -24,12 +25,12 @@
     {
       "binding": "DB",
       "database_name": "sub-store-cloudflare",
-      "database_id": "7ceceb53-10cf-4680-af13-0b88586a2e04",
+      "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "cloudflare/migrations"
     }
   ],
   "vars": {
     "SUB_STORE_APP_NAME": "Sub-Store Cloudflare",
-    "SUB_STORE_PUBLIC_DOWNLOAD_HOSTS": " "
+    "SUB_STORE_PUBLIC_DOWNLOAD_HOSTS": ""
   }
 }

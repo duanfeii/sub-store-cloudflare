@@ -1,6 +1,6 @@
 export default {
   specificWord: {
-    singleSub: "单条订阅",
+    singleSub: "订阅源",
     collectionSub: "组合订阅",
     unknownType: "未知类型",
     unknownSource: "未知来源",
@@ -36,8 +36,9 @@ export default {
       language: "语言"
     },
     actions: {
+      back: "返回",
       refresh: "刷新数据",
-      add: "新建订阅"
+      add: "新建"
     },
     listSearch: {
       open: "搜索",
@@ -47,15 +48,58 @@ export default {
     },
     pagesTitle: {
       sub: "订阅管理",
-      my: "我的",
-      subEditor: "订阅编辑",
+      tools: "兼容工具",
+      my: "设置",
+      subEditor: "编辑订阅",
+      sourceCreate: "新建订阅源",
+      sourceEdit: "编辑订阅源",
+      collectionCreate: "新建组合订阅",
+      collectionEdit: "编辑组合订阅",
       preview: "预览",
       notFound: "地址未找到"
     }
   },
   tabBar: {
     sub: "订阅",
-    my: "我的"
+    tools: "工具",
+    my: "设置"
+  },
+  toolsPage: {
+    converter: {
+      title: "一次性转换",
+      desc: "粘贴节点、订阅或规则，不保存到 D1，直接转换为目标格式。",
+      proxy: "节点/订阅",
+      rule: "规则",
+      input: "粘贴待转换内容",
+      output: "转换结果",
+      run: "开始转换",
+      copy: "复制结果"
+    },
+    shares: {
+      title: "独立分享链接",
+      desc: "为单个订阅源或组合创建可撤销、可过期、可限制格式的下载链接。Token 只在创建时显示。",
+      resourceType: "资源类型",
+      resourceId: "资源 ID",
+      target: "限制输出格式，可留空",
+      expires: "有效小时数，0 表示不过期",
+      create: "创建链接",
+      empty: "还没有独立分享链接",
+      disable: "停用",
+      enable: "启用"
+    },
+    recycle: {
+      title: "回收站",
+      desc: "最多保留 50 条已删除配置。恢复不会覆盖同名资源。",
+      empty: "回收站为空",
+      restore: "恢复",
+      purge: "彻底删除"
+    },
+    notify: {
+      converted: "转换完成",
+      copied: "已复制",
+      shareCreated: "分享链接已创建",
+      failed: "操作失败\n{e}"
+    }
   },
   notFoundPage: {
     title: "啊哦～ URL 错误！",
@@ -68,7 +112,7 @@ export default {
       succeed: "导入成功",
       failed: "导入失败\n{e}",
       tipsTitle: "导入订阅配置",
-      tipsContent: "可导入单条订阅或组合订阅的 JSON 配置。完整配置迁移请使用「我的」页面的备份恢复。"
+      tipsContent: "可导入订阅源或组合订阅的 JSON 配置。完整配置迁移请使用「设置」页面的备份恢复。"
     },
     addSubTitle: "选择要创建的订阅类型",
     previewTitle: "预览/拷贝订阅",
@@ -82,18 +126,34 @@ export default {
       desc: "添加远程订阅或本地节点后开始聚合",
       btn: "立即添加"
     },
+    onboarding: {
+      welcome: "首次使用",
+      title: "三步生成你的第一个订阅链接",
+      desc: "数据保存在你自己的 Cloudflare D1 中。先添加订阅源，再创建组合订阅，最后复制链接到客户端。",
+      addSource: "添加远程订阅或本地节点",
+      addCollection: "确认默认 Daily，或新建组合订阅",
+      copyLink: "复制 Mihomo、sing-box 等下载链接",
+      createSource: "添加第一个订阅源",
+      openGuide: "查看五分钟快速开始",
+      step2: "下一步 · 2/3",
+      collectionTitle: "创建一个组合订阅",
+      collectionDesc: "如果默认 Daily 已被删除，可以重新创建组合订阅，合并、去重并套用分流模板。",
+      createCollection: "创建组合订阅"
+    },
     loadFailed: {
       title: "数据加载失败",
-      desc: "请检查管理 token、Worker API 和网络连接",
+      desc: "如果刚完成部署，请先输入管理 Token；否则请检查 Worker API 和网络连接。",
       btn: "重试",
+      tokenLabel: "管理 Token",
+      tokenPlaceholder: "输入 SUB_STORE_ADMIN_TOKEN",
+      saveAndRetry: "保存并重试",
       doc: "查看部署文档",
       followOfficialChannel: "查看项目文档后再排查部署状态",
       about: "查看项目文档"
     },
     collectionItem: {
-      noSub: "没有包含子订阅",
-      contain: "手动选择的订阅",
-      containTag: "关联的订阅标签"
+      noSub: "全部已启用订阅源",
+      contain: "包含的订阅源"
     },
     actions: {
       openMenu: "展开快捷操作",
@@ -218,10 +278,10 @@ export default {
         previewDisabledResponseOnlyTips: "修改响应仅在下载响应发送前执行，即时预览不会执行",
         nodeActionsHelp: "节点操作帮助",
         name: {
-          label: "名称",
-          placeholder: "唯一的标识名称(请勿包含 / )",
-          isEmpty: "名称不能为空",
-          isInvalid: "名称已存在或不合法"
+          label: "ID",
+          placeholder: "小写字母、数字、下划线或连字符",
+          isEmpty: "ID 不能为空",
+          isInvalid: "ID 已存在，或不符合 1–64 位格式要求"
         },
         remark: {
           label: "备注",
@@ -246,14 +306,6 @@ export default {
         tag: {
           label: "标签",
           placeholder: "点击右侧图标选择，标签(用 , 分隔) 将用于分组"
-        },
-        subscriptionTags: {
-          label: "关联订阅标签",
-          placeholder: "点击右侧图标选择，使用标签关联单条订阅(用 , 分隔)",
-          tips: {
-            title: "组合订阅与单条订阅",
-            content: "组合订阅中将包含\n\n1. 含有关联订阅标签的单条订阅\n\n2. 手动选择的单条订阅\n\n举例: 设置了关联订阅标签为 \"A, B\" 后\n包含标签 \"A\" 或 \"B\" 的单条订阅将自动关联到此组合订阅"
-          }
         },
         template: {
           label: "规则模板",
@@ -280,15 +332,16 @@ export default {
             fullScreenEditCancel: "取消全屏",
             label: "使用说明",
             title: "订阅链接",
-            content: "每行填写一个完整的 http(s) 远程订阅链接。多个链接会按行拉取并合并。\n\n流量信息相关参数:\n\nflowUrl: 自定义查询流量信息的 URL，优先读取响应体，也支持 subscription-userinfo/profile-web-page-url/plan-name 响应头\nflowUserAgent: 查询流量信息时使用的 User-Agent\nflowHeaders: 查询流量信息时使用的请求头，值为 URL 编码后的单行 JSON\nnoFlow: 不查询流量信息\nhideExpire: 隐藏到期时间\nshowRemaining: 显示剩余流量而不是已用流量\n\n远程订阅拉取的 User-Agent 可在本页单独设置；请求超时和并发在「我的」页面配置。\n\n例: https://example.com/sub?token=1#flowUrl=https%3A%2F%2Fexample.com%2Fuserinfo&showRemaining"
+            content: "每行填写一个完整的 http(s) 远程订阅链接。多个链接会按行拉取并合并。\n\n流量信息相关参数:\n\nflowUrl: 自定义查询流量信息的 URL，优先读取响应体，也支持 subscription-userinfo/profile-web-page-url/plan-name 响应头\nflowUserAgent: 查询流量信息时使用的 User-Agent\nflowHeaders: 查询流量信息时使用的请求头，值为 URL 编码后的单行 JSON\nnoFlow: 不查询流量信息\nhideExpire: 隐藏到期时间\nshowRemaining: 显示剩余流量而不是已用流量\n\n远程订阅拉取的 User-Agent 可在本页单独设置；请求超时和并发在「设置」页面配置。\n\n例: https://example.com/sub?token=1#flowUrl=https%3A%2F%2Fexample.com%2Fuserinfo&showRemaining"
           },
           isEmpty: "订阅链接不能为空",
           isIllegal: "订阅链接格式非法"
         },
         subscriptions: {
-          label: "手动选择的订阅",
-          empty: "请先创建单条订阅, 再使用组合订阅功能",
-          none: "未选择"
+          label: "包含的订阅源",
+          empty: "请先创建订阅源，再使用组合订阅功能",
+          none: "未选择",
+          allEnabled: "全部已启用订阅源"
         },
         content: {
           label: "内容",
@@ -321,20 +374,9 @@ export default {
         ignoreFailedRemoteSub: {
           label: "订阅失败处理",
           disabled: "严格报错",
-          disabledDesc: "订阅处理出错时，立即报错并通知。",
-          disabledNote: "出错即报错并通知",
-          enabled: "失败通知",
-          enabledDesc: "远程订阅失败时，跳过失败项并通知；其他错误仍报错。",
-          enabledNote: "远程失败跳过并通知",
-          quiet: "失败静默",
-          quietDesc: "远程订阅失败时，跳过失败项且不通知；其他错误仍报错。",
-          quietNote: "远程失败跳过且静默",
-          fallbackNotify: "兜底通知",
-          fallbackNotifyDesc: "订阅处理出现任何错误时，不报错，返回空结果并通知。",
-          fallbackNotifyNote: "任何错误都空结果并通知",
-          fallbackQuiet: "兜底静默",
-          fallbackQuietDesc: "订阅处理出现任何错误时，不报错，静默返回空结果。",
-          fallbackQuietNote: "任何错误都空结果且静默"
+          disabledNote: "任一订阅源失败即终止",
+          skip: "跳过失败源",
+          skipNote: "保留其他可用订阅源"
         },
         ua: {
           label: "User-Agent",
@@ -418,7 +460,13 @@ export default {
           invalidData: "数据格式错误"
         },
         enable: "启用",
-        disable: "禁用"
+        disable: "禁用",
+        script: {
+          freeVerified: "已通过 Cloudflare 免费版验证",
+          personal: "个人构建时脚本",
+          unavailable: "当前部署中没有这个脚本。请重新部署包含该脚本的 Worker。",
+          limit: "每个订阅源或组合订阅最多添加两个脚本操作"
+        }
       },
       nodeActions: {
         "Flag Operator": {
@@ -638,6 +686,16 @@ export default {
           },
           tipsTitle: "节点去重操作提示",
           tipsDes: "对名字重复的节点进行操作（移除/重命名）。重命名模式下，会自动为重名节点添加序号，序号样式和位置可以自定义。同时序号和名字之间的连接符也可以自定义"
+        },
+        "Script Filter": {
+          label: "构建时脚本过滤",
+          tipsTitle: "脚本过滤说明",
+          tipsDes: "运行已经随 Worker 编译的过滤脚本。脚本不是从网页、D1 或远程地址动态执行。"
+        },
+        "Script Operator": {
+          label: "构建时脚本操作",
+          tipsTitle: "脚本操作说明",
+          tipsDes: "运行已经随 Worker 编译的节点修改脚本。内置脚本经过免费版验证；个人脚本需要重新部署。"
         }
       },
       sourceNamePicker: {
@@ -690,6 +748,9 @@ export default {
       defaultTimeout: "请求超时，单位毫秒",
       backendRequestConcurrency: "远程订阅并发数",
       backendRequestConcurrencyWaitTime: "并发请求间隔，单位毫秒",
+      remoteCacheTtl: "远程订阅边缘缓存秒数，0 表示关闭",
+      remoteCacheStaleOnError: "远程订阅失败时允许使用最近的边缘缓存",
+      nodeInfoApiUrl: "节点信息 HTTPS API，必须包含 {ip}",
       summary: "当前远程订阅拉取并发 {concurrency}，超时 {timeout}ms。"
     },
     btn: {
@@ -699,6 +760,9 @@ export default {
       delete: "删除"
     },
     notify: {
+      backup: {
+        failedWithError: "备份失败\n{e}"
+      },
       save: {
         succeed: "保存成功",
         failed: "保存失败",

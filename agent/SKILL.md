@@ -19,15 +19,18 @@ Follow AGENTS.md and agent/SKILL.md in this repository. Deploy this Sub-Store Cl
 ## Operating Rules
 
 - Prefer the one-command installer: `pnpm run install:cloudflare`.
+- Do not use `pnpm run install:quick` when the user asked to import Sources or Collections.
 - Ask for missing inputs instead of inventing subscription data.
 - Use `config/agent-setup.local.json` as the single private setup file.
+- Use 1-64 lowercase letters, numbers, underscores, or hyphens for source, collection, and custom template ids.
+- Treat an empty collection `sourceIds` array as all enabled sources; use explicit ids for fixed membership.
 - Use `filterPresetIds` from `config/rule-presets.json` when the user asks for common filtering.
 - Use `acl4ssr-mihomo-no-emoji` when the user asks for rule groups without emoji.
-- Use D1 for sources, collections, templates, settings, and filters.
+- Use D1 for sources, collections, templates, settings, filters, scoped download grants, and the bounded recycle bin.
 - Do not add R2/KV/Queues/Durable Objects unless the codebase is changed for that storage model.
 - Do not use browser automation for Cloudflare setup unless the user explicitly asks for a visual walkthrough.
 - Treat upstream Sub-Store as a reference for retained source, collection, filter, template, preview, backup/restore, and download workflows only.
-- Do not add files, sync, share, archive, script runtime, logs, queues, cron, or artifact features during installation or cleanup work.
+- Do not add files, sync, public sharing, unbounded archives, runtime-evaluated scripts, logs, queues, cron, or artifact features during installation or cleanup work. Build-time bundled Filter / Operator scripts, scoped download grants, and the bounded recycle bin are supported.
 
 ## Execution Checklist
 
@@ -46,3 +49,5 @@ Follow AGENTS.md and agent/SKILL.md in this repository. Deploy this Sub-Store Cl
 - Cloudflare unreachable: stop at handoff and tell the user to rerun `pnpm run install:cloudflare`.
 
 Never report deployment success until the installer has deployed and verified the Worker.
+
+The installer is intentionally non-destructive in Agent environments: if the private setup file is missing, it creates an example and stops before deployment. Fill the real setup and rerun instead of forcing example data into production.

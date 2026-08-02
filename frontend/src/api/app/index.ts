@@ -24,6 +24,8 @@ const SOURCE_ACTION_TYPES = new Set([
   'Regex Rename Operator',
   'Handle Duplicate Operator',
   'Sort Operator',
+  'Script Filter',
+  'Script Operator',
 ]);
 const SUPPORTED_RESOLVE_PROVIDERS = new Set(['Google', 'Cloudflare', 'Ali', 'Tencent', 'Custom']);
 
@@ -86,6 +88,13 @@ const normalizeTags = (value: unknown): string[] => {
 const compactMeta = (data: JsonMap, excluded: string[]) => {
   const excludedSet = new Set(excluded);
   return Object.fromEntries(Object.entries(data).filter(([key, value]) => !excludedSet.has(key) && value !== undefined));
+};
+
+const withoutLegacyCollectionMeta = (value: unknown): JsonMap => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter(([key]) => key !== 'subscriptionTags' && key !== 'ignoreFailedRemoteSub'),
+  );
 };
 
 const cloneJson = <T>(value: T): T => JSON.parse(JSON.stringify(value ?? null));
@@ -154,6 +163,17 @@ const toApiFilters = (process: unknown) => {
       return [{
         type: 'quick',
         ...(item.args && typeof item.args === 'object' ? item.args : {}),
+      }];
+    }
+
+    if (item.type === 'Script Filter' || item.type === 'Script Operator') {
+      const scriptId = String(item.args?.scriptId || '').trim();
+      if (!scriptId) return [];
+      return [{
+        type: 'script',
+        scriptId,
+        scriptKind: item.type === 'Script Filter' ? 'filter' : 'operator',
+        arguments: item.args?.arguments && typeof item.args.arguments === 'object' ? item.args.arguments : {},
       }];
     }
 
@@ -379,12 +399,24 @@ const fromApiFilters = (filters: unknown): UiProcess[] => {
           },
         });
       }
+
+      if (filter.type === 'script') {
+        output.push({
+          id: newUiId(),
+          type: filter.scriptKind === 'filter' ? 'Script Filter' : 'Script Operator',
+          args: {
+            scriptId: String(filter.scriptId || ''),
+            scriptKind: filter.scriptKind === 'filter' ? 'filter' : 'operator',
+            arguments: filter.arguments && typeof filter.arguments === 'object' ? cloneJson(filter.arguments) : {},
+          },
+        });
+      }
     });
   return output;
 };
 
 const fromApiSource = (source: JsonMap): Sub => {
-  const meta = source.meta && typeof source.meta === 'object' ? source.meta : {};
+  const meta = withoutLegacyCollectionMeta(source.meta);
   return {
     ...meta,
     name: source.id,
@@ -418,6 +450,8 @@ const toApiSource = (data: JsonMap) => {
       'proxy',
       'mergeSources',
       'firstSubFlow',
+      'subscriptionTags',
+      'ignoreFailedRemoteSub',
       'meta',
     ]),
   };
@@ -435,7 +469,7 @@ const toApiSource = (data: JsonMap) => {
 };
 
 const fromApiCollection = (collection: JsonMap): Collection => {
-  const meta = collection.meta && typeof collection.meta === 'object' ? collection.meta : {};
+  const meta = withoutLegacyCollectionMeta(collection.meta);
   return {
     ...meta,
     name: collection.id,
@@ -444,7 +478,7 @@ const fromApiCollection = (collection: JsonMap): Collection => {
     subscriptions: Array.isArray(collection.sourceIds) ? collection.sourceIds : [],
     process: Array.isArray(meta.actions) ? cloneJson(meta.actions) : fromApiFilters(collection.filters),
     templateId: collection.templateId || 'acl4ssr-mihomo',
-    ignoreFailedRemoteSub: collection.ignoreFailed === false ? 'disabled' : 'quiet',
+    ignoreFailedRemoteSub: collection.ignoreFailed === false ? 'disabled' : 'skip',
     enabled: collection.enabled !== false,
     tag: normalizeTags(meta.tag),
   } as Collection;
@@ -466,6 +500,7 @@ const toApiCollection = (data: JsonMap) => {
       'templateId',
       'ignoreFailed',
       'ignoreFailedRemoteSub',
+      'subscriptionTags',
       'enabled',
       'proxy',
       'mergeSources',
@@ -529,6 +564,22 @@ export function useCloudflareApi() {
         method: 'get',
       }).then(response => adaptResponseData(response, data => Array.isArray(data) ? data.map(fromApiTemplate) : data));
     },
+    getScripts: (): AxiosPromise<MyAxiosRes> => {
+      return request({
+        url: '/api/scripts',
+        method: 'get',
+      });
+    },
+    convertProxies: (data: any): AxiosPromise<MyAxiosRes> => request({ url: '/api/proxy/parse', method: 'post', data }),
+    convertRules: (data: any): AxiosPromise<MyAxiosRes> => request({ url: '/api/rule/parse', method: 'post', data }),
+    getShares: (): AxiosPromise<MyAxiosRes> => request({ url: '/api/shares', method: 'get' }),
+    createShare: (data: any): AxiosPromise<MyAxiosRes> => request({ url: '/api/shares', method: 'post', data }),
+    updateShare: (id: string, data: any): AxiosPromise<MyAxiosRes> => request({ url: `/api/shares/${encodeURIComponent(id)}`, method: 'patch', data }),
+    deleteShare: (id: string): AxiosPromise<MyAxiosRes> => request({ url: `/api/shares/${encodeURIComponent(id)}`, method: 'delete' }),
+    getRecycleBin: (): AxiosPromise<MyAxiosRes> => request({ url: '/api/recycle-bin', method: 'get' }),
+    restoreRecycleEntry: (id: string): AxiosPromise<MyAxiosRes> => request({ url: `/api/recycle-bin/${encodeURIComponent(id)}/restore`, method: 'post' }),
+    deleteRecycleEntry: (id: string): AxiosPromise<MyAxiosRes> => request({ url: `/api/recycle-bin/${encodeURIComponent(id)}`, method: 'delete' }),
+    getNodeInfo: (data: any): AxiosPromise<MyAxiosRes> => request({ url: '/api/utils/node-info', method: 'post', data }),
     createTemplate: (data: any): AxiosPromise<MyAxiosRes> => {
       return request({
         url: '/api/templates',

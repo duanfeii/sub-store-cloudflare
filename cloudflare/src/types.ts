@@ -1,15 +1,3 @@
-export type SubStoreEnv = {
-  ASSETS?: Fetcher;
-  DB: D1Database;
-  SUB_STORE_APP_NAME?: string;
-  SUB_STORE_ADMIN_TOKEN?: string;
-  SUB_STORE_PUBLIC_DOWNLOAD_HOSTS?: string;
-  SUB_STORE_PUBLIC_DOWNLOAD_TOKEN?: string;
-  SUB_STORE_BOOTSTRAP_SOURCE_NAME?: string;
-  SUB_STORE_BOOTSTRAP_SOURCE_DISPLAY_NAME?: string;
-  SUB_STORE_BOOTSTRAP_SOURCE_CONTENT?: string;
-};
-
 export type FilterRule = {
   type:
     | "include"
@@ -40,7 +28,17 @@ export type FilterRule = {
   url?: string;
   edns?: string;
   concurrency?: number | string;
+  scriptId?: string;
+  scriptKind?: "filter" | "operator";
+  arguments?: Record<string, unknown>;
   [key: string]: unknown;
+};
+
+export type ProxyNode = Record<string, unknown> & {
+  name: string;
+  type: string;
+  server?: string;
+  port?: number;
 };
 
 export type SubscriptionSource = {
@@ -115,6 +113,35 @@ export type SubscriptionTarget =
   | "v2ray"
   | "uri"
   | "json";
+
+export type SubscriptionResponseMetadata = {
+  subscriptionUserinfo?: string;
+  profileWebPageUrl?: string;
+  profileUpdateInterval?: string;
+  contentDisposition?: string;
+  etag?: string;
+  lastModified?: string;
+  cacheStatus?: "hit" | "miss" | "refresh" | "stale" | "disabled";
+};
+
+export type DownloadGrantRecord = {
+  id: string;
+  resourceType: "source" | "collection";
+  resourceId: string;
+  target?: SubscriptionTarget;
+  expiresAt?: number;
+  enabled: boolean;
+  createdAt: number;
+  updatedAt: number;
+};
+
+export type RecycleBinRecord = {
+  id: string;
+  resourceType: "source" | "collection" | "template" | "share";
+  resourceId: string;
+  snapshot: Record<string, unknown>;
+  deletedAt: number;
+};
 
 export type SourceRecord = {
   id: string;

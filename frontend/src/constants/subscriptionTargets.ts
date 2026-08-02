@@ -1,5 +1,3 @@
-import type { Component } from 'vue';
-
 import jsonIcon from '@/assets/icons/json.svg';
 import uriIcon from '@/assets/icons/uri.svg';
 import v2rayIcon from '@/assets/icons/v2ray.png';
@@ -7,7 +5,6 @@ import singboxIcon from '@/assets/icons/sing-box.png';
 import clashmetaIcon from '@/assets/icons/clashmeta.png';
 import stashIcon from '@/assets/icons/stash.png';
 import surgeIcon from '@/assets/icons/surge.png';
-import surgeMacIcon from '@/assets/icons/surgeformac_icon.png';
 import loonIcon from '@/assets/icons/loon.png';
 import quanxIcon from '@/assets/icons/quanx.png';
 import shadowrocketIcon from '@/assets/icons/shadowrocket.png';
@@ -29,19 +26,19 @@ export type DownloadTarget =
   | 'uri'
   | 'json';
 
-export type TemplateTarget = 'mihomo' | 'stash' | 'surge-mac';
+export type TemplateTarget = 'mihomo' | 'stash';
 
 export type SubscriptionTargetOption<T extends string = string> = {
   value: T;
   label: string;
-  icon?: string | Component;
+  icon?: string;
 };
 
 export const DOWNLOAD_TARGET_OPTIONS: SubscriptionTargetOption<DownloadTarget>[] = [
   { value: 'mihomo', label: 'Mihomo', icon: clashmetaIcon },
   { value: 'stash', label: 'Stash', icon: stashIcon },
   { value: 'surge', label: 'Surge', icon: surgeIcon },
-  { value: 'surge-mac', label: 'Surge Mac', icon: surgeMacIcon },
+  { value: 'surge-mac', label: 'Surge Mac', icon: surgeIcon },
   { value: 'loon', label: 'Loon', icon: loonIcon },
   { value: 'qx', label: 'Quantumult X', icon: quanxIcon },
   { value: 'shadowrocket', label: 'Shadowrocket', icon: shadowrocketIcon },
@@ -56,7 +53,6 @@ export const DOWNLOAD_TARGET_OPTIONS: SubscriptionTargetOption<DownloadTarget>[]
 export const TEMPLATE_TARGET_OPTIONS: SubscriptionTargetOption<TemplateTarget>[] = [
   { value: 'mihomo', label: 'Mihomo' },
   { value: 'stash', label: 'Stash' },
-  { value: 'surge-mac', label: 'Surge Mac' },
 ];
 
 export const getTargetLabel = (value?: string) => {

@@ -10,7 +10,7 @@ Use this during development:
 pnpm run check
 ```
 
-It runs the Worker TypeScript check and the frontend locale/build check.
+It runs Worker and test TypeScript checks plus the frontend locale/build check.
 
 ## Release Gate
 
@@ -21,10 +21,23 @@ pnpm run check:release
 pnpm run deploy:dry-run
 ```
 
+部署体验相关的独立检查：
+
+```bash
+pnpm run check:installer
+pnpm run check:deploy-experience
+```
+
+它们验证 CLI 快速配置生成、URL 校验、默认组合逻辑、Deploy Button Secret 安全默认、root Wrangler bindings、README 快速入口和升级链接。
+
 `check:release` covers:
 
 - Worker TypeScript.
+- Worker test TypeScript.
+- Workers runtime and D1 migration integration tests.
 - Frontend locales and production build.
+- Frontend and Worker production dependency audits.
+- Real `wrangler dev` startup and response-header smoke testing.
 - Agent setup validation.
 - Seed SQL rendering.
 - Local Wrangler deploy config rendering.
@@ -40,13 +53,21 @@ pnpm run deploy:dry-run
 
 ```bash
 pnpm run check:worker
+pnpm run check:tests
+pnpm run check:audit
+pnpm run check:runtime
+pnpm run check:scripts
 pnpm run check:frontend
 pnpm run check:agent
+pnpm run check:installer
+pnpm run check:deploy-experience
 pnpm run check:worker-contract
 pnpm run check:docs
 pnpm run check:open-source
 pnpm run check:history -- main
 ```
+
+The Worker tests run through Cloudflare's Vitest integration, apply the real D1 migrations, and dispatch requests to the actual Worker entrypoint. They cover auth, security headers, code-owned built-in templates and scripts, storage restore, download rendering, JSON5 and client-line parsers, rule conversion, remote metadata and Cache API behavior, scoped download grants, recycle/restore, and payload limits. `check:scripts` also generates the registry, performs a Wrangler dry-run bundle, and enforces a 2.5 MiB gzip release budget below the 3 MiB Workers Free limit.
 
 ## Deployment Doctor
 
