@@ -6,6 +6,11 @@ This project follows semantic versioning where practical.
 
 ## [Unreleased]
 
+### Fixed
+
+- Built-in ACL4SSR rule providers now set `format: text` so Mihomo can load `.list` files instead of treating them as YAML.
+- Template rendering now drops dangling proxy-group references and uses the first rendered group for an empty-rule fallback MATCH.
+
 ## [1.1.0] - 2026-07-11
 
 ### Added

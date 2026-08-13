@@ -25,11 +25,16 @@ const defaultDns = {
 };
 
 function provider(url: string, behavior: "domain" | "ipcidr" | "classical" = "classical") {
+  const filename = url.split("/").pop() || "ruleset";
+  // Mihomo defaults rule-provider format to yaml. ACL4SSR .list files are
+  // Surge-style text; Loyalsoldier .txt and blackmatrix .yaml ship YAML payloads.
+  const format = filename.endsWith(".list") ? "text" : "yaml";
   return {
     type: "http",
     behavior,
+    format,
     url,
-    path: `./ruleset/${url.split("/").pop() || "ruleset"}`,
+    path: `./ruleset/${filename}`,
     interval: 86400,
   };
 }

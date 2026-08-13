@@ -144,7 +144,7 @@ Cloudflare Worker
 - `rule-providers`
 - `rules`
 
-`proxyGroups[].proxies` 或 `proxy-groups[].proxies` 里可以使用 `$all`，生成时会展开为当前组合订阅里的全部节点。Surge、Surfboard、Loon、Egern、Shadowrocket、Quantumult X、sing-box、v2ray、URI 和 JSON 输出使用同一套节点解析与过滤结果，但不读取 Mihomo 规则模板。
+`proxyGroups[].proxies` 或 `proxy-groups[].proxies` 里可以使用 `$all`，生成时会展开为当前组合订阅里的全部节点。空的或只引用已删除组的 `proxy-groups` 不会写进最终 YAML。内置 ACL4SSR `.list` 规则集会带上 `format: text`；Loyalsoldier / blackmatrix 规则集使用 YAML payload，因此是 `format: yaml`。Surge、Surfboard、Loon、Egern、Shadowrocket、Quantumult X、sing-box、v2ray、URI 和 JSON 输出使用同一套节点解析与过滤结果，但不读取 Mihomo 规则模板。
 
 ## 为什么只用 D1
 
