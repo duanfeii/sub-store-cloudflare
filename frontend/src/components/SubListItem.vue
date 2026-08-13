@@ -125,6 +125,8 @@
             </template>
             <div v-else class="sub-item-overflow" @click.stop>
               <button
+                ref="overflowTriggerRef"
+                type="button"
                 class="sub-item-action"
                 :aria-label="t('navBar.actions.more')"
                 :title="t('navBar.actions.more')"
@@ -133,49 +135,54 @@
               >
                 <font-awesome-icon icon="fa-solid fa-ellipsis" />
               </button>
-              <div
-                v-if="overflowMenuOpen"
-                class="sub-item-overflow__menu"
-                role="menu"
-              >
-                <button
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runOverflowAction(onClickEdit)"
+              <!-- Teleport to body so sibling cards / list overflow cannot cover the menu -->
+              <Teleport to="body">
+                <div
+                  v-if="overflowMenuOpen"
+                  class="sub-item-overflow-portal"
+                  :style="overflowMenuStyle"
+                  role="menu"
+                  @click.stop
                 >
-                  <font-awesome-icon icon="fa-solid fa-pen-to-square" />
-                  <span>{{ t('subPage.actions.edit') }}</span>
-                </button>
-                <button
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runOverflowAction(onClickCopyConfig)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-clone" />
-                  <span>{{ t('subPage.actions.cloneConfig') }}</span>
-                </button>
-                <button
-                  v-if="props.type === 'sub'"
-                  type="button"
-                  class="sub-item-overflow__item"
-                  role="menuitem"
-                  @click.stop="runOverflowAction(onClickRefresh)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
-                  <span>{{ t('subPage.actions.refresh') }}</span>
-                </button>
-                <button
-                  type="button"
-                  class="sub-item-overflow__item sub-item-overflow__item--danger"
-                  role="menuitem"
-                  @click.stop="runOverflowAction(onClickDelete)"
-                >
-                  <font-awesome-icon icon="fa-solid fa-trash-can" />
-                  <span>{{ t('subPage.actions.delete') }}</span>
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    class="sub-item-overflow__item"
+                    role="menuitem"
+                    @click.stop="runOverflowAction(onClickEdit)"
+                  >
+                    <font-awesome-icon icon="fa-solid fa-pen-to-square" />
+                    <span>{{ t('subPage.actions.edit') }}</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="sub-item-overflow__item"
+                    role="menuitem"
+                    @click.stop="runOverflowAction(onClickCopyConfig)"
+                  >
+                    <font-awesome-icon icon="fa-solid fa-clone" />
+                    <span>{{ t('subPage.actions.cloneConfig') }}</span>
+                  </button>
+                  <button
+                    v-if="props.type === 'sub'"
+                    type="button"
+                    class="sub-item-overflow__item"
+                    role="menuitem"
+                    @click.stop="runOverflowAction(onClickRefresh)"
+                  >
+                    <font-awesome-icon icon="fa-solid fa-arrow-rotate-right" />
+                    <span>{{ t('subPage.actions.refresh') }}</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="sub-item-overflow__item sub-item-overflow__item--danger"
+                    role="menuitem"
+                    @click.stop="runOverflowAction(onClickDelete)"
+                  >
+                    <font-awesome-icon icon="fa-solid fa-trash-can" />
+                    <span>{{ t('subPage.actions.delete') }}</span>
+                  </button>
+                </div>
+              </Teleport>
             </div>
           </div>
         </div>
@@ -372,7 +379,7 @@ import { Dialog, Toast } from "@nutui/nutui";
 import { useClipboard, useMediaQuery } from "@vueuse/core";
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
-import { computed, onBeforeUnmount, onMounted, ref, toRaw } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRaw, type CSSProperties } from "vue";
 import useV3Clipboard from "vue-clipboard3";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -406,8 +413,40 @@ const { t } = useI18n();
 
 /** Mobile: collapse secondary card actions into a compact overflow menu */
 const overflowMenuOpen = ref(false);
-const toggleOverflowMenu = () => {
-  overflowMenuOpen.value = !overflowMenuOpen.value;
+const overflowTriggerRef = ref<HTMLElement | null>(null);
+const overflowMenuStyle = ref<CSSProperties>({});
+
+const updateOverflowMenuPosition = () => {
+  const el = overflowTriggerRef.value;
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const menuWidth = 176;
+  const gap = 6;
+  // Prefer below the button; flip above when near the bottom of the viewport
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const openUpward = spaceBelow < 200 && rect.top > spaceBelow;
+  const left = Math.min(
+    Math.max(8, rect.right - menuWidth),
+    window.innerWidth - menuWidth - 8,
+  );
+  overflowMenuStyle.value = {
+    position: "fixed",
+    left: `${left}px`,
+    zIndex: 12000,
+    ...(openUpward
+      ? { bottom: `${window.innerHeight - rect.top + gap}px`, top: "auto" }
+      : { top: `${rect.bottom + gap}px`, bottom: "auto" }),
+  };
+};
+
+const toggleOverflowMenu = async () => {
+  if (overflowMenuOpen.value) {
+    overflowMenuOpen.value = false;
+    return;
+  }
+  overflowMenuOpen.value = true;
+  await nextTick();
+  updateOverflowMenuPosition();
 };
 const closeOverflowMenu = () => {
   overflowMenuOpen.value = false;
@@ -419,14 +458,27 @@ const runOverflowAction = (action: () => void) => {
 const onDocumentPointerDown = (event: Event) => {
   if (!overflowMenuOpen.value) return;
   const target = event.target as HTMLElement | null;
-  if (target?.closest?.(".sub-item-overflow")) return;
+  if (
+    target?.closest?.(".sub-item-overflow") ||
+    target?.closest?.(".sub-item-overflow-portal")
+  ) {
+    return;
+  }
   closeOverflowMenu();
+};
+const onViewportChange = () => {
+  if (!overflowMenuOpen.value) return;
+  updateOverflowMenuPosition();
 };
 onMounted(() => {
   document.addEventListener("pointerdown", onDocumentPointerDown, true);
+  window.addEventListener("resize", onViewportChange, { passive: true });
+  window.addEventListener("scroll", onViewportChange, { passive: true, capture: true });
 });
 onBeforeUnmount(() => {
   document.removeEventListener("pointerdown", onDocumentPointerDown, true);
+  window.removeEventListener("resize", onViewportChange);
+  window.removeEventListener("scroll", onViewportChange, true);
 });
 
 /** Desktop Modal · Mobile Bottom Sheet */
@@ -1299,78 +1351,6 @@ const refreshSubFlowsIfNeeded = async () => {
         position: relative;
         display: flex;
         align-items: center;
-
-        &__menu {
-          position: absolute;
-          top: calc(100% + 6px);
-          right: 0;
-          z-index: 50;
-          min-width: 168px;
-          padding: 6px;
-          border-radius: 12px;
-          border: 1px solid var(--divider-color);
-          background: var(--popup-color, var(--card-color));
-          box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-        }
-
-        &__item {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          min-height: 40px;
-          padding: 8px 12px;
-          border: 0;
-          border-radius: 8px;
-          background: transparent;
-          color: var(--primary-text-color);
-          font-size: 13px;
-          font-weight: 500;
-          text-align: left;
-          cursor: pointer;
-          white-space: nowrap;
-          transition: background-color 0.15s ease, color 0.15s ease;
-
-          svg {
-            width: 14px;
-            height: 14px;
-            flex-shrink: 0;
-            color: var(--comment-text-color);
-            transition: color 0.15s ease;
-          }
-
-          &:active {
-            background: rgba(148, 163, 184, 0.14);
-            transform: none;
-          }
-
-          @media (hover: hover) and (pointer: fine) {
-            &:hover {
-              background: rgba(148, 163, 184, 0.12);
-            }
-          }
-
-          &--danger {
-            color: #ef4444;
-
-            svg {
-              color: #ef4444;
-            }
-
-            @media (hover: hover) and (pointer: fine) {
-              &:hover {
-                background: rgba(239, 68, 68, 0.1);
-                color: #dc2626;
-
-                svg {
-                  color: #dc2626;
-                }
-              }
-            }
-          }
-        }
       }
     }
 
@@ -1609,6 +1589,75 @@ const refreshSubFlowsIfNeeded = async () => {
   overflow: auto;
   padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
   -webkit-overflow-scrolling: touch;
+}
+
+/* Body-teleported overflow menu — lives above list cards */
+.sub-item-overflow-portal {
+  box-sizing: border-box;
+  min-width: 176px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--divider-color);
+  background: var(--popup-color, var(--card-color));
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.sub-item-overflow__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--primary-text-color);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--comment-text-color);
+  }
+
+  &:active {
+    background: rgba(148, 163, 184, 0.14);
+    transform: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: rgba(148, 163, 184, 0.12);
+    }
+  }
+
+  &--danger {
+    color: #ef4444;
+
+    svg {
+      color: #ef4444;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+
+        svg {
+          color: #dc2626;
+        }
+      }
+    }
+  }
 }
 
 .sub-img-wrappers {
