@@ -21,7 +21,7 @@ Do not add R2, KV, Durable Objects, Queues, Cron, file hosting, sync providers, 
 
 ## Frontend UI
 
-When changing admin UI layout, navigation, forms, themes, or motion, read [docs/design-guidelines.md](docs/design-guidelines.md). Agents can also use [`.agents/skills/web-design-guidelines`](.agents/skills/web-design-guidelines/SKILL.md) to review against Web Interface Guidelines plus this project's design system.
+When changing admin UI layout, navigation, forms, themes, or motion, follow [`.agents/skills/web-design-guidelines`](.agents/skills/web-design-guidelines/SKILL.md) (Web Interface Guidelines + this project's design system).
 
 ## Development
 
