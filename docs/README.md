@@ -13,6 +13,8 @@
 - [troubleshooting.md](troubleshooting.md)：部署、D1、secret、下载链接和过滤器问题排查。
 - [release.md](release.md)：发布前检查、tag 和 GitHub Release 流程。
 - [language-policy.md](language-policy.md)：中文主文档和英文覆盖范围。
+- [design-guidelines.md](design-guidelines.md)：管理端 UI 设计系统（token、导航、浮层、移动端与反模式）。
+- [../.agents/skills/web-design-guidelines/SKILL.md](../.agents/skills/web-design-guidelines/SKILL.md)：审查 UI 时使用的 Agent skill（通用 Web Interface Guidelines + 本仓库设计指南）。
 - [../AGENTS.md](../AGENTS.md)：AI Agent 的固定安装协议。
 - [../agent/SKILL.md](../agent/SKILL.md)：可复制给 AI Agent 的 skill-like 安装入口。
 - [../agent/install.prompt.md](../agent/install.prompt.md)：给 Codex / Claude Code 的一段式安装提示词。
