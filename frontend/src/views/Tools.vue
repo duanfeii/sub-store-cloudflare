@@ -12,19 +12,23 @@
       <div class="tool-card">
         <div class="row">
           <div class="form-field">
-            <select v-model="conversionKind" class="field-control">
+            <label class="field-label" for="tools-conversion-kind">{{ t('toolsPage.converter.proxy') }} / {{ t('toolsPage.converter.rule') }}</label>
+            <select id="tools-conversion-kind" v-model="conversionKind" class="field-control">
               <option value="proxy">{{ t('toolsPage.converter.proxy') }}</option>
               <option value="rule">{{ t('toolsPage.converter.rule') }}</option>
             </select>
           </div>
           <div class="form-field">
-            <select v-model="conversionTarget" class="field-control">
+            <label class="field-label" for="tools-conversion-target">{{ t('toolsPage.converter.title') }}</label>
+            <select id="tools-conversion-target" v-model="conversionTarget" class="field-control">
               <option v-for="target in conversionTargets" :key="target" :value="target">{{ target }}</option>
             </select>
           </div>
         </div>
 
+        <label class="field-label" for="tools-conversion-input">{{ t('toolsPage.converter.input') }}</label>
         <textarea
+          id="tools-conversion-input"
           v-model="conversionInput"
           class="field-control field-control--mono"
           :placeholder="t('toolsPage.converter.input')"
@@ -32,16 +36,18 @@
 
         <div class="actions">
           <nut-button type="primary" :loading="converting" @click="runConversion">
-            <font-awesome-icon icon="fa-solid fa-play" class="btn-icon" />
+            <font-awesome-icon icon="fa-solid fa-play" class="btn-icon" aria-hidden="true" />
             {{ t('toolsPage.converter.run') }}
           </nut-button>
           <nut-button plain type="primary" :disabled="!conversionOutput" @click="copyText(conversionOutput)">
-            <font-awesome-icon icon="fa-solid fa-clone" class="btn-icon" />
+            <font-awesome-icon icon="fa-solid fa-clone" class="btn-icon" aria-hidden="true" />
             {{ t('toolsPage.converter.copy') }}
           </nut-button>
         </div>
 
+        <label class="field-label" for="tools-conversion-output">{{ t('toolsPage.converter.output') }}</label>
         <textarea
+          id="tools-conversion-output"
           v-model="conversionOutput"
           class="field-control field-control--mono"
           readonly
@@ -63,26 +69,34 @@
       <div class="tool-card">
         <div class="row share-form">
           <div class="form-field">
-            <select v-model="shareForm.resourceType" class="field-control">
+            <label class="field-label" for="tools-share-type">{{ t('toolsPage.shares.source') }}</label>
+            <select id="tools-share-type" v-model="shareForm.resourceType" class="field-control">
               <option value="source">{{ t('toolsPage.shares.source') }}</option>
               <option value="collection">{{ t('toolsPage.shares.collection') }}</option>
             </select>
           </div>
           <div class="form-field form-field--grow">
+            <label class="field-label" for="tools-share-id">{{ t('toolsPage.shares.resourceId') }}</label>
             <input
+              id="tools-share-id"
               v-model.trim="shareForm.resourceId"
               class="field-control"
               :placeholder="t('toolsPage.shares.resourceId')"
+              autocomplete="off"
+              spellcheck="false"
             />
           </div>
           <div class="form-field">
-            <select v-model="shareForm.target" class="field-control">
+            <label class="field-label" for="tools-share-target">{{ t('toolsPage.shares.auto') }}</label>
+            <select id="tools-share-target" v-model="shareForm.target" class="field-control">
               <option value="">{{ t('toolsPage.shares.auto') }}</option>
               <option v-for="target in proxyTargets" :key="target" :value="target">{{ target }}</option>
             </select>
           </div>
           <div class="form-field">
+            <label class="field-label" for="tools-share-expires">{{ t('toolsPage.shares.expires') }}</label>
             <input
+              id="tools-share-expires"
               v-model="shareForm.expiresHours"
               class="field-control"
               type="number"
@@ -94,15 +108,20 @@
         </div>
 
         <nut-button type="primary" :loading="shareCreating" @click="createShare">
-          <font-awesome-icon icon="fa-solid fa-plus" class="btn-icon" />
+          <font-awesome-icon icon="fa-solid fa-plus" class="btn-icon" aria-hidden="true" />
           {{ t('toolsPage.shares.create') }}
         </nut-button>
       </div>
 
-      <div v-if="createdShareUrl" class="created-link" @click="copyText(createdShareUrl)">
-        <font-awesome-icon icon="fa-solid fa-link" class="btn-icon" />
+      <button
+        v-if="createdShareUrl"
+        type="button"
+        class="created-link"
+        @click="copyText(createdShareUrl)"
+      >
+        <font-awesome-icon icon="fa-solid fa-link" class="btn-icon" aria-hidden="true" />
         {{ createdShareUrl }}
-      </div>
+      </button>
 
       <div v-if="loadingShares" class="feature-card-list">
         <div class="feature-card skeleton-card skeleton-pulse">
@@ -192,6 +211,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Dialog } from '@nutui/nutui';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCloudflareApi } from '@/api/app';
@@ -299,9 +319,31 @@ const createShare = async () => {
 };
 
 const toggleShare = async (share: any) => { await api.updateShare(share.id, { enabled: !share.enabled }); await loadShares(); };
-const removeShare = async (id: string) => { await api.deleteShare(id); await Promise.all([loadShares(), loadRecycle()]); };
+const removeShare = (id: string) => {
+  Dialog({
+    title: t('myPage.btn.delete'),
+    content: t('toolsPage.shares.title'),
+    cancelText: t('myPage.btn.cancel'),
+    okText: t('myPage.btn.delete'),
+    onOk: async () => {
+      await api.deleteShare(id);
+      await Promise.all([loadShares(), loadRecycle()]);
+    },
+  });
+};
 const restoreEntry = async (id: string) => { await api.restoreRecycleEntry(id); await loadRecycle(); };
-const purgeEntry = async (id: string) => { await api.deleteRecycleEntry(id); await loadRecycle(); };
+const purgeEntry = (id: string) => {
+  Dialog({
+    title: t('toolsPage.recycle.purge'),
+    content: t('toolsPage.recycle.desc'),
+    cancelText: t('myPage.btn.cancel'),
+    okText: t('toolsPage.recycle.purge'),
+    onOk: async () => {
+      await api.deleteRecycleEntry(id);
+      await loadRecycle();
+    },
+  });
+};
 const copyText = async (value: string) => { await navigator.clipboard.writeText(value); showNotify({ type: 'success', title: t('toolsPage.notify.copied') }); };
 const notifyError = (error: unknown) => showNotify({ type: 'danger', title: t('toolsPage.notify.failed', { e: error instanceof Error ? error.message : String(error) }) });
 
@@ -385,11 +427,22 @@ onMounted(() => Promise.all([loadShares(), loadRecycle()]));
 .form-field {
   flex: 1;
   min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 
   &--grow {
     flex: 2;
     min-width: 180px;
   }
+}
+
+.field-label {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--second-text-color);
+  line-height: 1.3;
 }
 
 // Standardized Control Heights (40px/44px) & Focus Ring
@@ -462,11 +515,23 @@ select.field-control {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  width: 100%;
+  text-align: left;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 
-  &:hover {
-    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
-    border-color: var(--primary-color);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+      border-color: var(--primary-color);
+    }
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
   }
 }
 

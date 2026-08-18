@@ -1,8 +1,9 @@
 <template>
   <div class="app-shell">
+    <a class="skip-to-main" href="#main-content">{{ skipToMainLabel }}</a>
     <div class="app-shell__main">
       <NavBar />
-      <main class="page-body">
+      <main id="main-content" class="page-body" tabindex="-1">
         <!-- Unauthorized / backend unreachable: always show in-page token form -->
         <AdminTokenPanel v-if="showAuthGate" />
         <router-view v-else />
@@ -21,6 +22,12 @@ import { getFlowsUrlList } from "@/utils/getFlowsUrlList";
 import { initStores } from "@/utils/initApp";
 import { storeToRefs } from "pinia";
 import { computed, ref, watchEffect, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { locale } = useI18n();
+const skipToMainLabel = computed(() =>
+  String(locale.value || "").startsWith("zh") ? "跳到主要内容" : "Skip to main content",
+);
 
 const subsStore = useSubsStore();
 const globalStore = useGlobalStore();
