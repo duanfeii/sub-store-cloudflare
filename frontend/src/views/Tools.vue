@@ -194,7 +194,7 @@
         <div v-for="entry in recycleEntries" :key="entry.id" class="feature-card">
           <div class="feature-card__main">
             <strong class="feature-card__title">{{ resourceTypeLabel(entry.resourceType) }}/{{ entry.resourceId }}</strong>
-            <div class="feature-card__meta mono-time">{{ new Date(entry.deletedAt).toLocaleString() }}</div>
+            <div class="feature-card__meta mono-time">{{ formatDateTime(entry.deletedAt) }}</div>
           </div>
           <div class="feature-card__actions">
             <nut-button plain type="primary" size="mini" @click="restoreEntry(entry.id)">
@@ -217,7 +217,7 @@ import { useI18n } from 'vue-i18n';
 import { useCloudflareApi } from '@/api/app';
 import { useAppNotifyStore } from '@/store/appNotify';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const api = useCloudflareApi();
 const { showNotify } = useAppNotifyStore();
 const proxyTargets = ['mihomo', 'stash', 'surge', 'surge-mac', 'surfboard', 'loon', 'egern', 'shadowrocket', 'qx', 'sing-box', 'v2ray', 'uri', 'json'];
@@ -228,6 +228,16 @@ const conversionInput = ref('');
 const conversionOutput = ref('');
 const conversionStats = ref('');
 const converting = ref(false);
+
+const formatDateTime = (value?: string | number | Date | null) => {
+  if (value == null || value === '') return '';
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat(locale.value || undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+};
 const shares = ref<any[]>([]);
 const recycleEntries = ref<any[]>([]);
 const loadingShares = ref(true);
@@ -246,7 +256,7 @@ const resourceTypeLabel = (type: string) => {
 const shareMeta = (share: { target?: string; expiresAt?: string | null }) => {
   const target = share.target || t('toolsPage.shares.auto');
   const expires = share.expiresAt
-    ? new Date(share.expiresAt).toLocaleString()
+    ? formatDateTime(share.expiresAt)
     : t('toolsPage.shares.never');
   return t('toolsPage.shares.meta', { target, expires });
 };
@@ -552,6 +562,8 @@ select.field-control {
   padding: 12px 14px;
   border-radius: var(--radius-lg, var(--item-card-radios));
   background: var(--card-color);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 56px;
   border: 1px solid var(--divider-color);
   transition: transform 140ms ease-out, border-color 160ms ease, background-color 160ms ease;
 
@@ -629,6 +641,7 @@ select.field-control {
 .mono-time {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 .status-pill {
@@ -662,6 +675,8 @@ select.field-control {
 .stats {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 @media (max-width: 520px) {

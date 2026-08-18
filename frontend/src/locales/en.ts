@@ -50,7 +50,7 @@ export default {
     },
     listSearch: {
       open: "Search",
-      placeholder: "Name/tags/remarks (if shown)",
+      placeholder: "Name/tags/remarks (if shown)…",
       clear: "Clear search",
       close: "Close search"
     },
@@ -78,8 +78,8 @@ export default {
       desc: "Paste nodes, a subscription, or rules and convert without saving to D1.",
       proxy: "Nodes / subscription",
       rule: "Rules",
-      input: "Paste content to convert",
-      output: "Converted result",
+      input: "Paste content to convert…",
+      output: "Converted result…",
       run: "Convert",
       copy: "Copy result",
       stats: "parsed {parsed} · emitted {emitted} · skipped {skipped}"
@@ -88,9 +88,9 @@ export default {
       title: "Scoped share links",
       desc: "Create revocable and expiring links restricted to one source or collection and optional output target. Tokens are shown only once.",
       resourceType: "Resource type",
-      resourceId: "Resource ID",
-      target: "Optional output restriction",
-      expires: "Lifetime in hours; 0 never expires",
+      resourceId: "Resource ID…",
+      target: "Optional output restriction…",
+      expires: "Lifetime in hours; 0 never expires…",
       create: "Create link",
       empty: "No scoped links",
       disable: "Disable",
@@ -339,7 +339,7 @@ export default {
         },
         tag: {
           label: "Tag(s)",
-          placeholder: "Type a tag, then press Enter or Confirm",
+          placeholder: "Type a tag, then press Enter or Confirm…",
           confirm: "Add",
           remove: "Remove tag"
         },

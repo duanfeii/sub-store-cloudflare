@@ -1151,6 +1151,9 @@ const refreshSubFlowsIfNeeded = async () => {
   display: block;
   min-width: 0;
   border-radius: var(--radius-lg, var(--item-card-radios));
+  /* Lightweight list virtualization for long subscription lists */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 88px;
 
   &.is-desktop {
     overflow: visible;
