@@ -17,6 +17,7 @@
             <font-awesome-icon
               class="nav-btn__icon"
               icon="fa-solid fa-arrow-left"
+              aria-hidden="true"
             />
           </button>
           <h1
@@ -27,14 +28,12 @@
             {{ currentTitle }}
           </h1>
         </template>
-        <div
+        <a
           v-else
           class="app-brand"
-          role="link"
-          tabindex="0"
+          href="/"
           :aria-label="t('navBar.brand.home')"
-          @click.stop="router.push('/')"
-          @keydown.enter.stop.prevent="router.push('/')"
+          @click.stop.prevent="router.push('/')"
         >
           <img
             class="app-brand__logo"
@@ -44,23 +43,22 @@
             height="20"
           />
           <span class="app-brand__name">Sub Store</span>
-        </div>
+        </a>
       </div>
 
       <!-- Primary tabs always visible — including on secondary pages -->
       <div class="nav-bar__center">
-        <div class="nav-segmented-control">
-          <button
+        <div class="nav-segmented-control" role="navigation" aria-label="Sub Store">
+          <router-link
             v-for="item in navTabs"
             :key="item.path"
-            type="button"
+            :to="item.path"
             class="nav-segmented-item"
             :class="{ 'is-active': isTabActive(item.path) }"
-            @click="router.push(item.path)"
           >
-            <font-awesome-icon :icon="item.icon" class="nav-segmented-item__icon" />
+            <font-awesome-icon :icon="item.icon" class="nav-segmented-item__icon" aria-hidden="true" />
             <span class="nav-segmented-item__label">{{ item.label }}</span>
-          </button>
+          </router-link>
         </div>
       </div>
 
@@ -76,6 +74,7 @@
           <font-awesome-icon
             class="nav-btn__icon"
             icon="fa-solid fa-arrow-rotate-right"
+            aria-hidden="true"
           />
         </button>
         <LanguageSwitcherButton variant="icon" />
@@ -89,6 +88,7 @@
           <font-awesome-icon
             class="nav-btn__icon"
             :icon="themeActionIcon"
+            aria-hidden="true"
           />
         </button>
       </div>
@@ -397,9 +397,18 @@ const toggleTheme = async () => {
   color: var(--second-text-color);
   font-size: 13px;
   font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
   transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
+  }
 
   @media screen and (min-width: $breakpoint-md) {
     min-height: 0;
@@ -479,6 +488,11 @@ const toggleTheme = async () => {
 
   &:focus {
     outline: none;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
   }
 
   &__icon {

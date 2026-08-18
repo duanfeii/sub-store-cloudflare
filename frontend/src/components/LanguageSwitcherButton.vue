@@ -127,6 +127,10 @@ onUnmounted(() => {
     outline: none;
   }
 
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
+  }
+
   &:active {
     transform: scale(0.95);
   }

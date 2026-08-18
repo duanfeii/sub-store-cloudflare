@@ -195,7 +195,7 @@
     color: var(--comment-text-color);
     font-size: 12px;
     gap: 6px;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
     &:hover {
       background: color-mix(in srgb, var(--primary-color) 14%, transparent);
@@ -271,7 +271,7 @@
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid var(--divider-color);
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
           &:hover {
             background: color-mix(in srgb, var(--primary-color) 15%, transparent);

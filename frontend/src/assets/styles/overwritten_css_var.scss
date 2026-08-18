@@ -155,9 +155,10 @@
   border: 1px solid var(--divider-color) !important;
   box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.28) !important;
   overflow: hidden !important;
+  overscroll-behavior: contain;
 }
 
-// Mobile bottom sheet for copy/preview subscription
+// Mobile bottom sheet for copy/preview / short tasks
 .preview-sheet-popup {
   z-index: var(--z-drawer, 11000) !important;
   background-color: var(--popup-color) !important;
@@ -166,23 +167,29 @@
   border-bottom: 0 !important;
   box-shadow: 0 -12px 40px -8px rgba(0, 0, 0, 0.22) !important;
   overflow: hidden !important;
+  overscroll-behavior: contain;
 }
 
-// Shared shell for template editor modal/sheet (settings)
+// Shared shell for template / add-sub modal/sheet
 .template-modal-popup,
-.template-sheet-popup {
+.template-sheet-popup,
+.add-sub-modal-popup,
+.add-sub-sheet-popup {
   z-index: var(--z-drawer, 11000) !important;
   background-color: var(--popup-color) !important;
   color: var(--primary-text-color) !important;
   border: 1px solid var(--divider-color) !important;
   overflow: hidden !important;
+  overscroll-behavior: contain;
 }
 
-.template-modal-popup {
+.template-modal-popup,
+.add-sub-modal-popup {
   box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.28) !important;
 }
 
-.template-sheet-popup {
+.template-sheet-popup,
+.add-sub-sheet-popup {
   border-bottom: 0 !important;
   box-shadow: 0 -12px 40px -8px rgba(0, 0, 0, 0.22) !important;
 }
@@ -419,7 +426,7 @@ textarea::-webkit-input-placeholder {
   border-radius: var(--radius-md) !important;
   font-weight: 500 !important;
   letter-spacing: -0.01em;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease !important;
 
   &:active {
     transform: scale(0.97) !important;

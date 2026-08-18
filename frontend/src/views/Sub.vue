@@ -10,52 +10,61 @@
     <div>
       <nut-popup
         v-model:visible="addSubBtnIsVisible"
-        pop-class="side-drawer-popup add-sub-popup"
-        position="right"
-        :style="{
-          width: isMobile ? '85%' : '380px',
-          height: '100%',
-          padding: '24px 18px',
-        }"
+        :position="addSubPopupPosition"
+        :pop-class="addSubPopupClass"
+        :round="!isDesktop"
         close-icon="close-little"
         z-index="11000"
         closeable
+        :style="addSubPopupStyle"
       >
-        <div class="title-btn">
-          <p class="add-sub-panel-title">{{ $t(`subPage.addSubTitle`) }}</p>
-          <p class="add-sub-panel-title or">{{ $t(`specificWord.or`) }}</p>
-          <input ref="fileInput" type="file" accept="application/json,text/json,.json" style="display: none" @change="fileChange">
-          <nut-button
-            class="upload-btn"
-            plain
-            type="primary"
-            size="small"
-            :disabled="restoreIsLoading"
-            :loading="restoreIsLoading"
-            @click="upload()"
-          >
-            <font-awesome-icon
-              v-if="!uploadIsLoading"
-              icon="fa-solid fa-file-import"
-            />
-            {{ $t(`subPage.import.label`) }}
-          </nut-button>
-          <nut-icon name="tips" @click="importTips"></nut-icon>
+        <div class="add-sub-panel">
+          <div v-if="!isDesktop" class="preview-sheet-handle" aria-hidden="true" />
+          <div class="title-btn">
+            <p class="add-sub-panel-title">{{ $t(`subPage.addSubTitle`) }}</p>
+            <p class="add-sub-panel-title or">{{ $t(`specificWord.or`) }}</p>
+            <input ref="fileInput" type="file" accept="application/json,text/json,.json" style="display: none" @change="fileChange">
+            <nut-button
+              class="upload-btn"
+              plain
+              type="primary"
+              size="small"
+              :disabled="restoreIsLoading"
+              :loading="restoreIsLoading"
+              @click="upload()"
+            >
+              <font-awesome-icon
+                v-if="!uploadIsLoading"
+                icon="fa-solid fa-file-import"
+                aria-hidden="true"
+              />
+              {{ $t(`subPage.import.label`) }}
+            </nut-button>
+            <button
+              type="button"
+              class="import-tips-btn"
+              :aria-label="$t(`subPage.import.tipsTitle`)"
+              :title="$t(`subPage.import.tipsTitle`)"
+              @click="importTips"
+            >
+              <nut-icon name="tips" aria-hidden="true"></nut-icon>
+            </button>
+          </div>
+          <ul class="add-sub-panel-list">
+            <li>
+              <router-link to="/edit/subs/UNTITLED" class="router-link">
+                <svg-icon name="singleSubs" />
+                <span>{{ $t(`specificWord.singleSub`) }}</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/edit/collections/UNTITLED" class="router-link">
+                <svg-icon name="collectionSubs" />
+                <span>{{ $t(`specificWord.collectionSub`) }}</span>
+              </router-link>
+            </li>
+          </ul>
         </div>
-        <ul class="add-sub-panel-list">
-          <li>
-            <router-link to="/edit/subs/UNTITLED" class="router-link">
-              <svg-icon name="singleSubs" />
-              <span>{{ $t(`specificWord.singleSub`) }}</span>
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/edit/collections/UNTITLED" class="router-link">
-              <svg-icon name="collectionSubs" />
-              <span>{{ $t(`specificWord.collectionSub`) }}</span>
-            </router-link>
-          </li>
-        </ul>
       </nut-popup>
     </div>
     <!-- 浮动按钮 -->
@@ -279,6 +288,7 @@
 
 <script lang="ts" setup>
 import { Dialog } from '@nutui/nutui';
+import { useMediaQuery } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -307,6 +317,29 @@ const fileInput = ref(null);
 const uploadIsLoading = ref(false);
 const restoreIsLoading = ref(false);
 const addSubBtnIsVisible = ref(false);
+const isDesktop = useMediaQuery("(min-width: 768px)");
+const addSubPopupPosition = computed(() => (isDesktop.value ? "center" : "bottom"));
+const addSubPopupClass = computed(() =>
+  isDesktop.value ? "add-sub-modal-popup" : "add-sub-sheet-popup",
+);
+const addSubPopupStyle = computed(() => {
+  if (isDesktop.value) {
+    return {
+      width: "min(400px, 92vw)",
+      maxHeight: "min(80vh, 640px)",
+      borderRadius: "16px",
+      overflow: "hidden",
+      padding: "20px 18px",
+    };
+  }
+  return {
+    width: "100%",
+    maxHeight: "78vh",
+    borderRadius: "16px 16px 0 0",
+    overflow: "hidden",
+    padding: "12px 18px calc(18px + env(safe-area-inset-bottom))",
+  };
+});
 // const isSubFold = ref(localStorage.getItem('sub-fold') === '1');
 // const isColFold = ref(localStorage.getItem('col-fold') === '1');
 const methodStore = useMethodStore();
@@ -793,22 +826,48 @@ const importTips = () => {
   }
 }
 
-.add-sub-popup {
-  background-color: var(--popup-color);
-  // position: relative;
+.add-sub-panel {
+  background-color: transparent;
+  color: var(--second-text-color);
+
+  .preview-sheet-handle {
+    width: 36px;
+    height: 4px;
+    margin: 0 auto 10px;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--comment-text-color) 28%, transparent);
+  }
+
   .title-btn {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 12px;
-    .nut-icon {
-      color: var(--comment-text-color);
+    gap: 4px;
+  }
+
+  .import-tips-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--comment-text-color);
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
     }
-    :deep(.nut-icon-tips:before) {
-      cursor: pointer;
-      margin-left: 4px;
+
+    &:focus-visible {
+      box-shadow: 0 0 0 2px var(--focus-ring-color);
     }
   }
+
   .add-sub-panel-title {
     width: auto;
     text-align: center;

@@ -16,6 +16,7 @@ html[data-theme="light"] {
 body {
   outline: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   min-height: 100% !important;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
@@ -23,6 +24,31 @@ body {
   background-color: var(--background-color);
   color: var(--primary-text-color);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Skip link: visible on keyboard focus only */
+.skip-to-main {
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  z-index: 10000;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--card-color, #fff);
+  color: var(--primary-text-color, #0f172a);
+  border: 1px solid var(--divider-color, #e2e8f0);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-120%);
+  transition: transform 160ms ease-out;
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--focus-ring-color, rgba(15, 23, 42, 0.2));
+    transform: translateY(0);
+  }
 }
 
 a {
