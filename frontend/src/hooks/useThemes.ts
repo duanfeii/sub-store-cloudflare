@@ -130,13 +130,14 @@ const changeVariables = (newMode: CustomTheme) => {
   document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
   document.documentElement.dataset.themeName = newMode;
 
-  // 切换浏览器窗口 / 状态栏颜色
+  // Match browser chrome / theme-color to page background (not translucent nav)
   const themeColorMeta = document.getElementById('theme__color');
   if (themeColorMeta) {
-    themeColorMeta.setAttribute(
-      'content',
-      themeDef.colors['status-bar-background-color']
-    );
+    const pageBg =
+      themeDef.colors['background-color']
+      || themeDef.colors['status-bar-background-color']
+      || (isDark ? '#000000' : '#F8FAFC');
+    themeColorMeta.setAttribute('content', pageBg);
   }
   document.body.style.backgroundColor = themeDef.colors['background-color'] || '';
 };

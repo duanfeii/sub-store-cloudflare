@@ -50,7 +50,7 @@ export default {
     },
     listSearch: {
       open: "搜索",
-      placeholder: "名称/标签/备注(若开启显示)",
+      placeholder: "名称/标签/备注（若开启显示）…",
       clear: "清空搜索",
       close: "关闭搜索"
     },
@@ -78,8 +78,8 @@ export default {
       desc: "粘贴节点、订阅或规则，不保存到 D1，直接转换为目标格式。",
       proxy: "节点/订阅",
       rule: "规则",
-      input: "粘贴待转换内容",
-      output: "转换结果",
+      input: "粘贴待转换内容…",
+      output: "转换结果…",
       run: "开始转换",
       copy: "复制结果",
       stats: "解析 {parsed} · 输出 {emitted} · 跳过 {skipped}"
@@ -88,9 +88,9 @@ export default {
       title: "独立分享链接",
       desc: "为单个订阅源或组合创建可撤销、可过期、可限制格式的下载链接。Token 只在创建时显示。",
       resourceType: "资源类型",
-      resourceId: "资源 ID",
-      target: "限制输出格式，可留空",
-      expires: "有效小时数，0 表示不过期",
+      resourceId: "资源 ID…",
+      target: "限制输出格式，可留空…",
+      expires: "有效小时数，0 表示不过期…",
       create: "创建链接",
       empty: "还没有独立分享链接",
       disable: "停用",
@@ -339,7 +339,7 @@ export default {
         },
         tag: {
           label: "标签",
-          placeholder: "输入标签后按回车或点确认添加",
+          placeholder: "输入标签后按回车或点确认添加…",
           confirm: "确认",
           remove: "移除标签"
         },

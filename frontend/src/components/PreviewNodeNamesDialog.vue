@@ -144,8 +144,10 @@ const copyPrompt = async () => {
   white-space: pre;
   overflow: auto;
 
-  &:focus {
+  &:focus,
+  &:focus-visible {
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
   }
 }
 

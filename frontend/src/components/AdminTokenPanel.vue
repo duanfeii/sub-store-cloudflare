@@ -117,7 +117,8 @@ const saveTokenAndRetry = async () => {
     font-size: 14px;
     outline: none;
 
-    &:focus {
+    &:focus,
+    &:focus-visible {
       border-color: var(--primary-color);
       box-shadow: 0 0 0 2px var(--focus-ring-color, rgba(0, 0, 0, 0.06));
     }

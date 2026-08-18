@@ -547,6 +547,8 @@ import { Dialog, Toast } from "@nutui/nutui";
 import { storeToRefs } from "pinia";
 import {
   computed,
+  onBeforeUnmount,
+  onMounted,
   provide,
   reactive,
   ref,
@@ -556,7 +558,7 @@ import {
   watch,
 } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute, useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import cmView from "@/views/editCode/cmView.vue";
 import { useCodeStore } from "@/store/codeStore";
 const cmStore = useCodeStore();
@@ -579,6 +581,15 @@ const { appearanceSetting } = storeToRefs(settingsStore);
 const padding = "env(safe-area-inset-bottom)";
 const routeConfigName = computed(() => route.params.id as string);
 const isEditMode = computed(() => routeConfigName.value !== "UNTITLED");
+/** Tracks user edits after initial load for leave / unload warnings. */
+const isDirty = ref(false);
+const markClean = () => {
+  isDirty.value = false;
+};
+const markDirty = () => {
+  if (!isInit.value) return;
+  isDirty.value = true;
+};
 /** All editor sections render on one page — tab chrome removed. */
 const focusValidationErrorTab = (_errors: unknown) => {
   // No section tabs; validation dialog already shows the first error.
@@ -835,6 +846,38 @@ const form = reactive<any>({
   process: [],
 });
 provide("form", form);
+
+watch(
+  () => [form, actionsChecked, actionsList],
+  () => markDirty(),
+  { deep: true },
+);
+
+onBeforeRouteLeave(() => {
+  if (!isDirty.value) return true;
+  return new Promise<boolean>((resolve) => {
+    Dialog({
+      title: t("editorPage.subConfig.pop.leaveConfirmTitle"),
+      content: t("editorPage.subConfig.pop.leaveContent"),
+      okText: t("editorPage.subConfig.pop.leaveConfirm"),
+      cancelText: t("editorPage.subConfig.pop.leaveCancel"),
+      onOk: () => resolve(true),
+      onCancel: () => resolve(false),
+    });
+  });
+});
+
+const onBeforeUnload = (event: BeforeUnloadEvent) => {
+  if (!isDirty.value) return;
+  event.preventDefault();
+  event.returnValue = "";
+};
+onMounted(() => {
+  window.addEventListener("beforeunload", onBeforeUnload);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("beforeunload", onBeforeUnload);
+});
 
 const iconKind = computed<"sub" | "collection">(() =>
   editType === "collections" ? "collection" : "sub",
@@ -1321,6 +1364,7 @@ const submit = () => {
     }
 
     if (res?.data?.status === "success") {
+      markClean();
       router.replace("/").then(() => {
         if (res)
           showNotify({
