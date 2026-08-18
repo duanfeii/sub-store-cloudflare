@@ -19,6 +19,10 @@ Before adding a feature, read [docs/product-scope.md](docs/product-scope.md). Co
 
 Do not add R2, KV, Durable Objects, Queues, Cron, file hosting, sync providers, sharing, archive/history, script runtime, or log panels unless the product boundary is explicitly changed.
 
+## Frontend UI
+
+When changing admin UI layout, navigation, forms, themes, or motion, read [docs/design-guidelines.md](docs/design-guidelines.md). Agents can also use [`.agents/skills/web-design-guidelines`](.agents/skills/web-design-guidelines/SKILL.md) to review against Web Interface Guidelines plus this project's design system.
+
 ## Development
 
 Requires Node.js 22 and pnpm 11.
