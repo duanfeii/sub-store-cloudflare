@@ -8,7 +8,9 @@
     "dev:production": "vite --host --mode production",
     "build": "vue-tsc --noEmit && vite build",
     "check:locales": "node scripts/check-locales.mjs",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.12.0",
@@ -41,6 +43,7 @@
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^22.18.0",
     "@vitejs/plugin-vue": "^5.2.4",

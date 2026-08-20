@@ -43,6 +43,7 @@
     "check:runtime": "node scripts/smoke-worker.mjs",
     "check:scripts": "node scripts/check-script-budget.mjs",
     "check:frontend": "pnpm --dir frontend run check:locales && pnpm run build:frontend",
+    "check:visual": "pnpm run build:frontend && pnpm --dir frontend exec playwright install chromium && pnpm --dir frontend run test:visual",
     "check": "pnpm run check:worker && pnpm run check:frontend",
     "check:deploy-config": "node scripts/check-deploy-config.mjs",
     "deploy": "pnpm run scripts:generate && pnpm run db:migrations:apply && pnpm --dir cloudflare exec wrangler deploy --config ../wrangler.jsonc",

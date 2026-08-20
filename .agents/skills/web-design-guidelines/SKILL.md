@@ -3,7 +3,7 @@ name: web-design-guidelines
 description: Review UI code for Web Interface Guidelines and Sub-Store Cloudflare design-system compliance. Use when asked to "review my UI", "check accessibility", "audit design", "review UX", "check my site against best practices", or when changing frontend layout, navigation, forms, themes, or motion.
 metadata:
   author: sub-store-cloudflare
-  version: "1.1.0"
+  version: "1.1.1"
   argument-hint: <file-or-pattern>
 ---
 
@@ -130,3 +130,7 @@ Popup classes: `preview-modal-popup` / `preview-sheet-popup`, `template-modal-po
 - `frontend/src/components/NavBar.vue`, `SubListItem.vue`
 - `frontend/src/views/Sub.vue`, `Tools.vue`, `My.vue`, `SubEditor.vue`
 - `frontend/src/hooks/useThemes.ts`, `frontend/src/assets/styles/*`
+
+## Visual regression
+
+After layout / chrome / overlay / theme changes, run `pnpm run check:visual`. Snapshots are Linux Chromium baselines under `frontend/e2e/__snapshots__/`. Update with `pnpm --dir frontend run test:visual:update` only after a deliberate visual change.
