@@ -12,6 +12,7 @@ This project follows semantic versioning where practical.
 
 ### Fixed
 
+- Workers Builds install now sees `@playwright/test` in the root lockfile and skips Playwright browser download during deploy.
 - Built-in ACL4SSR rule providers now set `format: text` so Mihomo can load `.list` files instead of treating them as YAML.
 - Template rendering now drops dangling proxy-group references and uses the first rendered group for an empty-rule fallback MATCH.
 

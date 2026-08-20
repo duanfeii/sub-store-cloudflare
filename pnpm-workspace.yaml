@@ -7,6 +7,10 @@ allowBuilds:
   sharp: true
   vue-demi: true
   workerd: true
+ignoredBuiltDependencies:
+  - '@playwright/test'
+  - playwright
+  - playwright-core
 minimumReleaseAgeExclude:
   - '@cloudflare/vitest-pool-workers@0.18.4'
   - '@cloudflare/workers-types@5.20260710.1'
