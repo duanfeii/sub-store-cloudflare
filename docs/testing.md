@@ -49,6 +49,24 @@ pnpm run check:deploy-experience
 
 `deploy:dry-run` asks Wrangler to validate the deploy without publishing the Worker.
 
+## Visual Screenshots
+
+Frontend layout snapshots live in `frontend/e2e/`. They mock `/api/*` with fixture data (no Worker, no real tokens or subscription URLs) and compare Chromium screenshots.
+
+```bash
+pnpm run check:visual
+```
+
+Baselines are Linux Chromium. After an intentional UI change, regenerate them on Linux:
+
+```bash
+pnpm run build:frontend
+pnpm --dir frontend exec playwright install chromium
+pnpm --dir frontend run test:visual:update
+```
+
+Do not add these snapshots to `check:release`. Font rasterization differs across macOS / Windows / Linux, so the committed source of truth is Linux Chromium. Run `check:visual` for any admin UI layout, navigation, overlay, or theme change.
+
 ## Focused Checks
 
 ```bash
@@ -58,6 +76,7 @@ pnpm run check:audit
 pnpm run check:runtime
 pnpm run check:scripts
 pnpm run check:frontend
+pnpm run check:visual
 pnpm run check:agent
 pnpm run check:installer
 pnpm run check:deploy-experience
