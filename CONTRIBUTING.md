@@ -21,7 +21,7 @@ Do not add R2, KV, Durable Objects, Queues, Cron, file hosting, sync providers, 
 
 ## Frontend UI
 
-When changing admin UI layout, navigation, forms, themes, or motion, follow [`.agents/skills/web-design-guidelines`](.agents/skills/web-design-guidelines/SKILL.md) (Web Interface Guidelines + this project's design system).
+When changing admin UI layout, navigation, forms, themes, or motion, follow [`.agents/skills/web-design-guidelines`](.agents/skills/web-design-guidelines/SKILL.md) (Web Interface Guidelines + this project's design system) and run `pnpm run check:visual`.
 
 ## Development
 
@@ -53,6 +53,7 @@ Focused checks:
 
 ```bash
 pnpm run check
+pnpm run check:visual
 pnpm run check:agent
 pnpm run check:worker-contract
 pnpm run check:open-source
